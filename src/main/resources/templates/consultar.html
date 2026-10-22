@@ -1,0 +1,12 @@
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P02 · Consultar estado</title></head><body><header><strong>PiuraVigila</strong><a th:href="@{/reportar}">Registrar reporte</a><a th:href="@{/consultar}">Consultar estado</a><a th:href="@{/panel}">Panel municipal</a></header>
+<main><div class="card"><h1>Consultar estado del reporte</h1>
+<form method="get" th:action="@{/consultar}"><label for="codigo">Código de seguimiento</label>
+<input id="codigo" name="codigo" th:value="${codigo}" placeholder="PR-2026-0001" required> <button type="submit">Consultar</button></form>
+<p class="error" th:if="${error}" th:text="${error}"></p>
+<table th:if="${consulta}" style="margin-top:1rem">
+ <tr><th>Código</th><td th:text="${consulta.caso().codigoSeguimiento()}"></td></tr>
+ <tr><th>Categoría</th><td th:text="${categorias[consulta.caso().categoriaId()]}"></td></tr>
+ <tr><th>Estado</th><td th:text="${consulta.caso().estado().etiqueta()}"></td></tr>
+ <tr><th>Fecha de registro</th><td th:text="${#temporals.format(consulta.caso().fechaRegistro(),'dd/MM/yyyy HH:mm')}"></td></tr>
+ <tr><th>Última actualización</th><td th:text="${#temporals.format(consulta.ultimaActualizacion(),'dd/MM/yyyy HH:mm')}"></td></tr>
+</table></div></main></body></html>

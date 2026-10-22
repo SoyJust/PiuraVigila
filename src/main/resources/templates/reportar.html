@@ -1,0 +1,20 @@
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P01 · Registrar reporte</title></head><body><header><strong>PiuraVigila</strong><a th:href="@{/reportar}">Registrar reporte</a><a th:href="@{/consultar}">Consultar estado</a><a th:href="@{/panel}">Panel municipal</a></header>
+<main><div class="card"><h1>Registrar reporte de incidencia</h1>
+<p class="error" th:if="${error}" th:text="${error}"></p>
+<form method="post" th:action="@{/reportar}" enctype="multipart/form-data">
+ <label for="categoriaId">Categoría</label>
+ <select id="categoriaId" name="categoriaId" required><option value="">Elige…</option>
+  <option th:each="c : ${categorias}" th:value="${c.categoriaId()}" th:text="${c.nombre()}" th:selected="${c.categoriaId() == catSel}"></option></select>
+ <label for="zonaId">Zona</label>
+ <select id="zonaId" name="zonaId" required><option value="">Elige…</option>
+  <option th:each="z : ${zonas}" th:value="${z.zonaId()}" th:text="${z.nombre()}" th:selected="${z.zonaId() == zonaSel}"></option></select>
+ <label for="descripcion">Descripción breve (máx. 300)</label>
+ <textarea id="descripcion" name="descripcion" rows="3" maxlength="300" required th:text="${desc}"></textarea>
+ <label for="foto">Foto (una sola, máx. 2 MB)</label>
+ <input id="foto" type="file" name="foto" accept="image/jpeg,image/png,image/webp" required>
+ <label>Ubicación GPS (opcional)</label>
+ <input type="number" step="any" name="lat" placeholder="Latitud"> <input type="number" step="any" name="lng" placeholder="Longitud">
+ <label for="respuestaSuma">Verificación: ¿cuánto es <span th:text="${pregunta}"></span>?</label>
+ <input id="respuestaSuma" name="respuestaSuma" inputmode="numeric" required>
+ <p><button type="submit">Enviar reporte</button></p>
+</form></div></main></body></html>

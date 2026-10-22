@@ -1,0 +1,6 @@
+Arnés mínimo usado para ejecutar las pruebas sin Maven (solo JDK 21): anotaciones y aserciones equivalentes a Spring/JUnit.
+NO sustituye a JUnit real. Desde la raíz del proyecto:
+  java -m jdk.compiler/com.sun.tools.javac.Main -d /tmp/cls $(find evidencias/arnes -name "*.java") \
+    src/main/java/pe/edu/utp/piuravigila/{model,dto,dao,service}/*.java \
+    src/main/java/pe/edu/utp/piuravigila/config/{RelojConfig,FotoStorageDisco}.java $(find src/test -name "*.java")
+  java -cp /tmp/cls Runner pe.edu.utp.piuravigila.service.ReporteServiceTest pe.edu.utp.piuravigila.service.ControlAntiSpamTest pe.edu.utp.piuravigila.service.OtrosServiciosTest pe.edu.utp.piuravigila.service.FotoStorageDiscoTest

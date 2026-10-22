@@ -1,0 +1,7 @@
+Prueba de mutación (se introdujeron 2 errores a propósito en una copia; el código entregado NO los tiene):
+ 1) ControlAntiSpam: "transcurridos < intervaloSeg" cambiado a "<="
+ 2) ReporteService.responderDuplicado: se quitó la comprobación de caso original abierto
+Resultado esperado y obtenido: las pruebas detectan ambos errores.
+FALLA ReporteServiceTest.no_vincula_a_un_caso_que_ya_fue_atendido -> AssertionError: RECHAZADO != VINCULADO
+FALLA ControlAntiSpamTest.a_los_60_s_exactos_ya_se_permite -> AssertionError: esperado true
+RESULTADO (copia mutada): 30 pasan, 2 fallan, 32 en total
