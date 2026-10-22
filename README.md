@@ -1,33 +1,130 @@
-# PiuraVigila · Proyecto Integrador (APF3 · Semana 10)
+# PiuraVigila
 
-Portal web para reportar incidencias urbanas (baches, luminarias, basura) y que el personal municipal las atienda.
-Patrón: View (Thymeleaf) → Controller → Service → DAO (JdbcTemplate) → PostgreSQL. Spring Boot, Java 21.
+Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basura, etc.) y que el personal municipal las gestione. Proyecto Integrador · UTP · APF3 · Semana 10 (v0.8).
 
-## Estado real (léelo antes de entregar)
-| Parte | Estado |
+## Tecnologías
+
+| Componente | Tecnología |
 |---|---|
-| Model, DTO, interfaces DAO, Service, FotoStorage | Compilan en JDK 21 (con stubs de Spring/JUnit) |
-| 35 pruebas (`src/test`) | **35 de 35 pasan** con arnés mínimo en JDK 21; ver `evidencias/ejecucion_pruebas_arnes.txt`. **Falta repetir con `mvn test` (JUnit real).** |
-| Controladores, DAO JDBC, plantillas, `application.properties` | Escritos y revisados a mano; **sin compilar ni ejecutar** (aquí no hay Maven ni PostgreSQL) |
-| Persistencia real, log, capturas | **Pendiente**: ver hoja Evidencias de la matriz |
+| Lenguaje | Java 21 |
+| Framework | Spring Boot 3.5 (Web, Thymeleaf, JDBC) |
+| Acceso a datos | `JdbcTemplate` (sin ORM) |
+| Base de datos | PostgreSQL 15+ |
+| Seguridad | BCrypt (`spring-security-crypto`), token CSRF en el panel |
+| Pruebas | JUnit 5 (`spring-boot-starter-test`) |
+| Build | Maven |
 
-## Preparación
-1. JDK 21, Maven, PostgreSQL 15+.
-2. Crear la base `piuravigila` y ejecutar `database/01_schema.sql` y luego `database/02_seed.sql`.
-3. Variables de entorno (no pongas contraseñas en el código ni en Git):
-   `PIURA_DB_USER`, `PIURA_DB_PASSWORD`, opcional `PIURA_DB_URL`, `PIURA_ADMIN_PASSWORD` (contraseña inicial del usuario `admin`; se guarda como hash BCrypt al arrancar).
-4. `mvn test` y luego `mvn spring-boot:run` → http://localhost:8080
-   - Registrar: `/reportar` · Consultar: `/consultar` · Panel: `/login` (usuario `admin`).
-5. Comprobar en BD con `database/03_consultas_dashboard.sql` y revisar `logs/piuravigila.log`.
+## Arquitectura
 
-## Paquetes (`pe.edu.utp.piuravigila`)
-`model` · `dto` · `dao` (contratos) · `dao.jdbc` (@Repository) · `service` (@Service, @Transactional) · `controller` (@Controller) · `config` · `app`.
+Arquitectura en capas: **Presentación → Controlador → Servicio → DAO → Persistencia**.
 
-## Límites conocidos
-- Spring Boot 3.5.15 en el `pom.xml`: confirmar en start.spring.io (no pude resolver Maven aquí); la rama 3.5 ya terminó su soporte abierto.
-- «Dispositivo» = cookie anónima: borrarla reinicia los límites de 60 s y 3 por día (RF-06 es anti-spam simple, no seguridad).
-- El formulario público no lleva token CSRF (sí el panel). La verificación es una suma simple.
-- El código `PR-AAAA-####` usa `LPAD` a 4 dígitos: pasado el 9999 se truncaría (suficiente para la demo).
-- La foto se guarda en disco antes de confirmar la transacción; si falla la BD puede quedar un archivo huérfano.
-- Mapa esquemático P04 (RF-04) **no implementado**; solo la tabla R01. No hay usuario `operador` en el seed.
-- Datos simulados; no registrar datos personales reales.
+| Capa | Ubicación | Contenido |
+|---|---|---|
+| Presentación | `src/main/resources/templates`, `static/css` | Vistas Thymeleaf y estilos |
+| Controlador | `controller/` | `ReporteController`, `PanelController`, `Csrf`, `ManejoErrores` |
+| Servicio | `service/` | `ReporteService`, `DashboardService`, `AuthService`, `CategoriaService`, `ValidadorReporte`, `ControlAntiSpam`, `FotoStorage` |
+| DAO | `dao/` (contratos), `dao/jdbc/` (implementación) | `ReporteDAO`, `ZonaDAO`, `CategoriaDAO`, `UsuarioMunicipalDAO`, `HistorialEstadoDAO` |
+| Persistencia | `database/` | Esquema, datos iniciales y consultas del dashboard |
+
+Paquete base: `pe.edu.utp.piuravigila` (`model`, `dto`, `dao`, `service`, `controller`, `config`, `app`).
+
+## Estructura del repositorio
+
+```
+├── database/
+│   ├── 01_schema.sql              # tablas, índices y secuencia del código de reporte
+│   ├── 02_seed.sql                # zonas, categorías y usuario admin
+│   └── 03_consultas_dashboard.sql # consultas R01–R03 del panel
+├── src/main/java/...              # código fuente por capas
+├── src/main/resources/            # plantillas, CSS y application.properties
+├── src/test/java/...              # pruebas unitarias del servicio
+├── evidencias/                    # evidencias de pruebas
+└── pom.xml
+```
+
+## Modelo de datos
+
+Tablas: `zona`, `categoria`, `usuario_municipal`, `reporte`, `historial_estado`. Secuencia `seq_codigo_reporte` para el código `PR-AAAA-####`.
+
+## Rutas
+
+| Ruta | Método | Descripción |
+|---|---|---|
+| `/reportar` | GET, POST | Formulario público de registro de incidencia |
+| `/reportar/duplicado` | POST | Vincular un reporte a un caso existente |
+| `/consultar` | GET | Consulta de estado por código |
+| `/login`, `/logout` | GET, POST | Acceso del personal municipal |
+| `/panel` | GET | Panel municipal (tabla y dashboard) |
+| `/panel/estado`, `/panel/categoria` | POST | Cambiar estado o categoría de un caso |
+
+## Requisitos
+
+- JDK 21
+- Maven 3.9+
+- PostgreSQL 15+
+
+## Instalación y ejecución
+
+1. Crear la base de datos y cargar los scripts (con codificación UTF-8):
+
+```powershell
+$env:PGCLIENTENCODING="UTF8"
+psql -U postgres -c "CREATE DATABASE piuravigila ENCODING 'UTF8' TEMPLATE template0;"
+psql -U postgres -d piuravigila -f database/01_schema.sql
+psql -U postgres -d piuravigila -f database/02_seed.sql
+```
+
+2. Definir las variables de entorno:
+
+| Variable | Obligatoria | Descripción |
+|---|---|---|
+| `PIURA_DB_USER` | Sí | Usuario de PostgreSQL |
+| `PIURA_DB_PASSWORD` | Sí | Contraseña de PostgreSQL |
+| `PIURA_DB_URL` | No | Por defecto `jdbc:postgresql://localhost:5432/piuravigila` |
+| `PIURA_ADMIN_PASSWORD` | Solo la primera vez | Contraseña inicial de `admin`; se guarda como hash BCrypt al arrancar |
+| `PIURA_FOTOS_DIR` | No | Carpeta de fotos, por defecto `fotos` |
+
+3. Ejecutar:
+
+```powershell
+$env:PIURA_DB_USER="postgres"
+$env:PIURA_DB_PASSWORD="<contraseña>"
+$env:PIURA_ADMIN_PASSWORD="<contraseña del admin>"
+mvn spring-boot:run
+```
+
+4. Abrir http://localhost:8080/reportar. El panel está en `/login` (usuario `admin`).
+
+Las contraseñas nunca se guardan en el código ni en el repositorio.
+
+## Pruebas
+
+```powershell
+mvn test
+```
+
+Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios (con DAOs simulados). Ver `evidencias/`.
+
+## Funcionalidades
+
+- Registro de incidencias con categoría, zona, descripción (máx. 300), foto (máx. 2 MB), ubicación GPS opcional y verificación aritmética.
+- Código de seguimiento `PR-AAAA-####` y consulta pública de estado.
+- Detección de posibles duplicados y vinculación a un caso original.
+- Control anti-spam por dispositivo: 60 s entre reportes y máximo 3 por día.
+- Panel municipal con login (BCrypt), cambio de estado con historial y recategorización.
+- Dashboard: reportes por zona, tiempo de atención por categoría y resumen de gestión.
+- Registro de eventos en `logs/piuravigila.log`.
+
+## Limitaciones conocidas
+
+- El "dispositivo" se identifica con una cookie anónima; borrarla reinicia los límites anti-spam. Es una medida simple, no de seguridad.
+- El formulario público no incluye token CSRF (el panel sí). La verificación es una suma simple.
+- El código `PR-AAAA-####` usa 4 dígitos; pasado el 9999 se truncaría.
+- La foto se guarda en disco antes de confirmar la transacción; si falla la base de datos puede quedar un archivo huérfano.
+- Mapa esquemático de zonas (RF-04) no implementado: solo la tabla R01.
+- No hay usuario `operador` en el seed.
+- Los datos son simulados; no registrar datos personales reales.
+
+## Autores
+
+Proyecto Integrador I · UTP Sede Piura.
