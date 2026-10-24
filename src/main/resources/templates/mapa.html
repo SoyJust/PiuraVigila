@@ -1,0 +1,20 @@
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P04 · Mapa de zonas críticas</title></head><body><header><strong>PiuraVigila</strong><a th:href="@{/reportar}">Registrar reporte</a><a th:href="@{/consultar}">Consultar estado</a><a th:href="@{/panel}">Panel municipal</a></header>
+<main>
+<div class="card"><h1>Mapa de zonas críticas</h1>
+ <p class="mut">Mapa esquemático (cuadrícula por zona, no geográfico). Cuenta todos los reportes del periodo, incluidos los vinculados. Sin fotos.</p>
+ <form method="get" th:action="@{/panel/mapa}" class="filtros">
+  <div><label for="periodo">Periodo</label><select id="periodo" name="periodo">
+   <option value="7d" th:selected="${periodo == '7d'}">Últimos 7 días</option>
+   <option value="mes" th:selected="${periodo == 'mes'}">Último mes</option>
+   <option value="3m" th:selected="${periodo == '3m'}">Últimos 3 meses</option>
+   <option value="anio" th:selected="${periodo == 'anio'}">Último año</option></select></div>
+  <div><button type="submit">Ver</button></div>
+  <div><a th:href="@{/panel}">‹ Volver al panel</a></div>
+ </form>
+ <p class="mut">Del <span th:text="${desde}"></span> al <span th:text="${hasta}"></span></p>
+ <div class="mapa">
+  <div th:each="z : ${celdas}" class="zona" th:classappend="${maximo > 0 and z.reportes() == maximo} ? 'critica'">
+   <span class="nombre" th:text="${z.zona()}"></span><span class="conteo" th:text="${z.reportes()}"></span><span class="mut">reportes</span>
+  </div>
+ </div>
+</div></main></body></html>

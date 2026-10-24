@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P03 · Panel de gestión</title></head><body><header><strong>PiuraVigila</strong><a th:href="@{/reportar}">Registrar reporte</a><a th:href="@{/consultar}">Consultar estado</a><a th:href="@{/panel}">Panel municipal</a></header>
 <main>
 <div class="card"><strong th:text="${usuario.nombre()}"></strong> <span class="mut" th:text="'(' + ${usuario.rol().valorBD()} + ')'"></span>
+ <a th:href="@{/panel/mapa}" style="margin-left:1rem">Mapa de zonas críticas</a>
  <form method="post" th:action="@{/logout}" style="display:inline;float:right"><input type="hidden" name="_csrf" th:value="${csrf}"><button class="sec" type="submit">Cerrar sesión</button></form></div>
 <p class="ok" th:if="${ok}" th:text="${ok}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
 

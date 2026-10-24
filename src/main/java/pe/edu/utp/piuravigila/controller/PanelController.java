@@ -8,10 +8,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.edu.utp.piuravigila.dto.ConteoZona;
 import pe.edu.utp.piuravigila.model.*;
 import pe.edu.utp.piuravigila.service.*;
 
-/** P03 · panel municipal (RF-03, RF-07, RNF-01) y resumen R01 a R03 (sin fotos). Sesión del servidor. */
+/** P03 · panel municipal (RF-03, RF-07, RNF-01), resumen R01 a R03 (sin fotos) y P04 · mapa de zonas críticas (RF-04). Sesión del servidor. */
 @Controller
 public class PanelController {
     private static final String SESION = "usuario";
@@ -85,6 +86,30 @@ public class PanelController {
             } catch (IllegalArgumentException e) { m.addAttribute("errorResumen", e.getMessage()); }
         }
         return "panel";
+    }
+
+    /** P04 · mapa esquemático de zonas críticas (RF-04): cuadrícula por zona con el conteo del periodo (incluye vinculados). Operador y administrador. */
+    @GetMapping("/panel/mapa")
+    public String mapa(@RequestParam(defaultValue = "7d") String periodo, HttpSession s, Model m) {
+        UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);
+        if (u == null) return "redirect:/login?requerida";
+        LocalDate hasta = LocalDate.now(reloj);
+        LocalDate desde = switch (periodo) {
+            case "mes" -> hasta.minusMonths(1).plusDays(1);
+            case "3m" -> hasta.minusMonths(3).plusDays(1);
+            case "anio" -> hasta.minusYears(1).plusDays(1);
+            default -> { periodo = "7d"; yield hasta.minusDays(6); }
+        };
+        Map<String, Integer> conteos = new HashMap<>();
+        for (ConteoZona c : dashboard.zonasCriticas(desde, hasta)) conteos.put(c.zona(), c.reportes());
+        List<ConteoZona> celdas = new ArrayList<>(); // las zonas sin reportes también aparecen (con 0)
+        for (Zona z : reportes.zonas()) celdas.add(new ConteoZona(z.nombre(), conteos.getOrDefault(z.nombre(), 0)));
+        m.addAttribute("usuario", u);
+        m.addAttribute("periodo", periodo);
+        m.addAttribute("desde", desde); m.addAttribute("hasta", hasta);
+        m.addAttribute("celdas", celdas);
+        m.addAttribute("maximo", celdas.stream().mapToInt(ConteoZona::reportes).max().orElse(0));
+        return "mapa";
     }
 
     @PostMapping("/panel/estado")
