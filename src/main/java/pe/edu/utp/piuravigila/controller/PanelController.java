@@ -106,8 +106,10 @@ public class PanelController {
     @PostMapping("/panel/categoria")
     public String habilitarCategoria(@RequestParam String nombre, @RequestParam(name = "_csrf", required = false) String csrf,
                                      HttpSession s, RedirectAttributes ra) {
-        if (s.getAttribute(SESION) == null) return "redirect:/login?requerida";
+        UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);
+        if (u == null) return "redirect:/login?requerida";
         if (!Csrf.valido(s, csrf)) { ra.addFlashAttribute("error", "Solicitud no válida"); return "redirect:/panel"; }
+        if (!u.esAdministrador()) { ra.addFlashAttribute("error", "Solo el administrador puede habilitar categorías"); return "redirect:/panel"; }
         try { categorias.habilitar(nombre); ra.addFlashAttribute("ok", "Categoría habilitada"); }
         catch (IllegalArgumentException | IllegalStateException e) { ra.addFlashAttribute("error", e.getMessage()); }
         return "redirect:/panel";

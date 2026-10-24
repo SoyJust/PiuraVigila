@@ -5,7 +5,7 @@
 <p class="ok" th:if="${ok}" th:text="${ok}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
 
 <div class="card" th:if="${avisoOtra}"><p class="aviso">Umbral de «Otra» superado: <span th:text="${pctOtra}"></span> % de los reportes del mes (umbral 10 %).</p>
- <form method="post" th:action="@{/panel/categoria}"><input type="hidden" name="_csrf" th:value="${csrf}">
+ <form method="post" th:action="@{/panel/categoria}" th:if="${usuario.esAdministrador()}"><input type="hidden" name="_csrf" th:value="${csrf}">
  <label for="nombre">Nueva categoría</label><input id="nombre" name="nombre" maxlength="60" required> <button type="submit">Habilitar</button></form></div>
 
 <div class="card"><h1>Casos</h1>
