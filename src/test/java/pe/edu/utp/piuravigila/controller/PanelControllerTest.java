@@ -1,0 +1,109 @@
+package pe.edu.utp.piuravigila.controller;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.servlet.view.RedirectView;
+import pe.edu.utp.piuravigila.model.EstadoReporte;
+import pe.edu.utp.piuravigila.model.RolUsuario;
+import pe.edu.utp.piuravigila.model.UsuarioMunicipal;
+import pe.edu.utp.piuravigila.service.AuthService;
+import pe.edu.utp.piuravigila.service.CategoriaService;
+import pe.edu.utp.piuravigila.service.DashboardService;
+import pe.edu.utp.piuravigila.service.ReporteService;
+
+/**
+ * Pruebas del PanelController con MockMvc en modo «standalone» (sin contexto de Spring ni BD): los servicios son simulados con Mockito.
+ * PV-T39 (sin sesión y sin token CSRF), PV-T41 (el operador no habilita categorías) y PV-T42 (R02 no se entrega al operador).
+ * Escritas para «mvn test» (spring-boot-starter-test); NO se han ejecutado todavía.
+ */
+class PanelControllerTest {
+    private static final UsuarioMunicipal OPERADOR = new UsuarioMunicipal(2, "Operador", "operador", "h", RolUsuario.OPERADOR);
+    private static final UsuarioMunicipal ADMIN = new UsuarioMunicipal(1, "Administrador", "admin", "h", RolUsuario.ADMINISTRADOR);
+
+    private AuthService auth;
+    private ReporteService reportes;
+    private CategoriaService categorias;
+    private DashboardService dashboard;
+    private MockMvc mvc;
+
+    @BeforeEach
+    void montar() {
+        auth = mock(AuthService.class);
+        reportes = mock(ReporteService.class);
+        categorias = mock(CategoriaService.class);
+        dashboard = mock(DashboardService.class);
+        Clock reloj = Clock.fixed(Instant.parse("2026-10-21T15:00:00Z"), ZoneId.of("America/Lima"));
+        // Vistas simuladas: evita el error «Circular view path» (GET /panel devuelve la vista «panel») y respeta «redirect:».
+        ViewResolver vistas = (nombre, locale) -> {
+            if (nombre.startsWith("redirect:")) return new RedirectView(nombre.substring("redirect:".length()));
+            return (View) (modelo, rq, rs) -> { };
+        };
+        mvc = MockMvcBuilders.standaloneSetup(new PanelController(auth, reportes, categorias, dashboard, reloj))
+                .setViewResolvers(vistas).build();
+    }
+
+    // ---- PV-T39 · T-13: sin sesión no hay acceso; los POST sin token CSRF se rechazan ----
+    @Test void pv_t39_panel_sin_sesion_redirige_a_login_sin_consultar_servicios() throws Exception {
+        mvc.perform(get("/panel")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/login?requerida"));
+        verifyNoInteractions(reportes, categorias, dashboard);
+    }
+
+    @Test void pv_t39_post_sin_token_csrf_es_rechazado() throws Exception {
+        mvc.perform(post("/panel/estado").param("reporteId", "1").param("nuevo", "En proceso")
+                        .sessionAttr("usuario", OPERADOR).sessionAttr("csrf", "token-correcto"))
+                .andExpect(redirectedUrl("/panel")).andExpect(flash().attribute("error", "Solicitud no válida"));
+        verify(reportes, never()).cambiarEstado(anyInt(), any(EstadoReporte.class), any(UsuarioMunicipal.class));
+    }
+
+    @Test void pv_t39_post_con_token_distinto_es_rechazado() throws Exception {
+        mvc.perform(post("/panel/estado").param("reporteId", "1").param("nuevo", "En proceso").param("_csrf", "otro")
+                        .sessionAttr("usuario", OPERADOR).sessionAttr("csrf", "token-correcto"))
+                .andExpect(redirectedUrl("/panel")).andExpect(flash().attribute("error", "Solicitud no válida"));
+        verify(reportes, never()).cambiarEstado(anyInt(), any(EstadoReporte.class), any(UsuarioMunicipal.class));
+    }
+
+    // ---- PV-T41 · T-22: el operador no puede habilitar categorías ----
+    @Test void pv_t41_operador_no_puede_habilitar_categoria() throws Exception {
+        mvc.perform(post("/panel/categoria").param("nombre", "Poste caído").param("_csrf", "tok")
+                        .sessionAttr("usuario", OPERADOR).sessionAttr("csrf", "tok"))
+                .andExpect(redirectedUrl("/panel"))
+                .andExpect(flash().attribute("error", "Solo el administrador puede habilitar categorías"));
+        verifyNoInteractions(categorias);
+    }
+
+    @Test void pv_t41_administrador_si_puede_habilitar_categoria() throws Exception {
+        mvc.perform(post("/panel/categoria").param("nombre", "Poste caído").param("_csrf", "tok")
+                        .sessionAttr("usuario", ADMIN).sessionAttr("csrf", "tok"))
+                .andExpect(redirectedUrl("/panel")).andExpect(flash().attribute("ok", "Categoría habilitada"));
+        verify(categorias).habilitar("Poste caído");
+    }
+
+    // ---- PV-T42 · T-24: R02 (tiempos de atención) no se entrega al operador ----
+    @Test void pv_t42_r02_no_se_entrega_al_operador() throws Exception {
+        mvc.perform(get("/panel").param("resumen", "true").sessionAttr("usuario", OPERADOR))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("r01"))          // el resumen sí se armó (R01 lo ven ambos roles)
+                .andExpect(model().attributeDoesNotExist("r02"));
+        verify(dashboard, never()).tiemposAtencion(any(), any());
+    }
+}
