@@ -19,6 +19,7 @@ INSERT INTO categoria (nombre, activo) VALUES
 
 -- Contraseña de ejemplo (hash simulado, académico): cambiar antes de cualquier uso real.
 INSERT INTO usuario_municipal (nombre, usuario, contrasena_hash, rol) VALUES
-    ('Administrador PiuraVigila', 'admin', 'HASH_PENDIENTE_DE_IMPLEMENTACION', 'administrador');
+    ('Administrador PiuraVigila', 'admin', 'HASH_PENDIENTE_DE_IMPLEMENTACION', 'administrador'),
+    ('Operador PiuraVigila', 'operador', 'HASH_PENDIENTE_DE_IMPLEMENTACION', 'operador');
 
 

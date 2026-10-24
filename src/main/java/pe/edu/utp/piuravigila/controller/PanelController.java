@@ -8,10 +8,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.edu.utp.piuravigila.dto.ConteoZona;
 import pe.edu.utp.piuravigila.model.*;
 import pe.edu.utp.piuravigila.service.*;
 
-/** P03 · panel municipal (RF-03, RF-07, RNF-01) y resumen R01 a R03 (sin fotos). Sesión del servidor. */
+/** P03 · panel municipal (RF-03, RF-07, RNF-01), resumen R01 a R03 (sin fotos) y P04 · mapa de zonas críticas (RF-04). Sesión del servidor. */
 @Controller
 public class PanelController {
     private static final String SESION = "usuario";
@@ -36,6 +37,7 @@ public class PanelController {
     public String iniciar(@RequestParam String usuario, @RequestParam String clave, HttpServletRequest rq, Model m) {
         Optional<UsuarioMunicipal> u = auth.autenticar(usuario, clave);
         if (u.isEmpty()) { m.addAttribute("error", "Usuario o contraseña incorrectos"); return "login"; }
+        rq.getSession(); // crea la sesión si aún no existe: changeSessionId() la exige
         rq.changeSessionId(); // evita fijación de sesión
         rq.getSession().setAttribute(SESION, u.get());
         return "redirect:/panel";
@@ -87,6 +89,30 @@ public class PanelController {
         return "panel";
     }
 
+    /** P04 · mapa esquemático de zonas críticas (RF-04): cuadrícula por zona con el conteo del periodo (incluye vinculados). Operador y administrador. */
+    @GetMapping("/panel/mapa")
+    public String mapa(@RequestParam(defaultValue = "7d") String periodo, HttpSession s, Model m) {
+        UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);
+        if (u == null) return "redirect:/login?requerida";
+        LocalDate hasta = LocalDate.now(reloj);
+        LocalDate desde = switch (periodo) {
+            case "mes" -> hasta.minusMonths(1).plusDays(1);
+            case "3m" -> hasta.minusMonths(3).plusDays(1);
+            case "anio" -> hasta.minusYears(1).plusDays(1);
+            default -> { periodo = "7d"; yield hasta.minusDays(6); }
+        };
+        Map<String, Integer> conteos = new HashMap<>();
+        for (ConteoZona c : dashboard.zonasCriticas(desde, hasta)) conteos.put(c.zona(), c.reportes());
+        List<ConteoZona> celdas = new ArrayList<>(); // las zonas sin reportes también aparecen (con 0)
+        for (Zona z : reportes.zonas()) celdas.add(new ConteoZona(z.nombre(), conteos.getOrDefault(z.nombre(), 0)));
+        m.addAttribute("usuario", u);
+        m.addAttribute("periodo", periodo);
+        m.addAttribute("desde", desde); m.addAttribute("hasta", hasta);
+        m.addAttribute("celdas", celdas);
+        m.addAttribute("maximo", celdas.stream().mapToInt(ConteoZona::reportes).max().orElse(0));
+        return "mapa";
+    }
+
     @PostMapping("/panel/estado")
     public String cambiarEstado(@RequestParam int reporteId, @RequestParam String nuevo,
                                 @RequestParam(name = "_csrf", required = false) String csrf,
@@ -106,8 +132,10 @@ public class PanelController {
     @PostMapping("/panel/categoria")
     public String habilitarCategoria(@RequestParam String nombre, @RequestParam(name = "_csrf", required = false) String csrf,
                                      HttpSession s, RedirectAttributes ra) {
-        if (s.getAttribute(SESION) == null) return "redirect:/login?requerida";
+        UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);
+        if (u == null) return "redirect:/login?requerida";
         if (!Csrf.valido(s, csrf)) { ra.addFlashAttribute("error", "Solicitud no válida"); return "redirect:/panel"; }
+        if (!u.esAdministrador()) { ra.addFlashAttribute("error", "Solo el administrador puede habilitar categorías"); return "redirect:/panel"; }
         try { categorias.habilitar(nombre); ra.addFlashAttribute("ok", "Categoría habilitada"); }
         catch (IllegalArgumentException | IllegalStateException e) { ra.addFlashAttribute("error", e.getMessage()); }
         return "redirect:/panel";

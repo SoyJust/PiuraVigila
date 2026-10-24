@@ -10,3 +10,7 @@ textarea{width:100%}button{background:var(--pri);color:#fff;border:0;cursor:poin
 table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid var(--bd);padding:.4rem;text-align:left;vertical-align:top}
 .tabla{overflow-x:auto}.codigo{font-size:1.6rem;font-weight:bold;letter-spacing:.05em}
 .filtros{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end}.filtros>div{min-width:140px}
+.mapa{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-top:.6rem}
+.mapa .zona{border:1px solid var(--bd);border-radius:8px;padding:.8rem;text-align:center;display:flex;flex-direction:column;background:var(--bg)}
+.mapa .zona.critica{border:2px solid var(--er)}.mapa .nombre{font-weight:bold}.mapa .conteo{font-size:2rem;font-weight:bold}
+.card a{color:var(--pri)}
