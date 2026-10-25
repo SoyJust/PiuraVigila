@@ -1,7 +1,7 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>Reporte enviado</title></head><body><header><strong>PiuraVigila</strong><a th:href="@{/reportar}">Registrar reporte</a><a th:href="@{/consultar}">Consultar estado</a><a th:href="@{/panel}">Panel municipal</a></header>
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>Reporte enviado</title></head><body><div th:replace="~{fragments :: cabecera('reportar')}"></div>
 <main><div class="card">
 <h1 th:text="${vinculado} ? 'Reporte vinculado' : 'Código registrado'"></h1>
 <p class="mut" th:if="${vinculado}">Tu reporte se unió a uno existente; usa este código para consultar el estado.</p>
-<p class="codigo" th:text="${codigo}"></p>
+<div class="ticket"><small>Código de seguimiento</small><p class="codigo" th:text="${codigo}"></p></div>
 <p>Guarda este código para consultar el estado en «Consultar estado».</p>
 </div></main></body></html>

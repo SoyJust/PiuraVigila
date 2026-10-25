@@ -157,6 +157,30 @@ class ReporteServiceTest {
         assertEquals(LocalDateTime.parse(AHORA), c.ultimaActualizacion());
     }
 
+    @Test void consulta_muestra_los_tres_pasos_y_solo_los_alcanzados_llevan_fecha() {
+        Fx f = new Fx();
+        f.service.registrarReporte(valido(1, 1));
+        UsuarioMunicipal op = new UsuarioMunicipal(5, "Operador", "op1", "hash", RolUsuario.OPERADOR);
+        f.service.cambiarEstado(f.reportes.filas.get(0).reporteId(), EstadoReporte.EN_PROCESO, op);
+        ConsultaEstado c = f.service.consultarEstado("PR-2026-0001");
+        assertEquals(3, c.pasos().size());
+        assertEquals(EstadoReporte.RECIBIDO, c.pasos().get(0).estado());
+        assertTrue(c.pasos().get(0).alcanzado());
+        assertTrue(c.pasos().get(1).alcanzado());
+        assertTrue(c.pasos().get(1).actual());
+        assertFalse(c.pasos().get(2).alcanzado());
+        assertNull(c.pasos().get(2).fecha());
+    }
+
+    @Test void consulta_de_un_caso_sin_historial_usa_la_fecha_de_registro_como_recibido() {
+        Fx f = new Fx();
+        Reporte caso = f.reportes.caso(1, 1, EstadoReporte.RECIBIDO);
+        ConsultaEstado c = f.service.consultarEstado(caso.codigoSeguimiento());
+        assertEquals(caso.fechaRegistro(), c.pasos().get(0).fecha());
+        assertTrue(c.pasos().get(0).actual());
+        assertFalse(c.pasos().get(1).alcanzado());
+    }
+
     @Test void consulta_con_codigo_inexistente_o_mal_formado_falla() {
         Fx f = new Fx();
         assertThrows(IllegalArgumentException.class, () -> f.service.consultarEstado("PR-2026-9999"));

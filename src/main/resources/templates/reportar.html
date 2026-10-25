@@ -1,20 +1,62 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P01 · Registrar reporte</title></head><body><header><strong>PiuraVigila</strong><a th:href="@{/reportar}">Registrar reporte</a><a th:href="@{/consultar}">Consultar estado</a><a th:href="@{/panel}">Panel municipal</a></header>
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P01 · Registrar reporte</title></head><body><div th:replace="~{fragments :: cabecera('reportar')}"></div>
 <main><div class="card"><h1>Registrar reporte de incidencia</h1>
 <p class="error" th:if="${error}" th:text="${error}"></p>
 <form method="post" th:action="@{/reportar}" enctype="multipart/form-data">
- <label for="categoriaId">Categoría</label>
+ <div class="rejilla">
+ <div class="campo"><label for="categoriaId">Categoría</label>
  <select id="categoriaId" name="categoriaId" required><option value="">Elige…</option>
-  <option th:each="c : ${categorias}" th:value="${c.categoriaId()}" th:text="${c.nombre()}" th:selected="${c.categoriaId() == catSel}"></option></select>
- <label for="zonaId">Zona</label>
+  <option th:each="c : ${categorias}" th:value="${c.categoriaId()}" th:text="${c.nombre()}" th:selected="${c.categoriaId() == catSel}"></option></select></div>
+ <div class="campo"><label for="zonaId">Zona</label>
  <select id="zonaId" name="zonaId" required><option value="">Elige…</option>
-  <option th:each="z : ${zonas}" th:value="${z.zonaId()}" th:text="${z.nombre()}" th:selected="${z.zonaId() == zonaSel}"></option></select>
- <label for="descripcion">Descripción breve (máx. 300)</label>
- <textarea id="descripcion" name="descripcion" rows="3" maxlength="300" required th:text="${desc}"></textarea>
- <label for="foto">Foto (una sola, máx. 2 MB)</label>
- <input id="foto" type="file" name="foto" accept="image/jpeg,image/png,image/webp" required>
- <label>Ubicación GPS (opcional)</label>
- <input type="number" step="any" name="lat" placeholder="Latitud"> <input type="number" step="any" name="lng" placeholder="Longitud">
- <label for="respuestaSuma">Verificación: ¿cuánto es <span th:text="${pregunta}"></span>?</label>
- <input id="respuestaSuma" name="respuestaSuma" inputmode="numeric" required>
- <p><button type="submit">Enviar reporte</button></p>
-</form></div></main></body></html>
+  <option th:each="z : ${zonas}" th:value="${z.zonaId()}" th:text="${z.nombre()}" th:selected="${z.zonaId() == zonaSel}"></option></select></div>
+ <div class="campo ancho"><label for="descripcion">Descripción breve (máx. 300)</label>
+ <textarea id="descripcion" name="descripcion" rows="3" maxlength="300" required th:text="${desc}"></textarea></div>
+ <div class="campo ancho"><label for="foto">Foto (una sola, máx. 2 MB)</label>
+ <input id="foto" type="file" name="foto" accept="image/jpeg,image/png,image/webp" required></div>
+ <div class="campo ancho"><label id="etq-mapa">Ubicación del problema (opcional)</label>
+ <div id="mapa-reporte" class="selector-mapa" role="application" aria-labelledby="etq-mapa"></div>
+ <input type="hidden" id="lat" name="lat"><input type="hidden" id="lng" name="lng">
+ <div class="mapa-acciones"><button type="button" class="sec" id="btn-ubicacion">Usar mi ubicación</button><button type="button" class="sec" id="btn-quitar" hidden>Quitar punto</button><span class="mut" id="mapa-estado">Toca el mapa para marcar dónde está el problema.</span></div>
+ <small class="mut">Mapa © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a></small></div>
+ <div class="campo"><label for="respuestaSuma">Verificación: ¿cuánto es <span th:text="${pregunta}"></span>?</label>
+ <input id="respuestaSuma" name="respuestaSuma" inputmode="numeric" required></div>
+ </div>
+ <p class="acciones"><button type="submit">Enviar reporte</button></p>
+</form></div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function () {
+  var mapa = L.map('mapa-reporte').setView([-5.1945, -80.6328], 13);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(mapa);
+  var marca = null;
+  var inLat = document.getElementById('lat'), inLng = document.getElementById('lng');
+  var estado = document.getElementById('mapa-estado'), quitar = document.getElementById('btn-quitar');
+  var textoInicial = estado.textContent;
+
+  function poner(lat, lng) {
+    lat = Math.round(lat * 1e6) / 1e6; lng = Math.round(lng * 1e6) / 1e6;
+    if (marca) { marca.setLatLng([lat, lng]); } else { marca = L.marker([lat, lng]).addTo(mapa); }
+    inLat.value = lat; inLng.value = lng;
+    estado.textContent = 'Punto marcado: ' + lat.toFixed(5) + ', ' + lng.toFixed(5);
+    quitar.hidden = false;
+  }
+
+  mapa.on('click', function (e) { poner(e.latlng.lat, e.latlng.lng); });
+
+  document.getElementById('btn-ubicacion').addEventListener('click', function () {
+    if (!navigator.geolocation) { estado.textContent = 'Tu navegador no permite obtener la ubicación. Toca el mapa para marcarla.'; return; }
+    estado.textContent = 'Obteniendo ubicación…';
+    navigator.geolocation.getCurrentPosition(function (p) {
+      poner(p.coords.latitude, p.coords.longitude);
+      mapa.setView([p.coords.latitude, p.coords.longitude], 17);
+    }, function () { estado.textContent = 'No se pudo obtener tu ubicación. Toca el mapa para marcarla.'; });
+  });
+
+  quitar.addEventListener('click', function () {
+    if (marca) { mapa.removeLayer(marca); marca = null; }
+    inLat.value = ''; inLng.value = '';
+    estado.textContent = textoInicial; quitar.hidden = true;
+  });
+})();
+</script>
+</body></html>

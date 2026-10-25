@@ -92,8 +92,21 @@ public class ReporteService {
         String limpio = codigo == null ? "" : codigo.trim().toUpperCase(Locale.ROOT);
         if (!FORMATO_CODIGO.matcher(limpio).matches()) throw new IllegalArgumentException("Código no encontrado");
         Reporte caso = reporteDAO.buscarPorCodigo(limpio).orElseThrow(() -> new IllegalArgumentException("Código no encontrado"));
-        LocalDateTime ultima = historialDAO.ultimaActualizacion(caso.reporteId()).orElse(caso.fechaRegistro());
-        return new ConsultaEstado(caso, ultima);
+        List<HistorialEstado> historial = historialDAO.listarPorReporte(caso.reporteId());
+        LocalDateTime ultima = historial.stream().map(HistorialEstado::fechaCambio).max(Comparator.naturalOrder()).orElse(caso.fechaRegistro());
+        return new ConsultaEstado(caso, ultima, pasos(caso, historial));
+    }
+
+    /** Los tres estados en orden. Solo se expone el estado y la fecha: el responsable del cambio no se muestra al ciudadano. */
+    private static List<PasoEstado> pasos(Reporte caso, List<HistorialEstado> historial) {
+        List<PasoEstado> pasos = new ArrayList<>();
+        for (EstadoReporte e : EstadoReporte.values()) {
+            LocalDateTime fecha = historial.stream().filter(h -> h.estadoNuevo() == e)
+                    .map(HistorialEstado::fechaCambio).min(Comparator.naturalOrder()).orElse(null);
+            if (fecha == null && e == EstadoReporte.RECIBIDO) fecha = caso.fechaRegistro(); // casos sin historial
+            pasos.add(new PasoEstado(e, fecha, e == caso.estado()));
+        }
+        return pasos;
     }
 
     /** P03 · RF-03. El estado solo avanza y queda registrado con fecha y responsable. */

@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><body>
+<header th:fragment="cabecera(activa)"><div class="barra">
+ <a class="marca" th:href="@{/reportar}">
+  <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 4 8v8c0 7 5 11.500 12 13 7-1.500 12-6 12-13V8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="15" r="4.500" fill="#f2a900"/></svg>
+  PiuraVigila</a>
+ <nav aria-label="Principal">
+  <a th:href="@{/reportar}" th:attr="aria-current=${activa == 'reportar'} ? 'page'">Registrar reporte</a>
+  <a th:href="@{/consultar}" th:attr="aria-current=${activa == 'consultar'} ? 'page'">Consultar estado</a>
+  <a th:href="@{/panel}" th:attr="aria-current=${activa == 'panel'} ? 'page'">Panel municipal</a>
+ </nav></div></header>
+</body></html>
