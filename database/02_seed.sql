@@ -2,8 +2,8 @@
 -- Datos iniciales mínimos (seed) — Semana 6, corregido 27/09/2026
 -- ============================================================
 INSERT INTO zona (nombre, sector) VALUES
-    ('Centro', NULL), ('Norte', NULL), ('Sur', NULL),
-    ('Este', NULL), ('Oeste', NULL), ('Castilla', NULL);
+    ('Piura', NULL), ('Castilla', NULL), ('Veintiséis de Octubre', NULL),
+    ('Catacaos', NULL), ('La Arena', NULL), ('La Unión', NULL);
 
 INSERT INTO categoria (nombre, activo) VALUES
     ('Bache en la vía', TRUE),
