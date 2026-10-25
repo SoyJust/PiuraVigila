@@ -109,6 +109,7 @@ public class PanelController {
         m.addAttribute("periodo", periodo);
         m.addAttribute("desde", desde); m.addAttribute("hasta", hasta);
         m.addAttribute("celdas", celdas);
+        m.addAttribute("puntos", dashboard.puntosReportes(desde, hasta));
         m.addAttribute("maximo", celdas.stream().mapToInt(ConteoZona::reportes).max().orElse(0));
         return "mapa";
     }

@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import pe.edu.utp.piuravigila.dao.ReporteDAO;
 import pe.edu.utp.piuravigila.dto.ConteoZona;
+import pe.edu.utp.piuravigila.dto.PuntoReporte;
 import pe.edu.utp.piuravigila.model.*;
 
 /** SQL parametrizado (sin concatenar entradas del usuario). Las consultas del dashboard vienen del SQL físico de APF2. */
@@ -110,6 +111,19 @@ public class ReporteDAOJdbc implements ReporteDAO {
         return jdbc.query("SELECT z.nombre AS zona, COUNT(*) AS reportes FROM reporte r JOIN zona z ON z.zona_id = r.zona_id "
                 + "WHERE r.fecha_registro >= ? AND r.fecha_registro < ? GROUP BY z.nombre ORDER BY reportes DESC",
                 (rs, n) -> new ConteoZona(rs.getString("zona"), rs.getInt("reportes")),
+                Timestamp.valueOf(desde), Timestamp.valueOf(hasta));
+    }
+
+    @Override public List<PuntoReporte> puntosPeriodo(LocalDateTime desde, LocalDateTime hasta) {
+        // Un vinculado muestra el código y el estado de su caso original (RN-01).
+        return jdbc.query("SELECT r.lat, r.lng, z.nombre AS zona, c.nombre AS categoria, "
+                + "COALESCE(o.estado, r.estado) AS estado, COALESCE(o.codigo_seguimiento, r.codigo_seguimiento) AS codigo "
+                + "FROM reporte r JOIN zona z ON z.zona_id = r.zona_id JOIN categoria c ON c.categoria_id = r.categoria_id "
+                + "LEFT JOIN reporte o ON o.reporte_id = r.reporte_original_id "
+                + "WHERE r.lat IS NOT NULL AND r.lng IS NOT NULL AND r.fecha_registro >= ? AND r.fecha_registro < ? "
+                + "ORDER BY r.fecha_registro DESC LIMIT 1000",
+                (rs, n) -> new PuntoReporte(rs.getDouble("lat"), rs.getDouble("lng"), rs.getString("zona"),
+                        rs.getString("categoria"), rs.getString("estado"), rs.getString("codigo")),
                 Timestamp.valueOf(desde), Timestamp.valueOf(hasta));
     }
 

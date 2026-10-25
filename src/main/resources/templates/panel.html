@@ -1,8 +1,8 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P03 · Panel de gestión</title></head><body><header><strong>PiuraVigila</strong><a th:href="@{/reportar}">Registrar reporte</a><a th:href="@{/consultar}">Consultar estado</a><a th:href="@{/panel}">Panel municipal</a></header>
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P03 · Panel de gestión</title></head><body><div th:replace="~{fragments :: cabecera('panel')}"></div>
 <main>
-<div class="card"><strong th:text="${usuario.nombre()}"></strong> <span class="mut" th:text="'(' + ${usuario.rol().valorBD()} + ')'"></span>
- <a th:href="@{/panel/mapa}" style="margin-left:1rem">Mapa de zonas críticas</a>
- <form method="post" th:action="@{/logout}" style="display:inline;float:right"><input type="hidden" name="_csrf" th:value="${csrf}"><button class="sec" type="submit">Cerrar sesión</button></form></div>
+<div class="card usuario"><strong th:text="${usuario.nombre()}"></strong> <span class="mut" th:text="'(' + ${usuario.rol().valorBD()} + ')'"></span>
+ <a th:href="@{/panel/mapa}">Mapa de zonas críticas</a>
+ <form method="post" th:action="@{/logout}"><input type="hidden" name="_csrf" th:value="${csrf}"><button class="sec" type="submit">Cerrar sesión</button></form></div>
 <p class="ok" th:if="${ok}" th:text="${ok}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
 
 <div class="card" th:if="${avisoOtra}"><p class="aviso">Umbral de «Otra» superado: <span th:text="${pctOtra}"></span> % de los reportes del mes (umbral 10 %).</p>
@@ -20,17 +20,18 @@
  <div><button type="submit">Filtrar</button></div>
  <div><button class="sec" type="submit" name="resumen" value="true">Ver / ocultar resumen</button></div>
 </form>
-<div class="tabla"><table><thead><tr><th>Código</th><th>Categoría</th><th>Zona</th><th>Descripción</th><th>Estado</th><th>Vinc.</th><th>Cambiar</th></tr></thead><tbody>
+<div class="tabla"><table><thead><tr><th>Código</th><th>Categoría</th><th>Zona</th><th>Descripción</th><th>Estado</th><th>Vinc.</th><th>Ubicación</th><th>Cambiar</th></tr></thead><tbody>
  <tr th:each="f : ${filas}">
   <td th:text="${f.caso().codigoSeguimiento()}"></td>
   <td th:text="${f.caso().categoriaId()}"></td><td th:text="${f.caso().zonaId()}"></td>
-  <td th:text="${f.caso().descripcion()}"></td><td th:text="${f.caso().estado().etiqueta()}"></td><td th:text="${f.vinculados()}"></td>
+  <td th:text="${f.caso().descripcion()}"></td><td><span class="badge" th:classappend="'est-' + ${f.caso().estado().name().toLowerCase()}" th:text="${f.caso().estado().etiqueta()}"></span></td><td th:text="${f.vinculados()}"></td>
+  <td><a th:if="${f.caso().lat() != null}" target="_blank" rel="noopener" th:href="'https://www.openstreetmap.org/?mlat=' + ${f.caso().lat()} + '&amp;mlon=' + ${f.caso().lng()} + '#map=18/' + ${f.caso().lat()} + '/' + ${f.caso().lng()}">Ver en mapa</a><span class="mut" th:unless="${f.caso().lat() != null}">Sin ubicación</span></td>
   <td><form method="post" th:action="@{/panel/estado}" th:if="${f.caso().estado().name() != 'ATENDIDO'}">
    <input type="hidden" name="_csrf" th:value="${csrf}"><input type="hidden" name="reporteId" th:value="${f.caso().reporteId()}">
    <select name="nuevo"><option th:each="e : ${estados}" th:if="${f.caso().estado().puedePasarA(e)}" th:value="${e.etiqueta()}" th:text="${e.etiqueta()}"></option></select>
    <button type="submit">Guardar</button></form></td>
  </tr></tbody></table></div>
-<p class="mut">Total: <span th:text="${total}"></span> · Página <span th:text="${pagina + 1}"></span> de <span th:text="${paginas}"></span>
+<p class="mut paginacion">Total: <span th:text="${total}"></span> · Página <span th:text="${pagina + 1}"></span> de <span th:text="${paginas}"></span>
  <a th:if="${pagina > 0}" th:href="@{/panel(pagina=${pagina - 1},zonaId=${fzona},categoriaId=${fcat},estado=${festado})}">‹ Anterior</a>
  <a th:if="${pagina + 1 < paginas}" th:href="@{/panel(pagina=${pagina + 1},zonaId=${fzona},categoriaId=${fcat},estado=${festado})}">Siguiente ›</a></p></div>
 

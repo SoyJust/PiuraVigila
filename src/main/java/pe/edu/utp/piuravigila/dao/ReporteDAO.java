@@ -2,6 +2,7 @@ package pe.edu.utp.piuravigila.dao;
 import java.time.*;
 import java.util.*;
 import pe.edu.utp.piuravigila.dto.ConteoZona;
+import pe.edu.utp.piuravigila.dto.PuntoReporte;
 import pe.edu.utp.piuravigila.model.*;
 
 public interface ReporteDAO {
@@ -25,4 +26,6 @@ public interface ReporteDAO {
     Map<EstadoReporte, Integer> casosPorEstado(LocalDateTime desde, LocalDateTime hasta);
     int contarVinculadosPeriodo(LocalDateTime desde, LocalDateTime hasta);
     double porcentajeActualizados(LocalDateTime desde, LocalDateTime hasta);
+    /** Reportes del periodo con ubicación marcada (incluye vinculados), para el mapa de P04. */
+    default List<PuntoReporte> puntosPeriodo(LocalDateTime desde, LocalDateTime hasta) { return List.of(); }
 }

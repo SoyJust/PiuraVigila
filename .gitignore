@@ -5,3 +5,6 @@ fotos/
 .idea/
 .vscode/
 env.sh
+
+config/
+uploads/

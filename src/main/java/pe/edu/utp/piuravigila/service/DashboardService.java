@@ -29,6 +29,11 @@ public class DashboardService {
         return reporteDAO.reportesPorZona(desde.atStartOfDay(), hasta.plusDays(1).atStartOfDay());
     }
 
+    public List<PuntoReporte> puntosReportes(LocalDate desde, LocalDate hasta) {
+        validarPeriodo(desde, hasta);
+        return reporteDAO.puntosPeriodo(desde.atStartOfDay(), hasta.plusDays(1).atStartOfDay());
+    }
+
     public List<TiempoCategoria> tiemposAtencion(LocalDate desde, LocalDate hasta) {
         validarPeriodo(desde, hasta);
         return historialDAO.tiempoPromedio(desde.atStartOfDay(), hasta.plusDays(1).atStartOfDay());
