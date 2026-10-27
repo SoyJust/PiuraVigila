@@ -2,6 +2,7 @@
 <main>
 <div class="card usuario"><strong th:text="${usuario.nombre()}"></strong> <span class="mut" th:text="'(' + ${usuario.rol().valorBD()} + ')'"></span>
  <a th:href="@{/panel/mapa}">Mapa de zonas críticas</a>
+ <a th:href="@{/panel/exportar(desde=${desde},hasta=${hasta})}">Descargar zonas en Excel</a>
  <form method="post" th:action="@{/logout}"><input type="hidden" name="_csrf" th:value="${csrf}"><button class="sec" type="submit">Cerrar sesión</button></form></div>
 <p class="ok" th:if="${ok}" th:text="${ok}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
 

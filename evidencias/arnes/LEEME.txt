@@ -1,3 +1,7 @@
+HISTÓRICO: arnés anterior a rev3. No usar para validar la versión actual.
+La versión rev2 tenía 37 pruebas de servicios y 7 de controlador.
+Rev3 necesita Maven y las dependencias reales; consultar ../REV3_VALIDACION.md.
+
 Arnés mínimo usado para ejecutar las pruebas sin Maven (solo JDK 21): anotaciones y aserciones equivalentes a Spring/JUnit.
 NO sustituye a JUnit real. Desde la raíz del proyecto:
   java -m jdk.compiler/com.sun.tools.javac.Main -d /tmp/cls $(find evidencias/arnes -name "*.java") \

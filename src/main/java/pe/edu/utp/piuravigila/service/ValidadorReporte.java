@@ -20,14 +20,14 @@ public class ValidadorReporte {
 
     public ResultadoControl validar(DatosReporte d) {
         if (d == null || d.categoriaId() <= 0 || d.zonaId() <= 0
-                || d.descripcion() == null || d.descripcion().isBlank()
+                || org.apache.commons.lang3.StringUtils.isBlank(d.descripcion())
                 || d.descripcion().length() > MAX_DESCRIPCION
                 || d.fotoBytes() == null || d.fotoBytes().length == 0
                 || d.dispositivoId() == null || d.dispositivoId().isBlank()) {
             return ResultadoControl.rechazo(MSG_FALTAN);
         }
         if ((d.lat() == null) != (d.lng() == null)
-                || (d.lat() != null && (Math.abs(d.lat()) > 90 || Math.abs(d.lng()) > 180))) {
+                || (d.lat() != null && (!Double.isFinite(d.lat()) || !Double.isFinite(d.lng()) || Math.abs(d.lat()) > 90 || Math.abs(d.lng()) > 180))) {
             return ResultadoControl.rechazo(MSG_FALTAN);
         }
         if (d.fotoBytes().length > maxFotoBytes) return ResultadoControl.rechazo(MSG_FOTO);

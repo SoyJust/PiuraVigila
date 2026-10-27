@@ -6,7 +6,6 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <!-- Versión a confirmar en start.spring.io el día de la entrega (no se pudo resolver Maven aquí). -->
     <version>3.5.15</version>
     <relativePath/>
   </parent>
@@ -28,6 +27,11 @@
     <!-- Solo el codificador BCrypt (RNF-01); no se usa Spring Security completo. -->
     <dependency><groupId>org.springframework.security</groupId><artifactId>spring-security-crypto</artifactId></dependency>
     <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
+    <!-- Librerías con usos reales: huellas de fotos, exportación y validación. -->
+    <dependency><groupId>com.google.guava</groupId><artifactId>guava</artifactId><version>33.4.8-jre</version></dependency>
+    <dependency><groupId>org.apache.poi</groupId><artifactId>poi-ooxml</artifactId><version>5.4.1</version></dependency>
+    <dependency><groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>3.20.0</version></dependency>
+    <dependency><groupId>ch.qos.logback</groupId><artifactId>logback-classic</artifactId></dependency>
   </dependencies>
 
   <build>

@@ -7,6 +7,7 @@
 <tr><th>Descripción</th><td th:text="${caso.descripcion()}"></td></tr></table>
 <p><strong>¿Es el mismo problema?</strong></p>
 <form method="post" th:action="@{/reportar/duplicado}">
+<input type="hidden" name="_csrf" th:value="${csrf}">
  <button name="respuesta" value="si" type="submit">Sí, es el mismo</button>
  <button class="sec" name="respuesta" value="no" type="submit">No, es otro</button>
 </form></div></main></body></html>

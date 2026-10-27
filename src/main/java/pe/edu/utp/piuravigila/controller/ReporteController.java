@@ -39,6 +39,10 @@ public class ReporteController {
                          @RequestParam(required = false) Double lat, @RequestParam(required = false) Double lng,
                          @RequestParam(defaultValue = "") String respuestaSuma,
                          Model m, HttpSession s, HttpServletRequest rq, HttpServletResponse rs) {
+        if (!Csrf.valido(s, rq.getParameter("_csrf"))) {
+            rs.setStatus(403);
+            return vistaFormulario(m, s, "Solicitud no válida. Vuelve a enviar el formulario.", categoriaId, zonaId, descripcion);
+        }
         byte[] bytes = null;
         try { if (foto != null) bytes = foto.getBytes(); } catch (IOException e) { bytes = null; }
         DatosReporte d = new DatosReporte(categoriaId, zonaId, descripcion, foto == null ? null : foto.getOriginalFilename(),
@@ -50,6 +54,7 @@ public class ReporteController {
         if (r.tipo() == ResultadoRegistro.Tipo.DUPLICADO_PENDIENTE) {
             s.setAttribute("pendiente", d);
             s.setAttribute("casoId", r.casoExistente().reporteId());
+            m.addAttribute("csrf", Csrf.token(s));
             m.addAttribute("caso", r.casoExistente());
             m.addAttribute("categorias", nombresCategoria());
             return "duplicado";
@@ -58,7 +63,8 @@ public class ReporteController {
     }
 
     @PostMapping("/reportar/duplicado")
-    public String responder(@RequestParam String respuesta, Model m, HttpSession s) {
+    public String responder(@RequestParam String respuesta, @RequestParam(name = "_csrf", required = false) String csrf, Model m, HttpSession s) {
+        if (!Csrf.valido(s, csrf)) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Solicitud no válida");
         DatosReporte pendiente = (DatosReporte) s.getAttribute("pendiente");
         Integer casoId = (Integer) s.getAttribute("casoId");
         if (pendiente == null || casoId == null) return "redirect:/reportar";
@@ -102,6 +108,7 @@ public class ReporteController {
     private String vistaFormulario(Model m, HttpSession s, String error, int cat, int zona, String desc) {
         int a = ThreadLocalRandom.current().nextInt(1, 10), b = ThreadLocalRandom.current().nextInt(1, 10);
         s.setAttribute("sumaEsperada", a + b);
+        m.addAttribute("csrf", Csrf.token(s));
         m.addAttribute("pregunta", a + " + " + b);
         m.addAttribute("categorias", service.categoriasActivas());
         m.addAttribute("zonas", service.zonas());
