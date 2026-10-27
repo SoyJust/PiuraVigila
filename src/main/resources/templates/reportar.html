@@ -2,6 +2,7 @@
 <main><div class="card"><h1>Registrar reporte de incidencia</h1>
 <p class="error" th:if="${error}" th:text="${error}"></p>
 <form method="post" th:action="@{/reportar}" enctype="multipart/form-data">
+<input type="hidden" name="_csrf" th:value="${csrf}">
  <div class="rejilla">
  <div class="campo"><label for="categoriaId">Categoría</label>
  <select id="categoriaId" name="categoriaId" required><option value="">Elige…</option>
@@ -12,7 +13,7 @@
  <div class="campo ancho"><label for="descripcion">Descripción breve (máx. 300)</label>
  <textarea id="descripcion" name="descripcion" rows="3" maxlength="300" required th:text="${desc}"></textarea></div>
  <div class="campo ancho"><label for="foto">Foto (una sola, máx. 2 MB)</label>
- <input id="foto" type="file" name="foto" accept="image/jpeg,image/png,image/webp" required></div>
+ <input id="foto" type="file" name="foto" accept="image/jpeg,image/png" required></div>
  <div class="campo ancho"><label id="etq-mapa">Ubicación del problema (opcional)</label>
  <div id="mapa-reporte" class="selector-mapa" role="application" aria-labelledby="etq-mapa"></div>
  <input type="hidden" id="lat" name="lat"><input type="hidden" id="lng" name="lng">

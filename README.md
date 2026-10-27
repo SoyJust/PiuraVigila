@@ -10,7 +10,7 @@ Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basur
 | Framework | Spring Boot 3.5 (Web, Thymeleaf, JDBC) |
 | Acceso a datos | `JdbcTemplate` (sin ORM) |
 | Base de datos | PostgreSQL 15+ |
-| Seguridad | BCrypt (`spring-security-crypto`), token CSRF en el panel |
+| Seguridad | BCrypt (`spring-security-crypto`), token CSRF en el panel y formularios de reportes |
 | Pruebas | JUnit 5 (`spring-boot-starter-test`) |
 | Build | Maven |
 
@@ -120,7 +120,7 @@ Las pruebas unitarias cubren validación de reportes, control anti-spam, almacen
 
 ## Funcionalidades
 
-- Registro de incidencias con categoría, zona (distrito), descripción (máx. 300), foto (máx. 2 MB), ubicación opcional (se marca en el mapa o con «Usar mi ubicación») y verificación aritmética.
+- Registro de incidencias con categoría, zona (distrito), descripción (máx. 300), foto JPG/PNG real (máx. 2 MB y 20 megapíxeles), ubicación opcional (se marca en el mapa o con «Usar mi ubicación») y verificación aritmética.
 - Código de seguimiento `PR-AAAA-####` y consulta pública de estado con línea de tiempo (Recibido → En proceso → Atendido) y la fecha de cada paso.
 - Detección de posibles duplicados y vinculación a un caso original.
 - Control anti-spam por dispositivo: 60 s entre reportes y máximo 3 por día.
@@ -132,7 +132,7 @@ Las pruebas unitarias cubren validación de reportes, control anti-spam, almacen
 ## Limitaciones conocidas
 
 - El "dispositivo" se identifica con una cookie anónima; borrarla reinicia los límites anti-spam. Es una medida simple, no de seguridad.
-- El formulario público no incluye token CSRF (el panel sí). La verificación es una suma simple.
+- La verificación anti-spam es una suma simple y la cookie se puede borrar; no constituye una protección robusta contra bots.
 - El código `PR-AAAA-####` usa 4 dígitos; pasado el 9999 se truncaría.
 - La foto se guarda en disco antes de confirmar la transacción; si falla la base de datos puede quedar un archivo huérfano.
 - Los usuarios `admin` y `operador` quedan con hash pendiente en el seed: sin su variable de entorno no se puede iniciar sesión con ese usuario.
@@ -142,3 +142,20 @@ Las pruebas unitarias cubren validación de reportes, control anti-spam, almacen
 ## Autores
 
 Proyecto Integrador I · UTP Sede Piura.
+
+## Revisión 3: librerías, exportación y seguridad
+
+- Guava 33.4.8-jre: `FotoStorageDisco` calcula SHA-256 de cada foto guardada y lo registra junto al nombre aleatorio. Sirve para comparar integridad; no cifra ni anonimiza la foto.
+- Apache POI 5.4.1: `ExportacionService` genera XLSX de conteos por zona. El panel ofrece **Descargar zonas en Excel**. Usa el periodo del resumen cuando está seleccionado; por defecto, hoy menos 30 días hasta hoy. No aplica los filtros de zona/categoría de la tabla.
+- Apache Commons Lang 3.20.0: `ValidadorReporte` comprueba descripciones nulas, vacías o compuestas solo por espacios con `StringUtils.isBlank`.
+- Logback: dependencia explícita con versión administrada por Spring Boot; salida SLF4J a `logs/piuravigila.log`. Registra la huella de fotos y las exportaciones, sin contraseñas ni contenido de las fotos.
+- `/panel/exportar` exige sesión municipal, rechaza periodos invertidos o mayores de cinco años y devuelve `Cache-Control: no-store`. Exporta solo agregados, por lo que pueden usarlo operador y administrador.
+- Los POST de registro y confirmación de duplicado exigen el token CSRF de la sesión. Un rechazo devuelve HTTP 403.
+- Las fotos se decodifican antes de guardarse: contenido y extensión deben coincidir. Solo JPG/PNG. WEBP se retiró porque ImageIO estándar no lo decodifica.
+- Coordenadas NaN e infinitas son rechazadas en el servidor.
+
+### Validación y evidencias
+
+Consulta `evidencias/REV3_VALIDACION.md` y `docs/REV3_GUIA.md`. Las capturas anteriores corresponden a rev2, no prueban estos cambios. Ejecuta `mvn clean test` con JDK 21 en tu equipo y demuestra también la aplicación con PostgreSQL antes de entregar.
+
+El arnés antiguo es histórico: no compila las dependencias nuevas y no reemplaza Maven/JUnit. No se afirma un ciclo TDD retroactivo. La arquitectura se sustenta con MVC, DAO, responsabilidad única e inversión de dependencias.
