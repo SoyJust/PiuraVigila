@@ -1,0 +1,17 @@
+APF3 - PiuraVigila - Semanas 9, 10 y 11 (actualizado el 27/10/2026, rev3)
+
+ESTE ZIP (APF3) TIENE SOLO DOCUMENTOS. EL CODIGO ESTA EN UN SOLO LUGAR: GitHub.
+  Codigo:      https://github.com/SoyJust/PiuraVigila   (etiqueta apf3-rev3 = version vigente)
+  Documentos:  este zip (APF3)
+
+Semana 9   Matriz de arquitectura (xlsx), diagrama editable (.drawio) y su imagen (.png). Version rev4 (46 componentes).
+Semana 10  Matriz de trazabilidad (xlsx, rev3), diagramas, notas, capturas (carpeta Capturas) y CODIGO_EN_GITHUB.txt.
+Semana 11  Control de versiones (xlsx, rev3: hito 40 % + rev2 + rev3), parches de Git del hito 40 %, la guia LEEME_Semana11.md y los documentos de la revision 3 (REV3_GUIA.md, REV3_VALIDACION.md y REV3_maven_test.txt).
+
+Estado del paquete (rev3):
+  1) Codigo: PR #3 (feature/apf3-rev3) fusionado en main (commit 52468ca, merge 9d70079); etiqueta apf3-rev3; 18 commits en total.
+  2) Pruebas: mvn clean test con 54 pruebas aprobadas, 0 fallos (EV-21, 27/10/2026 16:03). Las corridas anteriores (41, 42 y 44 pruebas) se conservan como historia.
+  3) Novedades de rev3: librerias de apoyo (Guava, Apache POI, Commons Lang 3 y Logback), exportacion de zonas a Excel, token CSRF en los formularios publicos y validacion de fotos.
+  4) Evidencias nuevas: EV-21 a EV-25 en Semana 10 (la salida de mvn test esta en Semana 10\Capturas\EV-21_mvn_test_54.txt).
+  5) Nota: el PR #3 lo reviso y fusiono su autor (SoyJust); no hay revision de otro integrante (queda registrado asi en Semana 11, hojas Ramas_PR y Checklist_Rev3). Opcional: una captura del Excel descargado desde el panel pasaria el flujo FV-07 de Amarillo a Verde.
+Los pasos que se siguieron estan en "Semana 11\LEEME_Semana11.md" y "Semana 11\PASOS_GITHUB.txt".

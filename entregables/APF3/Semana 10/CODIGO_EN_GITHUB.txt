@@ -1,0 +1,5 @@
+El codigo de PiuraVigila esta en un solo lugar: el repositorio de GitHub.
+  https://github.com/SoyJust/PiuraVigila
+  Ramas del avance: feature/apf3-rev1 (PR #1, merge 0186074), feature/apf3-rev2 (PR #2, merge d592b35) y feature/apf3-rev3 (PR #3, merge 9d70079); todo integrado en main.
+  Etiquetas: semana11-40pct (hito 40 %), semana11-100pct (rev2, d592b35) y apf3-rev3 (rev3, version vigente).
+Las rutas de la matriz (src/main/java/..., src/main/resources/templates/, database/, evidencias/) son rutas dentro de ese repositorio.

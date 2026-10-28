@@ -1,0 +1,73 @@
+diff --git a/database/02_seed.sql b/database/02_seed.sql
+index f179f77..83d9895 100644
+--- a/database/02_seed.sql
++++ b/database/02_seed.sql
+@@ -19,6 +19,7 @@ INSERT INTO categoria (nombre, activo) VALUES
+ 
+ -- Contraseña de ejemplo (hash simulado, académico): cambiar antes de cualquier uso real.
+ INSERT INTO usuario_municipal (nombre, usuario, contrasena_hash, rol) VALUES
+-    ('Administrador PiuraVigila', 'admin', 'HASH_PENDIENTE_DE_IMPLEMENTACION', 'administrador');
++    ('Administrador PiuraVigila', 'admin', 'HASH_PENDIENTE_DE_IMPLEMENTACION', 'administrador'),
++    ('Operador PiuraVigila', 'operador', 'HASH_PENDIENTE_DE_IMPLEMENTACION', 'operador');
+ 
+ 
+diff --git a/src/main/java/pe/edu/utp/piuravigila/config/AdminInicializador.java b/src/main/java/pe/edu/utp/piuravigila/config/AdminInicializador.java
+index 0a7d8be..7f9fc7a 100644
+--- a/src/main/java/pe/edu/utp/piuravigila/config/AdminInicializador.java
++++ b/src/main/java/pe/edu/utp/piuravigila/config/AdminInicializador.java
+@@ -10,27 +10,35 @@ import pe.edu.utp.piuravigila.dao.UsuarioMunicipalDAO;
+ import pe.edu.utp.piuravigila.service.HashContrasena;
+ 
+ /**
+- * El seed (APF2) deja el hash del usuario «admin» como HASH_PENDIENTE_DE_IMPLEMENTACION.
+- * Si hay una contraseña inicial en la variable PIURA_ADMIN_PASSWORD, se guarda su hash BCrypt. Nada va en el código.
++ * El seed (APF2) deja el hash de los usuarios «admin» y «operador» como HASH_PENDIENTE_DE_IMPLEMENTACION.
++ * Si hay una contraseña inicial en PIURA_ADMIN_PASSWORD o PIURA_OPERADOR_PASSWORD, se guarda su hash BCrypt
++ * (cada variable inicializa solo a su usuario). Nada va en el código.
+  */
+ @Component
+ public class AdminInicializador implements ApplicationRunner {
+     private static final Logger LOG = LoggerFactory.getLogger(AdminInicializador.class);
+     private final UsuarioMunicipalDAO usuarios;
+     private final HashContrasena hash;
+-    private final String claveInicial;
++    private final String claveAdmin;
++    private final String claveOperador;
+ 
+     public AdminInicializador(UsuarioMunicipalDAO usuarios, HashContrasena hash,
+-                              @Value("${piuravigila.admin.password-inicial:}") String claveInicial) {
+-        this.usuarios = usuarios; this.hash = hash; this.claveInicial = claveInicial;
++                              @Value("${piuravigila.admin.password-inicial:}") String claveAdmin,
++                              @Value("${piuravigila.operador.password-inicial:}") String claveOperador) {
++        this.usuarios = usuarios; this.hash = hash; this.claveAdmin = claveAdmin; this.claveOperador = claveOperador;
+     }
+ 
+     @Override
+     public void run(ApplicationArguments args) {
++        inicializar("admin", claveAdmin);
++        inicializar("operador", claveOperador);
++    }
++
++    private void inicializar(String usuario, String claveInicial) {
+         if (claveInicial == null || claveInicial.isBlank()) return;
+-        usuarios.buscarPorUsuario("admin")
++        usuarios.buscarPorUsuario(usuario)
+                 .filter(u -> u.contrasenaHash().startsWith("HASH_PENDIENTE"))
+-                .ifPresent(u -> { usuarios.actualizarHash("admin", hash.codificar(claveInicial));
+-                                  LOG.info("Hash inicial del usuario admin guardado."); });
++                .ifPresent(u -> { usuarios.actualizarHash(usuario, hash.codificar(claveInicial));
++                                  LOG.info("Hash inicial del usuario {} guardado.", usuario); });
+     }
+ }
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+index 29bf5bb..61818b8 100644
+--- a/src/main/resources/application.properties
++++ b/src/main/resources/application.properties
+@@ -16,5 +16,7 @@ piuravigila.zona-horaria=America/Lima
+ piuravigila.dashboard.umbral-otra=10
+ # Contraseña inicial del usuario "admin" (solo si su hash sigue pendiente). Definir por variable de entorno.
+ piuravigila.admin.password-inicial=${PIURA_ADMIN_PASSWORD:}
++# Ídem para el usuario "operador".
++piuravigila.operador.password-inicial=${PIURA_OPERADOR_PASSWORD:}
+ logging.file.name=logs/piuravigila.log
+ logging.level.pe.edu.utp.piuravigila=INFO

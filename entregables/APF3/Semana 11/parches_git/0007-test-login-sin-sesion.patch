@@ -1,0 +1,47 @@
+diff --git a/src/test/java/pe/edu/utp/piuravigila/controller/PanelControllerTest.java b/src/test/java/pe/edu/utp/piuravigila/controller/PanelControllerTest.java
+index 6cd6583..d2fa353 100644
+--- a/src/test/java/pe/edu/utp/piuravigila/controller/PanelControllerTest.java
++++ b/src/test/java/pe/edu/utp/piuravigila/controller/PanelControllerTest.java
+@@ -6,16 +6,19 @@ import static org.mockito.Mockito.mock;
+ import static org.mockito.Mockito.never;
+ import static org.mockito.Mockito.verify;
+ import static org.mockito.Mockito.verifyNoInteractions;
++import static org.mockito.Mockito.when;
+ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+ 
+ import java.time.Clock;
+ import java.time.Instant;
+ import java.time.ZoneId;
++import java.util.Optional;
+ import org.junit.jupiter.api.BeforeEach;
+ import org.junit.jupiter.api.Test;
+ import org.springframework.test.web.servlet.MockMvc;
+@@ -33,7 +36,8 @@ import pe.edu.utp.piuravigila.service.ReporteService;
+ 
+ /**
+  * Pruebas del PanelController con MockMvc en modo «standalone» (sin contexto de Spring ni BD): los servicios son simulados con Mockito.
+- * PV-T39 (sin sesión y sin token CSRF), PV-T41 (el operador no habilita categorías) y PV-T42 (R02 no se entrega al operador).
++ * PV-T39 (sin sesión y sin token CSRF), PV-T41 (el operador no habilita categorías), PV-T42 (R02 no se entrega al operador)
++ * y PV-T43 (iniciar sesión aunque no exista una sesión previa).
+  * Escritas para «mvn test» (spring-boot-starter-test); NO se han ejecutado todavía.
+  */
+ class PanelControllerTest {
+@@ -106,4 +110,12 @@ class PanelControllerTest {
+                 .andExpect(model().attributeDoesNotExist("r02"));
+         verify(dashboard, never()).tiemposAtencion(any(), any());
+     }
++
++    // ---- PV-T43 · RNF-01: iniciar sesión funciona aunque no haya una sesión previa (por ejemplo, tras cerrar sesión) ----
++    @Test void pv_t43_login_sin_sesion_previa_crea_la_sesion() throws Exception {
++        when(auth.autenticar("operador", "clave-de-prueba")).thenReturn(Optional.of(OPERADOR));
++        mvc.perform(post("/login").param("usuario", "operador").param("clave", "clave-de-prueba"))
++                .andExpect(redirectedUrl("/panel"))
++                .andExpect(request().sessionAttribute("usuario", OPERADOR));
++    }
+ }

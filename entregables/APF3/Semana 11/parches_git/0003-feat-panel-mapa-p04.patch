@@ -1,0 +1,97 @@
+diff --git a/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java b/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java
+index 1449378..4873e96 100644
+--- a/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java
++++ b/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java
+@@ -8,10 +8,11 @@ import org.springframework.stereotype.Controller;
+ import org.springframework.ui.Model;
+ import org.springframework.web.bind.annotation.*;
+ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
++import pe.edu.utp.piuravigila.dto.ConteoZona;
+ import pe.edu.utp.piuravigila.model.*;
+ import pe.edu.utp.piuravigila.service.*;
+ 
+-/** P03 · panel municipal (RF-03, RF-07, RNF-01) y resumen R01 a R03 (sin fotos). Sesión del servidor. */
++/** P03 · panel municipal (RF-03, RF-07, RNF-01), resumen R01 a R03 (sin fotos) y P04 · mapa de zonas críticas (RF-04). Sesión del servidor. */
+ @Controller
+ public class PanelController {
+     private static final String SESION = "usuario";
+@@ -87,6 +88,30 @@ public class PanelController {
+         return "panel";
+     }
+ 
++    /** P04 · mapa esquemático de zonas críticas (RF-04): cuadrícula por zona con el conteo del periodo (incluye vinculados). Operador y administrador. */
++    @GetMapping("/panel/mapa")
++    public String mapa(@RequestParam(defaultValue = "7d") String periodo, HttpSession s, Model m) {
++        UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);
++        if (u == null) return "redirect:/login?requerida";
++        LocalDate hasta = LocalDate.now(reloj);
++        LocalDate desde = switch (periodo) {
++            case "mes" -> hasta.minusMonths(1).plusDays(1);
++            case "3m" -> hasta.minusMonths(3).plusDays(1);
++            case "anio" -> hasta.minusYears(1).plusDays(1);
++            default -> { periodo = "7d"; yield hasta.minusDays(6); }
++        };
++        Map<String, Integer> conteos = new HashMap<>();
++        for (ConteoZona c : dashboard.zonasCriticas(desde, hasta)) conteos.put(c.zona(), c.reportes());
++        List<ConteoZona> celdas = new ArrayList<>(); // las zonas sin reportes también aparecen (con 0)
++        for (Zona z : reportes.zonas()) celdas.add(new ConteoZona(z.nombre(), conteos.getOrDefault(z.nombre(), 0)));
++        m.addAttribute("usuario", u);
++        m.addAttribute("periodo", periodo);
++        m.addAttribute("desde", desde); m.addAttribute("hasta", hasta);
++        m.addAttribute("celdas", celdas);
++        m.addAttribute("maximo", celdas.stream().mapToInt(ConteoZona::reportes).max().orElse(0));
++        return "mapa";
++    }
++
+     @PostMapping("/panel/estado")
+     public String cambiarEstado(@RequestParam int reporteId, @RequestParam String nuevo,
+                                 @RequestParam(name = "_csrf", required = false) String csrf,
+diff --git a/src/main/resources/static/css/piuravigila.css b/src/main/resources/static/css/piuravigila.css
+index b87045a..8a7a00b 100644
+--- a/src/main/resources/static/css/piuravigila.css
++++ b/src/main/resources/static/css/piuravigila.css
+@@ -10,3 +10,6 @@ textarea{width:100%}button{background:var(--pri);color:#fff;border:0;cursor:poin
+ table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid var(--bd);padding:.4rem;text-align:left;vertical-align:top}
+ .tabla{overflow-x:auto}.codigo{font-size:1.6rem;font-weight:bold;letter-spacing:.05em}
+ .filtros{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end}.filtros>div{min-width:140px}
++.mapa{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-top:.6rem}
++.mapa .zona{border:1px solid var(--bd);border-radius:8px;padding:.8rem;text-align:center;display:flex;flex-direction:column;background:var(--bg)}
++.mapa .zona.critica{border:2px solid var(--er)}.mapa .nombre{font-weight:bold}.mapa .conteo{font-size:2rem;font-weight:bold}
+diff --git a/src/main/resources/templates/mapa.html b/src/main/resources/templates/mapa.html
+new file mode 100644
+index 0000000..ed5cb39
+--- /dev/null
++++ b/src/main/resources/templates/mapa.html
+@@ -0,0 +1,20 @@
++<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P04 · Mapa de zonas críticas</title></head><body><header><strong>PiuraVigila</strong><a th:href="@{/reportar}">Registrar reporte</a><a th:href="@{/consultar}">Consultar estado</a><a th:href="@{/panel}">Panel municipal</a></header>
++<main>
++<div class="card"><h1>Mapa de zonas críticas</h1>
++ <p class="mut">Mapa esquemático (cuadrícula por zona, no geográfico). Cuenta todos los reportes del periodo, incluidos los vinculados. Sin fotos.</p>
++ <form method="get" th:action="@{/panel/mapa}" class="filtros">
++  <div><label for="periodo">Periodo</label><select id="periodo" name="periodo">
++   <option value="7d" th:selected="${periodo == '7d'}">Últimos 7 días</option>
++   <option value="mes" th:selected="${periodo == 'mes'}">Último mes</option>
++   <option value="3m" th:selected="${periodo == '3m'}">Últimos 3 meses</option>
++   <option value="anio" th:selected="${periodo == 'anio'}">Último año</option></select></div>
++  <div><button type="submit">Ver</button></div>
++  <div><a th:href="@{/panel}">‹ Volver al panel</a></div>
++ </form>
++ <p class="mut">Del <span th:text="${desde}"></span> al <span th:text="${hasta}"></span></p>
++ <div class="mapa">
++  <div th:each="z : ${celdas}" class="zona" th:classappend="${maximo > 0 and z.reportes() == maximo} ? 'critica'">
++   <span class="nombre" th:text="${z.zona()}"></span><span class="conteo" th:text="${z.reportes()}"></span><span class="mut">reportes</span>
++  </div>
++ </div>
++</div></main></body></html>
+diff --git a/src/main/resources/templates/panel.html b/src/main/resources/templates/panel.html
+index 491a8ec..8d4d62e 100644
+--- a/src/main/resources/templates/panel.html
++++ b/src/main/resources/templates/panel.html
+@@ -1,6 +1,7 @@
+ <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P03 · Panel de gestión</title></head><body><header><strong>PiuraVigila</strong><a th:href="@{/reportar}">Registrar reporte</a><a th:href="@{/consultar}">Consultar estado</a><a th:href="@{/panel}">Panel municipal</a></header>
+ <main>
+ <div class="card"><strong th:text="${usuario.nombre()}"></strong> <span class="mut" th:text="'(' + ${usuario.rol().valorBD()} + ')'"></span>
++ <a th:href="@{/panel/mapa}" style="margin-left:1rem">Mapa de zonas críticas</a>
+  <form method="post" th:action="@{/logout}" style="display:inline;float:right"><input type="hidden" name="_csrf" th:value="${csrf}"><button class="sec" type="submit">Cerrar sesión</button></form></div>
+ <p class="ok" th:if="${ok}" th:text="${ok}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+ 

@@ -1,0 +1,12 @@
+diff --git a/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java b/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java
+index 4873e96..75d931e 100644
+--- a/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java
++++ b/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java
+@@ -37,6 +37,7 @@ public class PanelController {
+     public String iniciar(@RequestParam String usuario, @RequestParam String clave, HttpServletRequest rq, Model m) {
+         Optional<UsuarioMunicipal> u = auth.autenticar(usuario, clave);
+         if (u.isEmpty()) { m.addAttribute("error", "Usuario o contraseña incorrectos"); return "login"; }
++        rq.getSession(); // crea la sesión si aún no existe: changeSessionId() la exige
+         rq.changeSessionId(); // evita fijación de sesión
+         rq.getSession().setAttribute(SESION, u.get());
+         return "redirect:/panel";

@@ -1,0 +1,29 @@
+diff --git a/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java b/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java
+index 2e7691f..1449378 100644
+--- a/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java
++++ b/src/main/java/pe/edu/utp/piuravigila/controller/PanelController.java
+@@ -106,8 +106,10 @@ public class PanelController {
+     @PostMapping("/panel/categoria")
+     public String habilitarCategoria(@RequestParam String nombre, @RequestParam(name = "_csrf", required = false) String csrf,
+                                      HttpSession s, RedirectAttributes ra) {
+-        if (s.getAttribute(SESION) == null) return "redirect:/login?requerida";
++        UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);
++        if (u == null) return "redirect:/login?requerida";
+         if (!Csrf.valido(s, csrf)) { ra.addFlashAttribute("error", "Solicitud no válida"); return "redirect:/panel"; }
++        if (!u.esAdministrador()) { ra.addFlashAttribute("error", "Solo el administrador puede habilitar categorías"); return "redirect:/panel"; }
+         try { categorias.habilitar(nombre); ra.addFlashAttribute("ok", "Categoría habilitada"); }
+         catch (IllegalArgumentException | IllegalStateException e) { ra.addFlashAttribute("error", e.getMessage()); }
+         return "redirect:/panel";
+diff --git a/src/main/resources/templates/panel.html b/src/main/resources/templates/panel.html
+index 04c694a..491a8ec 100644
+--- a/src/main/resources/templates/panel.html
++++ b/src/main/resources/templates/panel.html
+@@ -5,7 +5,7 @@
+ <p class="ok" th:if="${ok}" th:text="${ok}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+ 
+ <div class="card" th:if="${avisoOtra}"><p class="aviso">Umbral de «Otra» superado: <span th:text="${pctOtra}"></span> % de los reportes del mes (umbral 10 %).</p>
+- <form method="post" th:action="@{/panel/categoria}"><input type="hidden" name="_csrf" th:value="${csrf}">
++ <form method="post" th:action="@{/panel/categoria}" th:if="${usuario.esAdministrador()}"><input type="hidden" name="_csrf" th:value="${csrf}">
+  <label for="nombre">Nueva categoría</label><input id="nombre" name="nombre" maxlength="60" required> <button type="submit">Habilitar</button></form></div>
+ 
+ <div class="card"><h1>Casos</h1>

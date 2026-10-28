@@ -1,0 +1,93 @@
+diff --git a/README.md b/README.md
+index 56a719a..d1c6e35 100644
+--- a/README.md
++++ b/README.md
+@@ -33,11 +33,11 @@ Paquete base: `pe.edu.utp.piuravigila` (`model`, `dto`, `dao`, `service`, `contr
+ ```
+ ├── database/
+ │   ├── 01_schema.sql              # tablas, índices y secuencia del código de reporte
+-│   ├── 02_seed.sql                # zonas, categorías y usuario admin
++│   ├── 02_seed.sql                # zonas, categorías y usuarios admin y operador
+ │   └── 03_consultas_dashboard.sql # consultas R01–R03 del panel
+ ├── src/main/java/...              # código fuente por capas
+ ├── src/main/resources/            # plantillas, CSS y application.properties
+-├── src/test/java/...              # pruebas unitarias del servicio
++├── src/test/java/...              # pruebas del servicio y del panel
+ ├── evidencias/                    # evidencias de pruebas
+ └── pom.xml
+ ```
+@@ -55,7 +55,9 @@ Tablas: `zona`, `categoria`, `usuario_municipal`, `reporte`, `historial_estado`.
+ | `/consultar` | GET | Consulta de estado por código |
+ | `/login`, `/logout` | GET, POST | Acceso del personal municipal |
+ | `/panel` | GET | Panel municipal (tabla y dashboard) |
+-| `/panel/estado`, `/panel/categoria` | POST | Cambiar estado o categoría de un caso |
++| `/panel/mapa` | GET | Mapa esquemático de zonas críticas (P04) por periodo |
++| `/panel/estado` | POST | Cambiar el estado de un caso |
++| `/panel/categoria` | POST | Habilitar una categoría (solo administrador) |
+ 
+ ## Requisitos
+ 
+@@ -82,6 +84,7 @@ psql -U postgres -d piuravigila -f database/02_seed.sql
+ | `PIURA_DB_PASSWORD` | Sí | Contraseña de PostgreSQL |
+ | `PIURA_DB_URL` | No | Por defecto `jdbc:postgresql://localhost:5432/piuravigila` |
+ | `PIURA_ADMIN_PASSWORD` | Solo la primera vez | Contraseña inicial de `admin`; se guarda como hash BCrypt al arrancar |
++| `PIURA_OPERADOR_PASSWORD` | Solo la primera vez | Contraseña inicial de `operador`; se guarda como hash BCrypt al arrancar |
+ | `PIURA_FOTOS_DIR` | No | Carpeta de fotos, por defecto `fotos` |
+ 
+ 3. Ejecutar:
+@@ -90,10 +93,11 @@ psql -U postgres -d piuravigila -f database/02_seed.sql
+ $env:PIURA_DB_USER="postgres"
+ $env:PIURA_DB_PASSWORD="<contraseña>"
+ $env:PIURA_ADMIN_PASSWORD="<contraseña del admin>"
++$env:PIURA_OPERADOR_PASSWORD="<contraseña del operador>"
+ mvn spring-boot:run
+ ```
+ 
+-4. Abrir http://localhost:8080/reportar. El panel está en `/login` (usuario `admin`).
++4. Abrir http://localhost:8080/reportar. El panel está en `/login` (usuarios `admin` y `operador`) y el mapa de zonas críticas en `/panel/mapa`.
+ 
+ Las contraseñas nunca se guardan en el código ni en el repositorio.
+ 
+@@ -103,7 +107,7 @@ Las contraseñas nunca se guardan en el código ni en el repositorio.
+ mvn test
+ ```
+ 
+-Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios (con DAOs simulados). Ver `evidencias/`.
++Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios (con DAOs simulados). El panel (sesión, token CSRF, rol de administrador y R02) se prueba con MockMvc en `PanelControllerTest`. Ver `evidencias/`.
+ 
+ ## Funcionalidades
+ 
+@@ -111,8 +115,9 @@ Las pruebas unitarias cubren validación de reportes, control anti-spam, almacen
+ - Código de seguimiento `PR-AAAA-####` y consulta pública de estado.
+ - Detección de posibles duplicados y vinculación a un caso original.
+ - Control anti-spam por dispositivo: 60 s entre reportes y máximo 3 por día.
+-- Panel municipal con login (BCrypt), cambio de estado con historial y recategorización.
+-- Dashboard: reportes por zona, tiempo de atención por categoría y resumen de gestión.
++- Panel municipal con login (BCrypt), cambio de estado con historial y habilitación de categorías (solo administrador).
++- Dashboard: reportes por zona, tiempo de atención por categoría (R02, solo administrador) y resumen de gestión.
++- Mapa esquemático de zonas críticas (P04) para 7 días, mes, 3 meses y año; lo ven operador y administrador.
+ - Registro de eventos en `logs/piuravigila.log`.
+ 
+ ## Limitaciones conocidas
+@@ -121,8 +126,7 @@ Las pruebas unitarias cubren validación de reportes, control anti-spam, almacen
+ - El formulario público no incluye token CSRF (el panel sí). La verificación es una suma simple.
+ - El código `PR-AAAA-####` usa 4 dígitos; pasado el 9999 se truncaría.
+ - La foto se guarda en disco antes de confirmar la transacción; si falla la base de datos puede quedar un archivo huérfano.
+-- Mapa esquemático de zonas (RF-04) no implementado: solo la tabla R01.
+-- No hay usuario `operador` en el seed.
++- Los usuarios `admin` y `operador` quedan con hash pendiente en el seed: sin su variable de entorno no se puede iniciar sesión con ese usuario.
+ - Los datos son simulados; no registrar datos personales reales.
+ 
+ ## Autores
+diff --git a/evidencias/arnes/LEEME.txt b/evidencias/arnes/LEEME.txt
+index 301d9de..cd3d17a 100644
+--- a/evidencias/arnes/LEEME.txt
++++ b/evidencias/arnes/LEEME.txt
+@@ -2,5 +2,6 @@ Arnés mínimo usado para ejecutar las pruebas sin Maven (solo JDK 21): anotacio
+ NO sustituye a JUnit real. Desde la raíz del proyecto:
+   java -m jdk.compiler/com.sun.tools.javac.Main -d /tmp/cls $(find evidencias/arnes -name "*.java") \
+     src/main/java/pe/edu/utp/piuravigila/{model,dto,dao,service}/*.java \
+-    src/main/java/pe/edu/utp/piuravigila/config/{RelojConfig,FotoStorageDisco}.java $(find src/test -name "*.java")
++    src/main/java/pe/edu/utp/piuravigila/config/{RelojConfig,FotoStorageDisco}.java src/test/java/pe/edu/utp/piuravigila/service/*.java
+   java -cp /tmp/cls Runner pe.edu.utp.piuravigila.service.ReporteServiceTest pe.edu.utp.piuravigila.service.ControlAntiSpamTest pe.edu.utp.piuravigila.service.OtrosServiciosTest pe.edu.utp.piuravigila.service.FotoStorageDiscoTest
++El arnés solo cubre las 35 pruebas de service. PanelControllerTest (PV-T39, PV-T41, PV-T42) necesita Spring MockMvc y Mockito: se ejecuta únicamente con «mvn test».
