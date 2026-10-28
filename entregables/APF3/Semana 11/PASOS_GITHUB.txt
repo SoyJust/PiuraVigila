@@ -1,0 +1,45 @@
+PASOS PARA SUBIR EL AVANCE A GITHUB (PowerShell, en C:\Users\Joss\Downloads\PiuraVigila)
+
+1) git branch            -> debe marcar * feature/apf3-rev1
+   git log --oneline -9  -> deben verse los 8 commits (46b7fa9 ... 3ce112d)
+2) git push -u origin feature/apf3-rev1
+3) En GitHub: boton "Compare & pull request" (base: main, compare: feature/apf3-rev1) -> Create pull request.
+4) Un companero (que NO escribio el cambio) abre "Files changed" -> Review changes -> Approve.
+5) Merge pull request (Create a merge commit) -> Confirm merge.
+6) git checkout main
+   git pull
+   git tag -a semana11-40pct -m "Avance 40 %: rol administrador, operador y mapa P04"
+   git push origin semana11-40pct
+7) Hecho: PR #1 fusionado (hash 0186074). Tag semana11-40pct confirmado en GitHub.
+   y actualiza las hojas Ramas_PR y Checklist_40 (filas 17 a 19).
+
+----------------------------------------------------------------------
+INCREMENTO REV2 (25/10/2026): PR #2, merge d592b35, tag semana11-100pct
+----------------------------------------------------------------------
+1) Add-Content .gitignore "`nconfig/`nuploads/"     -> config/ guarda las claves locales y no debe subirse
+   git checkout -b feature/apf3-rev2
+2) git add .gitignore ; git commit -m "chore: ignorar config/ y uploads/"                       (043d302)
+   git add src        ; git commit -m "feat: mapa de reportes con ubicacion, linea de tiempo en Consultar y mejoras de interfaz"   (32bcc2b)
+   git add database README.md ; git commit -m "feat: zonas por distritos reales, datos de demostración y README actualizado"      (b64ffd2)
+   git add README.md  ; git commit -m "docs: actualizar README (zonas, datos de demo, mapa y linea de tiempo)"                     (b3892b5)
+3) git status          -> no deben figurar config/ ni la carpeta anidada PiuraVigila/
+   git push -u origin feature/apf3-rev2
+4) En GitHub: Compare & pull request (base: main, compare: feature/apf3-rev2) -> PR #2 -> Merge pull request (merge d592b35).
+5) git checkout main ; git pull ; crear la etiqueta semana11-100pct sobre d592b35 ; git push origin semana11-100pct
+6) REVISION: justzonagamer-rgb reviso y aprobo el PR #2 en GitHub el 26/10/2026 (posterior a la fusion); registrado en Ramas_PR (G6) y Checklist_Rev2 (fila 17).
+
+----------------------------------------------------------------------
+INCREMENTO REV3 (27/10/2026): PR #3, commit 52468ca, merge 9d70079, tag apf3-rev3
+----------------------------------------------------------------------
+1) git switch main ; git pull ; git switch -c feature/apf3-rev3
+2) Copiar el contenido actualizado del proyecto sobre el clon (sin tocar .git ni config/).
+3) git status   -> no deben figurar config/, target/, logs/ ni uploads/
+   mvn clean test -> 54 pruebas, 0 fallos (EV-21)
+4) git add pom.xml src .github README.md docs database evidencias
+   git commit -m "feat: exportacion Excel, librerias (Guava, POI, Commons, Logback) y validaciones de seguridad"   (52468ca)
+5) git push -u origin feature/apf3-rev3
+6) En GitHub: Compare & pull request (base: main, compare: feature/apf3-rev3) -> PR #3 -> Merge pull request (merge 9d70079).
+7) Crear la etiqueta apf3-rev3 sobre el merge y subirla: git push origin apf3-rev3
+8) REVISION: el PR #3 lo reviso y fusiono su autor (sin revisor independiente); registrado asi en Ramas_PR (G7) y Checklist_Rev3 (fila 17).
+9) ENTREGABLES: segundo PR (feature/apf3-entregables) que agrega entregables/APF3 y actualiza docs/REV3_GUIA.md y evidencias/REV3_VALIDACION.md.
+

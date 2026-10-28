@@ -1,0 +1,112 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< pe.edu.utp:piuravigila >-----------------------
+[INFO] Building PiuraVigila 0.8.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ piuravigila ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 10 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ piuravigila ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ piuravigila ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ piuravigila ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 8 source files with javac [debug parameters release 17] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ piuravigila ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running pe.edu.utp.piuravigila.controller.PanelControllerTest
+10:44:37.231 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.233 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.235 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 1 ms
+10:44:37.366 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.366 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.366 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.410 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.410 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.411 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.441 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.441 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.442 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.475 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.475 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.475 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.487 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.487 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.487 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.499 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.499 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.500 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 1 ms
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.37 s -- in pe.edu.utp.piuravigila.controller.PanelControllerTest
+[INFO] Running pe.edu.utp.piuravigila.controller.MejorasSeguridadTest
+10:44:37.565 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.566 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.566 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.625 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.625 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.625 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.640 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.641 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.641 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.642 [main] INFO pe.edu.utp.piuravigila.controller.ExportacionController -- Exportación de zonas desde=2026-09-27 hasta=2026-10-27
+10:44:37.654 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.654 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.654 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.703 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.704 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.704 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.721 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.721 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.722 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+10:44:37.767 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+10:44:37.767 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+10:44:37.768 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.251 s -- in pe.edu.utp.piuravigila.controller.MejorasSeguridadTest
+[INFO] Running pe.edu.utp.piuravigila.service.ReporteServiceTest
+10:44:37.790 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Caso registrado codigo=PR-2026-0002 categoria=1 zona=1
+10:44:37.807 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Caso registrado codigo=PR-2026-0001 categoria=1 zona=1
+10:44:37.809 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Estado actualizado reporte=1 nuevo=En proceso usuarioId=5
+10:44:37.820 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Caso registrado codigo=PR-2026-0002 categoria=1 zona=2
+10:44:37.831 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Caso registrado codigo=PR-2026-0001 categoria=1 zona=1
+10:44:37.836 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Estado actualizado reporte=1 nuevo=En proceso usuarioId=5
+10:44:37.847 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Reporte vinculado al caso codigo=PR-2026-0001
+10:44:37.853 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Caso registrado codigo=PR-2026-0001 categoria=1 zona=1
+10:44:37.856 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Caso registrado codigo=PR-2026-0002 categoria=1 zona=1
+10:44:37.858 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Reporte vinculado al caso codigo=PR-2026-0001
+10:44:37.861 [main] INFO pe.edu.utp.piuravigila.service.ReporteService -- Estado actualizado reporte=1 nuevo=En proceso usuarioId=5
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.081 s -- in pe.edu.utp.piuravigila.service.ReporteServiceTest
+[INFO] Running pe.edu.utp.piuravigila.service.ExportacionServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.003 s -- in pe.edu.utp.piuravigila.service.ExportacionServiceTest
+[INFO] Running pe.edu.utp.piuravigila.service.OtrosServiciosTest
+10:44:38.883 [main] INFO pe.edu.utp.piuravigila.service.AuthService -- Inicio de sesión usuarioId=5
+10:44:38.884 [main] WARN pe.edu.utp.piuravigila.service.AuthService -- Inicio de sesión fallido usuario=op1
+10:44:38.884 [main] WARN pe.edu.utp.piuravigila.service.AuthService -- Inicio de sesión fallido usuario=nadie
+10:44:38.886 [main] INFO pe.edu.utp.piuravigila.service.CategoriaService -- Categoría habilitada nombre=Poste caído
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in pe.edu.utp.piuravigila.service.OtrosServiciosTest
+[INFO] Running pe.edu.utp.piuravigila.service.FotoStorageDiscoTest
+10:44:38.999 [main] INFO pe.edu.utp.piuravigila.config.FotoStorageDisco -- Foto guardada archivo=1b20befd-e74e-4196-b55d-807e5300d7dd.png sha256=ca22fc14b7d293b10a27fd60ffd05e6feb8543ffa4936b5cf51af95cc3ea6a96
+10:44:39.034 [main] INFO pe.edu.utp.piuravigila.config.FotoStorageDisco -- Foto guardada archivo=9a32afef-f896-4026-a3aa-be49c06fcb98.jpg sha256=9551d6570ec0d4522b0f49cd1e6e5a4cd32c6a47176e51c8d9952ebdada6a330
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.143 s -- in pe.edu.utp.piuravigila.service.FotoStorageDiscoTest
+[INFO] Running pe.edu.utp.piuravigila.service.ControlAntiSpamTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in pe.edu.utp.piuravigila.service.ControlAntiSpamTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 54, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  17.428 s
+[INFO] Finished at: 2026-10-27T10:44:39-05:00
+[INFO] ------------------------------------------------------------------------

@@ -1,0 +1,13 @@
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.146 s -- in pe.edu.utp.piuravigila.service.ReporteServiceTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 54, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  47.427 s
+[INFO] Finished at: 2026-10-27T16:03:07-05:00
+[INFO] ------------------------------------------------------------------------
+PS C:\Users\Joss\Downloads\PiuraVigila>

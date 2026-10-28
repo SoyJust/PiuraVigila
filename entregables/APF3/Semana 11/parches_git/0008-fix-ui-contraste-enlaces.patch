@@ -1,0 +1,9 @@
+diff --git a/src/main/resources/static/css/piuravigila.css b/src/main/resources/static/css/piuravigila.css
+index 8a7a00b..00459e8 100644
+--- a/src/main/resources/static/css/piuravigila.css
++++ b/src/main/resources/static/css/piuravigila.css
+@@ -13,3 +13,4 @@ table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid var(--bd
+ .mapa{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-top:.6rem}
+ .mapa .zona{border:1px solid var(--bd);border-radius:8px;padding:.8rem;text-align:center;display:flex;flex-direction:column;background:var(--bg)}
+ .mapa .zona.critica{border:2px solid var(--er)}.mapa .nombre{font-weight:bold}.mapa .conteo{font-size:2rem;font-weight:bold}
++.card a{color:var(--pri)}
