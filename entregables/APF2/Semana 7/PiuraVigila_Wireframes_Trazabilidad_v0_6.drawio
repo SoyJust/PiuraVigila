@@ -1,0 +1,136 @@
+<mxfile host="app.diagrams.net" modified="2026-09-21T00:00:00.000Z" agent="ChatGPT" version="24.0.0" type="device">
+<diagram id="wireframes" name="Wireframes_UXUI_v0.6"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>
+<mxCell id="title" value="Semana 7 · Wireframes PiuraVigila v0.6" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ffffff;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="40" y="25" width="900" height="40" as="geometry"/></mxCell>
+<mxCell id="p01" value="P01 · Registrar reporte de incidencia (RF-01)
+
+Categoría: [lista]
+Foto: [tomar / subir]
+Zona: [lista]
+Descripción breve: [texto]
+
+Enviar reporte
+
+Duplicado → se asocia al código existente
+Límite diario → mensaje, no se guarda
+Éxito → Código: PR-AAAA-####" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="70" y="150" width="300" height="420" as="geometry"/></mxCell>
+<mxCell id="p02" value="P02 · Consultar estado del reporte (RF-02)
+
+Código de seguimiento: [PR-AAAA-####]
+
+Consultar
+
+Código: PR-2026-0417
+Categoría: Bache en la vía
+Estado: En proceso
+Fecha de registro: 10/09/2026
+Próxima acción: Programado para atención
+(derivado de estado, no es columna de BD)
+
+No existe → &quot;Código no encontrado. Verifica que esté bien escrito&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="420" y="150" width="300" height="420" as="geometry"/></mxCell>
+<mxCell id="actor1" value="Actor: Ciudadano" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#111827;fontStyle=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="70" y="110" width="650" height="30" as="geometry"/></mxCell>
+<mxCell id="p03" value="P03 · Panel de gestión municipal (RF-03 / RNF-01)
+
+Usuario: [texto]   Contraseña: [••••]
+Iniciar sesión
+
+Filtros: Zona · Tipo · Estado
+
+Código | Tipo | Zona | Estado
+PR-2026-0417 | Bache | Centro | [En proceso]
+PR-2026-0418 | Luminaria | Norte | [Recibido]
+
+Guardar cambios de estado
+→ &quot;Estado actualizado&quot; (fecha y usuario)
+
+Aviso (RF-07): &quot;La categoría Otra superó el umbral&quot;
+Habilitar categoría nueva [texto] → Guardar" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="800" y="150" width="300" height="460" as="geometry"/></mxCell>
+<mxCell id="actor2" value="Actor: Personal municipal" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#bae6fd;strokeColor=#111827;fontStyle=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="800" y="110" width="300" height="30" as="geometry"/></mxCell>
+<mxCell id="report" value="R01 · Zonas críticas (RF-04)
+
+Pregunta: ¿en qué zonas se concentran más incidencias?
+
+Periodo: [7 días / mes / 3 meses / año]
+Filtro por estado
+Conteo de reportes por zona
+Centro · Norte · Sur · Este · Oeste · Castilla
+
+Fuente: reporte, zona" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1170" y="150" width="300" height="420" as="geometry"/></mxCell>
+<mxCell id="report2" value="R02 · Tiempos de atención (RF-03)
+
+Pregunta: ¿cuánto tarda un reporte en pasar de Recibido a Atendido?
+
+Filtro: categoría, periodo
+Tabla: categoría | tiempo promedio (días)
+Gráfico de barras por categoría
+
+Fuente: reporte, historial_estado, categoria" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1520" y="150" width="300" height="420" as="geometry"/></mxCell>
+<mxCell id="e4" value="usa datos de" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111827;fontColor=#111827;fontSize=9;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p03" target="report2"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e3" value="usa datos de" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111827;fontColor=#111827;fontSize=9;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p03" target="report"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="p04" value="P04 · Mapa de zonas críticas (RF-04)
+
+Periodo: [7 días / mes / 3 meses / año]
+
+Norte: 4   Centro: 11
+Castilla: 2   Sur: 7
+Este: 3     Oeste: 1
+
+Más oscuro = más reportes
+(valores de ejemplo, boceto)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1590" y="110" width="300" height="420" as="geometry"/></mxCell>
+<mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111827;" edge="1" parent="1" source="report" target="p04"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="note" value="Wireframes basados en el Prototipo v0.3 y la matriz Pantallas_UXUI. Cada pantalla se vincula con su requerimiento (RF), actividad BPMN y entidades de la BD v0.5. P01/P02 las usa el Ciudadano y P03/P04 el Personal municipal — son casos de uso independientes, no un flujo secuencial único. R01 se alimenta de los datos de Reporte y Zona, no de una acción dentro de P03." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#1e3a8a;" vertex="1" parent="1"><mxGeometry x="120" y="610" width="1280" height="80" as="geometry"/></mxCell>
+</root></mxGraphModel></diagram>
+<diagram id="trace" name="Mapa_Trazabilidad_UXUI"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>
+<mxCell id="title2" value="Mapa de trazabilidad · Requerimiento → BPM → BD → Pantalla → Reporte → Documento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ffffff;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="40" y="25" width="1200" height="40" as="geometry"/></mxCell>
+<mxCell id="h0" value="Requerimiento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#111827;strokeColor=#111827;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="40" y="90" width="210" height="45" as="geometry"/></mxCell>
+<mxCell id="h1" value="Actividad BPMN" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#111827;strokeColor=#111827;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="285" y="90" width="210" height="45" as="geometry"/></mxCell>
+<mxCell id="h2" value="Entidad BD" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#111827;strokeColor=#111827;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="530" y="90" width="210" height="45" as="geometry"/></mxCell>
+<mxCell id="h3" value="Pantalla" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#111827;strokeColor=#111827;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="775" y="90" width="210" height="45" as="geometry"/></mxCell>
+<mxCell id="h4" value="Reporte" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#111827;strokeColor=#111827;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="1020" y="90" width="210" height="45" as="geometry"/></mxCell>
+<mxCell id="h5" value="Documento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#111827;strokeColor=#111827;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="1265" y="90" width="210" height="45" as="geometry"/></mxCell>
+<mxCell id="r00" value="RF-01 Registrar reporte" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="40" y="155" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r01" value="A02 Registrar reporte de incidencia" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="285" y="155" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r02" value="Reporte / Categoria / Zona" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="530" y="155" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r03" value="P01 Registrar reporte" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="775" y="155" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r04" value="R01 Zonas críticas" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1020" y="155" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r05" value="D02 Diseño funcional" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1265" y="155" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="er00" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r00" target="r01"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er01" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r01" target="r02"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er02" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r02" target="r03"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er03" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r03" target="r04"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er04" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r04" target="r05"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="r10" value="RF-02 Consultar estado" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="40" y="240" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r11" value="A08 Consultar estado del reporte" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="285" y="240" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r12" value="Reporte / HistorialEstado" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="530" y="240" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r13" value="P02 Consultar estado" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="775" y="240" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r14" value="— (P02 es solo consulta individual; R02 lo produce el panel, no esta pantalla)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;fontSize=9;" vertex="1" parent="1"><mxGeometry x="1020" y="240" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r15" value="D01/D02" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1265" y="240" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="er10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r10" target="r11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r11" target="r12"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r12" target="r13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r13" target="r14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r14" target="r15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="r20" value="RF-03 Gestionar y cambiar estado" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="40" y="325" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r21" value="A10/A11 Revisar listado y cambiar estado" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="285" y="325" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r22" value="Reporte / HistorialEstado / UsuarioMunicipal" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="530" y="325" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r23" value="P03 Panel de gestión municipal" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="775" y="325" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r24" value="R02 Tiempos de atención" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1020" y="325" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r25" value="D02 Diseño funcional" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1265" y="325" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="er20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r20" target="r21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r21" target="r22"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r22" target="r23"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r23" target="r24"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r24" target="r25"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="r30" value="RF-04 Mapa de zonas críticas" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="40" y="410" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r31" value="A13 Actualizar mapa de zonas críticas" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="285" y="410" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r32" value="Reporte / Zona" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="530" y="410" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r33" value="P04 Mapa de zonas críticas" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="775" y="410" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r34" value="R01 Zonas críticas" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1020" y="410" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="r35" value="D03 Catálogo de reportes" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1265" y="410" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="er30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r30" target="r31"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r31" target="r32"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r32" target="r33"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r33" target="r34"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="er34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r34" target="r35"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="note2" value="Trazabilidad de las 4 pantallas y 2 reportes del proyecto (RF-01 a RF-04). Corregido 24/09/2026: se agregó la fila de RF-04 (antes ausente aquí aunque ya estaba en el xlsx) y se corrigió la fila de RF-03, que apuntaba por error a P04 en vez de P03." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#1e3a8a;" vertex="1" parent="1"><mxGeometry x="70" y="500" width="1370" height="90" as="geometry"/></mxCell>
+</root></mxGraphModel></diagram>
+</mxfile>
