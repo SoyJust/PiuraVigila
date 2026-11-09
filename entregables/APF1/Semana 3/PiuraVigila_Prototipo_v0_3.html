@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PiuraVigila — Prototipo v0.3</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #e9e9e9;
+    margin: 0;
+    padding: 24px;
+    color: #222;
+  }
+  @media (max-width: 520px) { body { padding: 0; } }
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #fff;
+    border: 2px solid #333;
+    min-height: 780px;
+    display: flex;
+    flex-direction: column;
+  }
+  header.top {
+    padding: 10px 14px;
+    border-bottom: 2px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header.top .title { font-weight: bold; font-size: 15px; }
+  header.top .ver { font-weight: normal; font-size: 10px; color: #666; margin-left: 6px; }
+  header.top .actor { font-size: 11px; border: 1px solid #333; padding: 2px 6px; border-radius: 3px; }
+
+  nav.tabs { display: flex; border-bottom: 2px solid #333; }
+  nav.tabs button {
+    flex: 1;
+    padding: 9px 2px;
+    font-size: 10px;
+    background: #ddd;
+    border: none;
+    border-right: 1px solid #333;
+    cursor: pointer;
+    font-family: inherit;
+    color: #222;
+  }
+  nav.tabs button:last-child { border-right: none; }
+  nav.tabs button.active { background: #fff; font-weight: bold; }
+
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid #1a5fb4;
+    outline-offset: 1px;
+  }
+
+  .screen { display: none; padding: 16px; flex: 1; }
+  .screen.active { display: block; }
+
+  h2.screen-title { font-size: 15px; margin: 0 0 4px 0; }
+  p.need { font-size: 11px; color: #555; margin: 0 0 14px 0; font-style: italic; }
+  h3.sub { font-size: 12px; margin: 18px 0 6px; border-top: 1px dashed #999; padding-top: 12px; }
+
+  label { display: block; font-size: 11px; font-weight: bold; margin: 12px 0 4px; }
+  label .req { color: #a00; }
+  label .opt { font-weight: normal; color: #666; }
+  input[type=text], input[type=password], select, textarea {
+    width: 100%;
+    padding: 7px;
+    border: 1.5px solid #333;
+    font-size: 13px;
+    font-family: inherit;
+    background: #fafafa;
+  }
+  input:disabled, select:disabled { background: #e6e6e6; color: #777; border-color: #999; }
+  textarea { resize: none; height: 56px; }
+  .hint { font-size: 10px; color: #666; margin-top: 3px; }
+  .counter { text-align: right; }
+
+  .photo-box {
+    border: 2px dashed #333;
+    padding: 12px 8px;
+    font-size: 11px;
+    color: #444;
+    margin-top: 4px;
+    background: #fafafa;
+  }
+  .photo-box input[type=file] { width: 100%; font-size: 11px; }
+
+  .btn {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px;
+    background: #333;
+    color: #fff;
+    border: 1.5px solid #333;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn.secondary { background: #fff; color: #333; }
+  .btn:disabled { background: #ccc; border-color: #999; color: #666; cursor: not-allowed; }
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row .btn { flex: 1; }
+  .btn-row .btn.grow { flex: 2; }
+  .btn.small { font-size: 11px; padding: 6px; margin-top: 8px; }
+
+  .result-box {
+    margin-top: 10px;
+    border: 1.5px solid #333;
+    padding: 10px;
+    font-size: 12px;
+    background: #f5f5f5;
+  }
+  .result-box.ok { border-left: 6px solid #333; }
+  .result-box.warn { border-left: 6px dashed #333; }
+  .result-box.err { border-left: 6px double #333; background: #efefef; }
+  .result-box .code { font-size: 15px; font-weight: bold; letter-spacing: 1px; margin-top: 4px; }
+  .result-row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; border-bottom: 1px dotted #999; }
+  .result-row:last-child { border-bottom: none; }
+
+  .filters { display: flex; gap: 6px; margin-bottom: 10px; }
+  .filters select { font-size: 10px; padding: 5px; }
+
+  .table-wrap { overflow-x: auto; }
+  table.list { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 4px; }
+  table.list th, table.list td { border: 1px solid #333; padding: 5px; text-align: left; vertical-align: middle; }
+  table.list th { background: #ddd; }
+  table.list select { font-size: 11px; padding: 3px; }
+  button.link {
+    background: none; border: none; padding: 0; font: inherit; color: #1a3d7c;
+    text-decoration: underline; cursor: pointer; font-size: 11px;
+  }
+
+  .login-mock { border: 1.5px dashed #333; padding: 12px; margin-bottom: 14px; background: #fafafa; }
+  .login-mock .tag { font-size: 9px; text-transform: uppercase; color: #777; margin-bottom: 8px; }
+
+  .session-bar { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-bottom: 8px; }
+
+  .history-list { font-size: 11px; border: 1px solid #333; padding: 8px; background: #fafafa; }
+  .history-item { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; border-bottom: 1px dotted #bbb; }
+  .history-item:last-child { border-bottom: none; }
+
+  .map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+  .zone-cell {
+    border: 1.5px solid #333;
+    aspect-ratio: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .zone-cell .n { font-size: 20px; font-weight: bold; }
+  .z0 { background: #f5f5f5; color: #222; }
+  .z1 { background: #e0e0e0; color: #222; }
+  .z2 { background: #a8a8a8; color: #111; }
+  .z3 { background: #4a4a4a; color: #fff; }
+  .legend { display: flex; align-items: center; gap: 4px; font-size: 10px; margin-top: 10px; }
+  .legend span.sw { width: 18px; height: 12px; border: 1px solid #333; display: inline-block; }
+
+  .meter { height: 12px; border: 1.5px solid #333; background: #fff; position: relative; margin: 6px 0 2px; }
+  .meter .fill { height: 100%; background: #777; }
+  .meter .mark { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed #a00; }
+  .cat-list { font-size: 11px; margin: 4px 0 0; padding-left: 18px; columns: 1; }
+
+  footer.reqs {
+    border-top: 1.5px dashed #999;
+    padding: 8px 14px;
+    font-size: 10px;
+    color: #555;
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  .note { font-size: 10px; color: #777; margin-top: 10px; border-top: 1px dashed #ccc; padding-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header class="top">
+    <span class="title">PiuraVigila<span class="ver">Prototipo v0.3</span></span>
+    <span class="actor" id="actorTag">Ciudadano</span>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Pantallas del prototipo">
+    <button class="active" role="tab" aria-selected="true"  data-i="0">1. Registrar</button>
+    <button role="tab" aria-selected="false" data-i="1">2. Consultar</button>
+    <button role="tab" aria-selected="false" data-i="2">3. Panel</button>
+    <button role="tab" aria-selected="false" data-i="3">4. Mapa</button>
+  </nav>
+
+  <!-- ============ P01 · Registrar (RF-01, RF-05, RF-06) ============ -->
+  <section class="screen active" id="screen0">
+    <h2 class="screen-title">Registrar reporte de incidencia</h2>
+    <p class="need">Necesidad: reportar un problema urbano sin llamar o escribir por WhatsApp.</p>
+
+    <label for="cat">Categoría <span class="req">*</span></label>
+    <select id="cat"></select>
+
+    <label for="foto">Foto de la incidencia <span class="req">*</span></label>
+    <div class="photo-box">
+      <input type="file" id="foto" accept="image/*">
+    </div>
+
+    <label for="zona">Zona <span class="req">*</span></label>
+    <select id="zona"></select>
+
+    <label for="desc">Descripción breve <span class="req">*</span></label>
+    <textarea id="desc" maxlength="300" placeholder="Ej: bache grande frente al mercado"></textarea>
+    <div class="hint counter"><span id="descCount">0</span>/300 · No escribas datos personales (DNI, teléfono).</div>
+
+    <div class="btn-row">
+      <button type="button" class="btn secondary" id="btnCancelar">Cancelar</button>
+      <button type="button" class="btn grow" id="btnEnviar">Enviar reporte</button>
+    </div>
+
+    <div class="result-box" id="res0" style="display:none;" aria-live="polite"></div>
+
+    <p class="note">
+      <span id="contadorHoy">Reportes enviados hoy desde este dispositivo: 0 de 3.</span><br>
+      Demo: para ver el aviso de duplicado, envía dos veces la misma foto en la misma zona (ventana de 24 h).
+      Al cuarto reporte nuevo del día se muestra el límite diario.
+    </p>
+  </section>
+
+  <!-- ============ P02 · Consultar (RF-02) ============ -->
+  <section class="screen" id="screen1">
+    <h2 class="screen-title">Consultar estado del reporte</h2>
+    <p class="need">Necesidad: saber si mi reporte fue atendido, sin volver a llamar.</p>
+
+    <label for="codigoInput">Código de seguimiento</label>
+    <input type="text" id="codigoInput" placeholder="PR-AAAA-####" maxlength="12" autocomplete="off">
+    <div class="hint">Demo: prueba con PR-2026-0417, o con el código que recibiste al registrar.</div>
+    <button type="button" class="btn" id="btnConsultar">Consultar</button>
+
+    <div class="result-box" id="resConsulta" style="display:none;" aria-live="polite"></div>
+  </section>
+
+  <!-- ============ P03 · Panel (RF-03, RNF-01, RF-07) ============ -->
+  <section class="screen" id="screen2">
+    <h2 class="screen-title">Panel de gestión municipal</h2>
+    <p class="need">Necesidad: priorizar reportes por zona y tipo en vez de por orden de llegada.</p>
+
+    <div class="login-mock" id="loginBox">
+      <div class="tag">Pantalla de acceso (RNF-01)</div>
+      <div class="result-box warn" style="margin-top:0;margin-bottom:6px;">
+        <b>Sesión requerida:</b> inicia sesión para ver el panel.
+      </div>
+      <label for="usuario">Usuario</label>
+      <input type="text" id="usuario" placeholder="usuario.municipal" autocomplete="off">
+      <label for="clave">Contraseña</label>
+      <input type="password" id="clave" placeholder="••••••••" autocomplete="off">
+      <div class="hint">Demo académica (sin datos reales): usuario <b>admin</b> · contraseña <b>demo123</b></div>
+      <button type="button" class="btn secondary" id="btnLogin">Iniciar sesión</button>
+      <div class="result-box err" id="loginErr" style="display:none;" aria-live="polite"></div>
+    </div>
+
+    <div id="panelContenido" style="display:none;">
+      <div class="session-bar">
+        <span>Sesión: <b>admin</b> (personal municipal)</span>
+        <button type="button" class="link" id="btnLogout">Cerrar sesión</button>
+      </div>
+
+      <h3 class="sub" style="margin-top:6px;">Listado de reportes</h3>
+      <div class="filters">
+        <select id="fZona" aria-label="Filtrar por zona"></select>
+        <select id="fCat" aria-label="Filtrar por categoría"></select>
+        <select id="fEstado" aria-label="Filtrar por estado">
+          <option value="">Estado: todos</option>
+          <option>Recibido</option>
+          <option>En proceso</option>
+          <option>Atendido</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table class="list">
+          <thead><tr><th>Código</th><th>Tipo</th><th>Zona</th><th>Estado</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="hint">El estado solo avanza: Recibido → En proceso → Atendido (sin retroceso).</div>
+      <div class="hint" id="dupCount">Duplicados evitados registrados: 0</div>
+
+      <button type="button" class="btn secondary" id="btnGuardar">Guardar cambios de estado</button>
+      <div class="result-box" id="confirmCambio" style="display:none;" aria-live="polite"></div>
+
+      <h3 class="sub" id="histTitulo">Historial del reporte</h3>
+      <div class="history-list" id="histBox"></div>
+
+      <h3 class="sub" id="rf07Titulo">Aviso de categorías (RF-07)</h3>
+      <div class="result-box" style="margin-top:0;">
+        <div class="result-row"><span>Periodo</span><span id="p5Mes">—</span></div>
+        <div class="result-row"><span>Reportes del mes</span><span id="p5Total">—</span></div>
+        <div class="result-row"><span>Reportes en «Otra»</span><span id="p5Otra">—</span></div>
+        <div class="result-row"><span>Porcentaje en «Otra»</span><span id="p5Pct">—</span></div>
+        <div class="meter" aria-hidden="true"><div class="fill" id="p5Fill" style="width:0%"></div><div class="mark" style="left:10%"></div></div>
+        <div class="hint">Umbral: más del 10 % de los reportes del mes calendario (línea punteada).</div>
+      </div>
+      <div class="result-box" id="p5Estado" aria-live="polite"></div>
+
+      <label for="nuevaCat">Habilitar categoría nueva</label>
+      <input type="text" id="nuevaCat" maxlength="60" placeholder="Ej: Mobiliario urbano dañado" disabled>
+      <button type="button" class="btn" id="btnHabilitar" disabled>Guardar</button>
+      <div class="result-box" id="p5Msg" style="display:none;" aria-live="polite"></div>
+
+      <h3 class="sub">Categorías activas en el formulario</h3>
+      <ol class="cat-list" id="p5Lista"></ol>
+      <button type="button" class="btn secondary small" id="btnSimOtra">Simular +1 reporte en «Otra» (solo demo)</button>
+    </div>
+  </section>
+
+  <!-- ============ P04 · Mapa (RF-04) ============ -->
+  <section class="screen" id="screen3">
+    <h2 class="screen-title">Mapa de zonas críticas</h2>
+    <p class="need">Necesidad: identificar en qué zonas se concentran más incidencias.</p>
+
+    <label for="periodo">Periodo</label>
+    <select id="periodo">
+      <option value="7d">Últimos 7 días</option>
+      <option value="1m">Último mes</option>
+      <option value="3m">Últimos 3 meses</option>
+      <option value="1a">Último año</option>
+    </select>
+
+    <div class="map-grid" id="mapGrid"></div>
+
+    <div class="legend" aria-hidden="true">
+      <span>Menos</span>
+      <span class="sw z0"></span><span class="sw z1"></span><span class="sw z2"></span><span class="sw z3"></span>
+      <span>Más reportes</span>
+    </div>
+    <div class="hint" id="mapTotal"></div>
+    <p class="note">Mapa esquemático por zona (no por coordenada exacta). Boceto: los valores son de ejemplo, no se calculan con la BD.</p>
+  </section>
+
+  <footer class="reqs">
+    <span id="reqFooter">Requisitos cubiertos: RF-01 (Alta) · RF-05 (Media) · RF-06 (Baja)</span>
+    <button type="button" class="link" id="btnReset">Reiniciar demo</button>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Constantes (supuestos académicos de Requerimientos v0.4) ---------- */
+  const ZONAS = ['Centro', 'Norte', 'Sur', 'Este', 'Oeste', 'Castilla'];
+  const ESTADOS = ['Recibido', 'En proceso', 'Atendido'];
+  const PROX = { 'Recibido': 'En revisión', 'En proceso': 'Programado para atención', 'Atendido': 'Reporte cerrado' }; // derivado de estado, no es columna de BD
+  const LIMITE_DIARIO = 3;                 // RF-06
+  const VENTANA_DUP_MS = 24 * 3600 * 1000; // RF-05
+  const UMBRAL_OTRA_PCT = 10;              // RF-07
+  const USER_DEMO = 'admin', PASS_DEMO = 'demo123';
+
+  const ACTORES = ['Ciudadano', 'Ciudadano', 'Personal municipal', 'Personal municipal'];
+  const REQS = [
+    'Requisitos cubiertos: RF-01 (Alta) · RF-05 (Media) · RF-06 (Baja)',
+    'Requisito cubierto: RF-02 · Prioridad: Alta',
+    'Requisitos cubiertos: RF-03 (Alta) · RNF-01 (Media) · RF-07 (Media)',
+    'Requisito cubierto: RF-04 · Prioridad: Media'
+  ];
+
+  /* ---------- Estado en memoria (sin almacenamiento del navegador) ---------- */
+  let categorias = [
+    'Bache en la vía', 'Grieta o hundimiento en la pista', 'Vereda dañada', 'Luminaria dañada',
+    'Semáforo o señalización dañada', 'Fuga de agua o desagüe colapsado', 'Acumulación de basura',
+    'Árbol caído o área verde en riesgo', 'Cables expuestos o poste inclinado', 'Otra'
+  ];
+  const reportes = [
+    { codigo: 'PR-2026-0417', cat: 'Bache en la vía', zona: 'Centro', estado: 'En proceso', fecha: '10/09/2026',
+      hist: [{ estado: 'Recibido', fecha: '10/09/2026', quien: 'sistema' }, { estado: 'En proceso', fecha: '14/09/2026', quien: 'admin' }] },
+    { codigo: 'PR-2026-0418', cat: 'Luminaria dañada', zona: 'Norte', estado: 'Recibido', fecha: '11/09/2026',
+      hist: [{ estado: 'Recibido', fecha: '11/09/2026', quien: 'sistema' }] },
+    { codigo: 'PR-2026-0419', cat: 'Acumulación de basura', zona: 'Sur', estado: 'Atendido', fecha: '05/09/2026',
+      hist: [{ estado: 'Recibido', fecha: '05/09/2026', quien: 'sistema' }, { estado: 'En proceso', fecha: '08/09/2026', quien: 'admin' }, { estado: 'Atendido', fecha: '12/09/2026', quien: 'admin' }] }
+  ];
+  const MES_BASE = { total: 40, otra: 3 };
+  let seq, enviadosHoy, duplicadosEvitados, huellas, mes, pending, histSel, session;
+  function initState() {
+    seq = 420; enviadosHoy = 0; duplicadosEvitados = 0; huellas = [];
+    mes = { total: MES_BASE.total, otra: MES_BASE.otra };
+    pending = {}; histSel = 'PR-2026-0417'; session = false;
+  }
+  initState();
+
+  /* ---------- Utilidades ---------- */
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pad = n => String(n).padStart(2, '0');
+  const fmt = d => pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
+  function box(id, tipo, html) {
+    const e = $(id);
+    e.className = 'result-box ' + tipo;
+    e.innerHTML = html;
+    e.style.display = 'block';
+  }
+  const hide = id => { $(id).style.display = 'none'; };
+
+  /* ---------- Navegación ---------- */
+  function showScreen(i) {
+    document.querySelectorAll('.screen').forEach((s, idx) => s.classList.toggle('active', idx === i));
+    document.querySelectorAll('nav.tabs button').forEach((b, idx) => {
+      b.classList.toggle('active', idx === i);
+      b.setAttribute('aria-selected', idx === i ? 'true' : 'false');
+    });
+    $('actorTag').textContent = ACTORES[i];
+    $('reqFooter').textContent = REQS[i];
+  }
+  document.querySelectorAll('nav.tabs button').forEach(b =>
+    b.addEventListener('click', () => showScreen(Number(b.dataset.i))));
+
+  /* ---------- Catálogos (selects) ---------- */
+  function fillSelect(sel, placeholder, items, keep) {
+    const prev = keep ? sel.value : '';
+    sel.innerHTML = '<option value="">' + esc(placeholder) + '</option>' +
+      items.map(x => '<option value="' + esc(x) + '">' + esc(x) + '</option>').join('');
+    if (prev && items.indexOf(prev) !== -1) sel.value = prev;
+  }
+  function refreshCatalogos() {
+    fillSelect($('cat'), '— Selecciona categoría —', categorias, true);
+    fillSelect($('zona'), '— Selecciona zona —', ZONAS, true);
+    fillSelect($('fZona'), 'Zona: todas', ZONAS, true);
+    fillSelect($('fCat'), 'Categoría: todas', categorias, true);
+    $('p5Lista').innerHTML = categorias.map(c => '<li>' + esc(c) + '</li>').join('');
+  }
+
+  /* ---------- P01 · Registrar ---------- */
+  $('desc').addEventListener('input', () => { $('descCount').textContent = $('desc').value.length; });
+
+  function limpiarFormulario() {
+    $('cat').value = ''; $('zona').value = ''; $('desc').value = ''; $('foto').value = '';
+    $('descCount').textContent = '0';
+  }
+  function actualizarContador() {
+    $('contadorHoy').textContent = 'Reportes enviados hoy desde este dispositivo: ' + enviadosHoy + ' de ' + LIMITE_DIARIO + '.';
+    $('dupCount').textContent = 'Duplicados evitados registrados: ' + duplicadosEvitados;
+  }
+
+  $('btnCancelar').addEventListener('click', () => { limpiarFormulario(); hide('res0'); });
+
+  $('btnEnviar').addEventListener('click', () => {
+    const cat = $('cat').value, zona = $('zona').value, desc = $('desc').value.trim();
+    const file = $('foto').files[0];
+    const faltan = [];
+    if (!cat) faltan.push('categoría');
+    if (!file) faltan.push('foto');
+    if (!zona) faltan.push('zona');
+    if (!desc) faltan.push('descripción');
+    if (faltan.length) {
+      box('res0', 'err', '<b>Faltan campos obligatorios:</b> ' + faltan.join(', ') + '.');
+      return;
+    }
+
+    // RF-05: duplicado = misma imagen (huella) + misma zona dentro de 24 h
+    const key = file.name + '|' + file.size + '|' + file.lastModified;
+    const ahora = Date.now();
+    const dup = huellas.find(h => h.key === key && h.zona === zona && ahora - h.ts < VENTANA_DUP_MS);
+    if (dup) {
+      duplicadosEvitados++;
+      actualizarContador(); renderPanel();
+      box('res0', 'warn', '<b>Duplicado (RF-05):</b> la foto y la zona coinciden con un reporte reciente. ' +
+        'Se asoció al código existente <b>' + esc(dup.codigo) + '</b>; no se creó uno nuevo.');
+      return;
+    }
+
+    // RF-06: límite diario por dispositivo
+    if (enviadosHoy >= LIMITE_DIARIO) {
+      box('res0', 'err', '<b>Límite diario alcanzado (RF-06):</b> este dispositivo ya envió ' + LIMITE_DIARIO +
+        ' reportes hoy. El reporte no se registró.');
+      return;
+    }
+
+    // Registro correcto (RF-01)
+    const codigo = 'PR-' + new Date().getFullYear() + '-' + String(seq++).padStart(4, '0');
+    const hoy = fmt(new Date());
+    reportes.push({ codigo: codigo, cat: cat, zona: zona, estado: 'Recibido', fecha: hoy,
+      hist: [{ estado: 'Recibido', fecha: hoy, quien: 'sistema' }] });
+    huellas.push({ key: key, zona: zona, ts: ahora, codigo: codigo });
+    enviadosHoy++;
+    mes.total++; if (cat === 'Otra') mes.otra++;
+    limpiarFormulario(); actualizarContador(); renderPanel(); renderP5();
+    box('res0', 'ok', '<div>Reporte registrado correctamente.</div><div class="code">Código: ' + esc(codigo) + '</div>' +
+      '<div class="hint">Guárdalo para consultar el estado.</div>');
+  });
+
+  /* ---------- P02 · Consultar ---------- */
+  function consultar() {
+    const cod = $('codigoInput').value.trim().toUpperCase();
+    const r = /^PR-\d{4}-\d{4}$/.test(cod) ? reportes.find(x => x.codigo === cod) : null;
+    if (!r) {
+      box('resConsulta', 'err', '<b>Código no encontrado.</b> Verifica que esté bien escrito.');
+      return;
+    }
+    box('resConsulta', 'ok',
+      '<div class="result-row"><span>Código</span><span>' + esc(r.codigo) + '</span></div>' +
+      '<div class="result-row"><span>Categoría</span><span>' + esc(r.cat) + '</span></div>' +
+      '<div class="result-row"><span>Estado</span><span>' + esc(r.estado) + '</span></div>' +
+      '<div class="result-row"><span>Fecha de registro</span><span>' + esc(r.fecha) + '</span></div>' +
+      '<div class="result-row"><span>Próxima acción</span><span>' + esc(PROX[r.estado]) + '</span></div>');
+  }
+  $('btnConsultar').addEventListener('click', consultar);
+  $('codigoInput').addEventListener('keydown', e => { if (e.key === 'Enter') consultar(); });
+
+  /* ---------- Sesión (RNF-01) ---------- */
+  function actualizarSesion() {
+    $('loginBox').style.display = session ? 'none' : 'block';
+    $('panelContenido').style.display = session ? 'block' : 'none';
+    if (session) { renderPanel(); renderP5(); }
+  }
+  function login() {
+    if ($('usuario').value.trim() === USER_DEMO && $('clave').value === PASS_DEMO) {
+      session = true; hide('loginErr'); $('clave').value = ''; actualizarSesion();
+    } else {
+      box('loginErr', 'err', '<b>Usuario o contraseña incorrectos.</b> Inténtalo de nuevo.');
+    }
+  }
+  $('btnLogin').addEventListener('click', login);
+  $('clave').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+  $('btnLogout').addEventListener('click', () => { session = false; $('usuario').value = ''; hide('confirmCambio'); actualizarSesion(); });
+
+  /* ---------- P03 · Panel (RF-03) ---------- */
+  function renderPanel() {
+    if (!session) return;
+    const z = $('fZona').value, c = $('fCat').value, e = $('fEstado').value;
+    const filas = reportes.filter(r => (!z || r.zona === z) && (!c || r.cat === c) && (!e || r.estado === e));
+    $('tbody').innerHTML = filas.length ? filas.map(r => {
+      const cur = ESTADOS.indexOf(r.estado);
+      const val = pending[r.codigo] || r.estado;
+      const opts = ESTADOS.filter((s, i) => i === cur || i === cur + 1)
+        .map(s => '<option' + (s === val ? ' selected' : '') + '>' + s + '</option>').join('');
+      return '<tr><td><button type="button" class="link" data-hist="' + esc(r.codigo) + '">' + esc(r.codigo) + '</button></td>' +
+        '<td>' + esc(r.cat) + '</td><td>' + esc(r.zona) + '</td>' +
+        '<td><select data-cod="' + esc(r.codigo) + '" aria-label="Estado de ' + esc(r.codigo) + '"' + (cur === 2 ? ' disabled' : '') + '>' + opts + '</select></td></tr>';
+    }).join('') : '<tr><td colspan="4">No hay reportes con esos filtros.</td></tr>';
+    renderHist();
+  }
+  function renderHist() {
+    const r = reportes.find(x => x.codigo === histSel);
+    $('histTitulo').textContent = r ? 'Historial del reporte ' + r.codigo : 'Historial del reporte';
+    $('histBox').innerHTML = r ? r.hist.map(h =>
+      '<div class="history-item"><span>' + esc(h.estado) + '</span><span>' + esc(h.fecha) + ' — ' + esc(h.quien) + '</span></div>').join('')
+      : 'Selecciona un código del listado para ver su historial.';
+  }
+  ['fZona', 'fCat', 'fEstado'].forEach(id => $(id).addEventListener('change', renderPanel));
+  $('tbody').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-hist]');
+    if (b) { histSel = b.dataset.hist; renderHist(); }
+  });
+  $('tbody').addEventListener('change', ev => {
+    const s = ev.target.closest('select[data-cod]');
+    if (!s) return;
+    const r = reportes.find(x => x.codigo === s.dataset.cod);
+    if (s.value === r.estado) delete pending[r.codigo]; else pending[r.codigo] = s.value;
+  });
+  $('btnGuardar').addEventListener('click', () => {
+    const cods = Object.keys(pending);
+    if (!cods.length) { box('confirmCambio', 'warn', 'No hay cambios de estado para guardar.'); return; }
+    const hoy = fmt(new Date());
+    cods.forEach(cod => {
+      const r = reportes.find(x => x.codigo === cod);
+      r.estado = pending[cod];
+      r.hist.push({ estado: r.estado, fecha: hoy, quien: USER_DEMO });
+    });
+    pending = {};
+    renderPanel();
+    box('confirmCambio', 'ok', '<b>Estado actualizado.</b> Quedó registrado con fecha ' + hoy +
+      ' y usuario responsable: ' + USER_DEMO + ' (' + cods.length + ' cambio' + (cods.length > 1 ? 's' : '') + ').');
+  });
+
+  /* ---------- P04 · Mapa (RF-04) ---------- */
+  const EJEMPLO = { // valores de ejemplo por periodo, orden: Norte, Centro, Castilla, Sur, Este, Oeste
+    '7d': [4, 11, 2, 7, 3, 1],
+    '1m': [17, 46, 8, 29, 12, 5],
+    '3m': [49, 128, 25, 84, 37, 14],
+    '1a': [190, 510, 98, 330, 141, 60]
+  };
+  const ORDEN_MAPA = ['Norte', 'Centro', 'Castilla', 'Sur', 'Este', 'Oeste'];
+  function renderMapa() {
+    const v = EJEMPLO[$('periodo').value], max = Math.max.apply(null, v);
+    $('mapGrid').innerHTML = ORDEN_MAPA.map((z, i) => {
+      const r = v[i] / max, k = r < 0.2 ? 0 : r < 0.45 ? 1 : r < 0.7 ? 2 : 3;
+      return '<div class="zone-cell z' + k + '"><span>' + z + '</span><span class="n">' + v[i] + '</span></div>';
+    }).join('');
+    $('mapTotal').textContent = 'Total del periodo (ejemplo): ' + v.reduce((a, b) => a + b, 0) + ' reportes.';
+  }
+  $('periodo').addEventListener('change', renderMapa);
+
+  /* ---------- RF-07 · Aviso y habilitación de categoría (dentro de P03) ---------- */
+  function superaUmbral() { return mes.otra * 100 > mes.total * UMBRAL_OTRA_PCT; }
+  function renderP5() {
+    const pct = mes.total ? (mes.otra * 100 / mes.total) : 0;
+    const nombreMes = new Date().toLocaleDateString('es-PE', { month: 'long', year: 'numeric' });
+    $('p5Mes').textContent = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+    $('p5Total').textContent = mes.total;
+    $('p5Otra').textContent = mes.otra;
+    $('p5Pct').textContent = pct.toFixed(1) + ' %';
+    $('p5Fill').style.width = Math.min(100, pct) + '%';
+    const ok = superaUmbral();
+    box('p5Estado', ok ? 'ok' : 'warn', ok
+      ? '<b>La categoría Otra superó el umbral.</b> Puedes habilitar una categoría nueva.'
+      : '<b>Umbral no superado:</b> la acción de habilitar categoría no está disponible.');
+    $('nuevaCat').disabled = !ok;
+    $('btnHabilitar').disabled = !ok;
+  }
+  $('btnSimOtra').addEventListener('click', () => { mes.total++; mes.otra++; renderP5(); });
+  $('btnHabilitar').addEventListener('click', () => {
+    if (!superaUmbral()) return;
+    const nombre = $('nuevaCat').value.trim().replace(/\s+/g, ' ');
+    if (!nombre) { box('p5Msg', 'err', '<b>Escribe el nombre</b> de la categoría nueva.'); return; }
+    if (categorias.some(c => c.toLowerCase() === nombre.toLowerCase())) {
+      box('p5Msg', 'err', '<b>Ya existe</b> una categoría con ese nombre.'); return;
+    }
+    categorias.splice(categorias.length - 1, 0, nombre); // queda antes de «Otra»
+    $('nuevaCat').value = '';
+    refreshCatalogos();
+    box('p5Msg', 'ok', '<b>Categoría «' + esc(nombre) + '» habilitada.</b> Ya está activa y disponible en el formulario de registro (P01).');
+  });
+
+  /* ---------- Reinicio ---------- */
+  $('btnReset').addEventListener('click', () => location.reload());
+
+  /* ---------- Arranque ---------- */
+  refreshCatalogos();
+  actualizarContador();
+  actualizarSesion();
+  renderMapa();
+  showScreen(0);
+})();
+</script>
+
+</body>
+</html>
