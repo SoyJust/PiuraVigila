@@ -21,3 +21,4 @@ Correcciones de la rev1 (09/11/2026):
   4) Lean Canvas: se quito el rotulo "Plantilla editable" del subtitulo.
 
   5) Lean Canvas: campo "Grupo" completado (PiuraVigila).
+  6) Requerimientos: se agregan RN-01 y RNF-03 (ya estaban en la BD v0.5 y en el codigo).
