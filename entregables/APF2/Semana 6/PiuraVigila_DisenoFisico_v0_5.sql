@@ -1,4 +1,4 @@
--- Semana 6 · Diseño físico inicial v0.5
+-- Semana 6 · Diseño físico v0.5 (rev. 15/10/2026; sincronizado con database/01_schema.sql y 02_seed.sql el 09/11/2026)
 -- Curso Integrador I: Sistemas - Software
 -- Proyecto: PiuraVigila (registro y atención de reportes de incidencias urbanas)
 --
@@ -6,8 +6,14 @@
 -- Se eligió por: CHECK y BOOLEAN nativos sin configuración adicional (a diferencia
 -- de versiones antiguas de MySQL), buena integración con JDBC para la arquitectura
 -- Java de Semana 9, y es gratuito. Si en Semana 9 deciden usar MySQL en su lugar,
--- solo hay que revisar: BOOLEAN -> TINYINT(1) (no requiere cambio real) y
--- GENERATED ALWAYS AS IDENTITY -> AUTO_INCREMENT en cada PK de abajo.
+-- solo hay que revisar: BOOLEAN -> TINYINT(1) (no requiere cambio real),
+-- GENERATED ALWAYS AS IDENTITY -> AUTO_INCREMENT en cada PK de abajo, el índice
+-- parcial de duplicados (en MySQL sería un índice normal) y la secuencia del código.
+--
+-- Cambios de la revisión del 15/10/2026 (observaciones del docente):
+--  * Se elimina hash_foto: los duplicados ya no se detectan comparando fotos.
+--  * Se agrega reporte_original_id: un reporte vinculado apunta al caso original (RF-05, RN-01).
+--  * El formato del código se valida con CHECK y el número sale de una secuencia (RNF-03).
 
 -- Tablas sin dependencias (se crean primero)
 
@@ -32,16 +38,25 @@ CREATE TABLE usuario_municipal (
     CONSTRAINT ck_usuario_rol CHECK (rol IN ('administrador','operador'))
 );
 
+-- Código de seguimiento (RNF-03): el número lo entrega la base de datos, así que dos envíos
+-- simultáneos nunca reciben el mismo. La aplicación arma el código con:
+--   'PR-' || EXTRACT(YEAR FROM CURRENT_DATE) || '-' || LPAD(nextval('seq_codigo_reporte')::text, 4, '0')
+CREATE SEQUENCE seq_codigo_reporte START 1;
+
 -- Tabla transaccional central
+--  * Caso original: reporte_original_id es NULL y tiene su propio código de seguimiento.
+--  * Reporte vinculado (RN-01): reporte_original_id apunta al caso original y NO tiene código
+--    propio; el ciudadano usa el código del original. Su estado no se usa: manda el del original.
+--  * La aplicación solo permite vincular a un caso original abierto (Recibido o En proceso).
 
 CREATE TABLE reporte (
     reporte_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    codigo_seguimiento VARCHAR(20) NOT NULL UNIQUE,
+    codigo_seguimiento VARCHAR(20) UNIQUE,
+    reporte_original_id INT,
     categoria_id INT NOT NULL,
     zona_id INT NOT NULL,
     descripcion VARCHAR(300) NOT NULL,
-    foto_url VARCHAR(255) NOT NULL,
-    hash_foto VARCHAR(64) NOT NULL,
+    foto_url VARCHAR(255) NOT NULL, -- solo la ruta de la foto (una por reporte, máx. 2 MB validado por la aplicación)
     lat DECIMAL(9,6),
     lng DECIMAL(9,6),
     estado VARCHAR(20) NOT NULL DEFAULT 'Recibido',
@@ -51,11 +66,21 @@ CREATE TABLE reporte (
         REFERENCES categoria(categoria_id),
     CONSTRAINT fk_reporte_zona FOREIGN KEY (zona_id)
         REFERENCES zona(zona_id),
-    CONSTRAINT ck_reporte_estado CHECK (estado IN ('Recibido','En proceso','Atendido'))
+    CONSTRAINT fk_reporte_original FOREIGN KEY (reporte_original_id)
+        REFERENCES reporte(reporte_id),
+    CONSTRAINT ck_reporte_estado CHECK (estado IN ('Recibido','En proceso','Atendido')),
+    -- Original: código con formato PR-AAAA-####. Vinculado: sin código propio.
+    CONSTRAINT ck_reporte_codigo CHECK (
+        (reporte_original_id IS NULL AND codigo_seguimiento IS NOT NULL
+            AND codigo_seguimiento ~ '^PR-[0-9]{4}-[0-9]{4}$')
+        OR (reporte_original_id IS NOT NULL AND codigo_seguimiento IS NULL)
+    ),
+    CONSTRAINT ck_reporte_no_autovinculo CHECK (reporte_original_id <> reporte_id)
 );
 
-CREATE INDEX idx_reporte_hash_zona ON reporte (hash_foto, zona_id, fecha_registro); -- soporta RF-05 (detección de duplicados)
-CREATE INDEX idx_reporte_dispositivo_fecha ON reporte (dispositivo_id, fecha_registro); -- soporta RF-06 (límite diario)
+CREATE INDEX idx_reporte_duplicado ON reporte (categoria_id, zona_id, estado) WHERE reporte_original_id IS NULL; -- soporta RF-05 (buscar un caso abierto con la misma categoría y zona)
+CREATE INDEX idx_reporte_original ON reporte (reporte_original_id); -- soporta RN-01 (contar reportes vinculados a un caso)
+CREATE INDEX idx_reporte_dispositivo_fecha ON reporte (dispositivo_id, fecha_registro); -- soporta RF-06 (intervalo de 60 s y límite diario)
 
 -- Las FK no se indexan automáticamente en Postgres/MySQL; sin estos índices,
 -- los joins y agregaciones por categoría/zona hacen sequential scan.
@@ -89,20 +114,24 @@ CREATE INDEX idx_historial_usuario ON historial_estado (usuario_id); -- soporta 
 -- Decisiones de seguridad documentadas (ver hoja Seguridad, Semana 6):
 -- 1. Datos sensibles: usuario_municipal.contrasena_hash (nunca texto plano; solo hash).
 -- 2. El reporte es anónimo por diseño: no existe tabla de identidad del ciudadano;
---    hash_foto y dispositivo_id no deben asociarse a datos personales.
+--    dispositivo_id no debe asociarse a datos personales.
 -- 3. reporte.estado y historial_estado.estado_nuevo usan el mismo CHECK para
 --    evitar valores inconsistentes entre el estado actual y el historial.
 -- 4. Usar consultas parametrizadas en la etapa de desarrollo (prevención de inyección SQL).
--- 5. rol controla el acceso dentro de la aplicación (RNF-01); la validación de
+-- 5. Las reglas anti-spam (60 s entre reportes, 3 por día, verificación) y la regla de
+--    duplicados se validan en el servidor, no solo en el formulario (RF-06, RN-01).
+-- 6. rol controla el acceso dentro de la aplicación (RNF-01); la validación de
 --    permisos ocurre en la capa de aplicación, no solo en la base de datos.
+
+
 
 
 -- ============================================================
 -- Datos iniciales mínimos (seed) — Semana 6, corregido 27/09/2026
 -- ============================================================
 INSERT INTO zona (nombre, sector) VALUES
-    ('Centro', NULL), ('Norte', NULL), ('Sur', NULL),
-    ('Este', NULL), ('Oeste', NULL), ('Castilla', NULL);
+    ('Piura', NULL), ('Castilla', NULL), ('Veintiséis de Octubre', NULL),
+    ('Catacaos', NULL), ('La Arena', NULL), ('La Unión', NULL);
 
 INSERT INTO categoria (nombre, activo) VALUES
     ('Bache en la vía', TRUE),
@@ -118,4 +147,7 @@ INSERT INTO categoria (nombre, activo) VALUES
 
 -- Contraseña de ejemplo (hash simulado, académico): cambiar antes de cualquier uso real.
 INSERT INTO usuario_municipal (nombre, usuario, contrasena_hash, rol) VALUES
-    ('Administrador PiuraVigila', 'admin', 'HASH_PENDIENTE_DE_IMPLEMENTACION', 'administrador');
+    ('Administrador PiuraVigila', 'admin', 'HASH_PENDIENTE_DE_IMPLEMENTACION', 'administrador'),
+    ('Operador PiuraVigila', 'operador', 'HASH_PENDIENTE_DE_IMPLEMENTACION', 'operador');
+
+
