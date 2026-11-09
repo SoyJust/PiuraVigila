@@ -1,0 +1,23 @@
+APF1 - PiuraVigila - Semanas 1, 2 y 3 (evaluacion en la semana 4)
+Revision: 09/11/2026 (rev1, correcciones de coherencia con APF2, APF3 y el silabo 2026-2)
+
+Codigo: https://github.com/SoyJust/PiuraVigila  (estos documentos tambien estan en entregables/APF1)
+
+Semana 1  PiuraVigila_LeanCanvas_v0_1.docx      Lean Canvas, fuentes y supuestos.
+Semana 2  PiuraVigila_PMBOK_v0_2.xlsx           Project Charter, WBS, Gantt, trazabilidad de decisiones y semaforo.
+Semana 3  PiuraVigila_Requerimientos_v0_3.xlsx  Matriz de requerimientos (contenido v0.5), trazabilidad, prototipo y control de cambios.
+          PiuraVigila_Prototipo_v0_3.html       Prototipo navegable de baja fidelidad (rev1). Se abre con doble clic.
+
+Correcciones de la rev1 (09/11/2026):
+  1) PMBOK: estados ajustados a las listas de validacion (habia "Entregado" y "Corregido", que no estan en la lista);
+     el desarrollo figura en las semanas 9-11 (Unidad 3), como ocurrio, y la Unidad 4 se planifica semana a semana:
+     pruebas (S13), seguridad (S14), despliegue (S15), monitoreo (S16), mantenimiento (S17), PROY (S18).
+     El Gantt pinta ahora las semanas S1 a S18 (antes solo S1 a S4). Decisiones nuevas D10, D11 y D12.
+  2) Requerimientos: RF-05 (duplicado = caso abierto de la misma categoria y zona, confirma el ciudadano, RN-01),
+     RF-06 (60 s entre envios y suma de verificacion), RF-04, RF-07 y RNF-01 alineados con el codigo de APF3.
+     Referencias corregidas: PMBOK v0.3 -> v0.2 y Prototipo v0_4 -> v0_3. Estados en "Validado" con evidencia.
+  3) Prototipo: distritos reales, pregunta "Es el mismo caso?", 60 s entre envios y "Ultima actualizacion"
+     en la consulta (antes mostraba "Proxima accion", retirada en la v0.4 de los requerimientos).
+  4) Lean Canvas: se quito el rotulo "Plantilla editable" del subtitulo.
+
+Pendiente: el campo "Grupo" del Lean Canvas esta vacio (falta el numero de grupo).
