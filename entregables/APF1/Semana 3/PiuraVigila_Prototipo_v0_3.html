@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PiuraVigila — Prototipo v0.3</title>
+<title>PiuraVigila — Prototipo v0.3 (rev1)</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -179,7 +179,7 @@
 <div class="app">
 
   <header class="top">
-    <span class="title">PiuraVigila<span class="ver">Prototipo v0.3</span></span>
+    <span class="title">PiuraVigila<span class="ver">Prototipo v0.3 · rev1</span></span>
     <span class="actor" id="actorTag">Ciudadano</span>
   </header>
 
@@ -219,8 +219,9 @@
 
     <p class="note">
       <span id="contadorHoy">Reportes enviados hoy desde este dispositivo: 0 de 3.</span><br>
-      Demo: para ver el aviso de duplicado, envía dos veces la misma foto en la misma zona (ventana de 24 h).
-      Al cuarto reporte nuevo del día se muestra el límite diario.
+      Demo: para ver el aviso de duplicado, envía un reporte con la misma categoría y zona de un caso abierto
+      (por ejemplo «Bache en la vía» en Piura) y responde si es el mismo caso. Entre dos envíos deben pasar 60 s
+      y al cuarto reporte del día se muestra el límite diario.
     </p>
   </section>
 
@@ -346,12 +347,11 @@
 (function () {
   'use strict';
 
-  /* ---------- Constantes (supuestos académicos de Requerimientos v0.4) ---------- */
-  const ZONAS = ['Centro', 'Norte', 'Sur', 'Este', 'Oeste', 'Castilla'];
+  /* ---------- Constantes (supuestos académicos de Requerimientos v0.5) ---------- */
+  const ZONAS = ['Piura', 'Castilla', 'Veintiséis de Octubre', 'Catacaos', 'La Arena', 'La Unión']; // distritos (BD: tabla zona)
   const ESTADOS = ['Recibido', 'En proceso', 'Atendido'];
-  const PROX = { 'Recibido': 'En revisión', 'En proceso': 'Programado para atención', 'Atendido': 'Reporte cerrado' }; // derivado de estado, no es columna de BD
   const LIMITE_DIARIO = 3;                 // RF-06
-  const VENTANA_DUP_MS = 24 * 3600 * 1000; // RF-05
+  const INTERVALO_MS = 60 * 1000;          // RF-06: 60 s entre envíos del mismo dispositivo
   const UMBRAL_OTRA_PCT = 10;              // RF-07
   const USER_DEMO = 'admin', PASS_DEMO = 'demo123';
 
@@ -370,17 +370,17 @@
     'Árbol caído o área verde en riesgo', 'Cables expuestos o poste inclinado', 'Otra'
   ];
   const reportes = [
-    { codigo: 'PR-2026-0417', cat: 'Bache en la vía', zona: 'Centro', estado: 'En proceso', fecha: '10/09/2026',
+    { codigo: 'PR-2026-0417', cat: 'Bache en la vía', zona: 'Piura', estado: 'En proceso', fecha: '10/09/2026',
       hist: [{ estado: 'Recibido', fecha: '10/09/2026', quien: 'sistema' }, { estado: 'En proceso', fecha: '14/09/2026', quien: 'admin' }] },
-    { codigo: 'PR-2026-0418', cat: 'Luminaria dañada', zona: 'Norte', estado: 'Recibido', fecha: '11/09/2026',
+    { codigo: 'PR-2026-0418', cat: 'Luminaria dañada', zona: 'Castilla', estado: 'Recibido', fecha: '11/09/2026',
       hist: [{ estado: 'Recibido', fecha: '11/09/2026', quien: 'sistema' }] },
-    { codigo: 'PR-2026-0419', cat: 'Acumulación de basura', zona: 'Sur', estado: 'Atendido', fecha: '05/09/2026',
+    { codigo: 'PR-2026-0419', cat: 'Acumulación de basura', zona: 'Veintiséis de Octubre', estado: 'Atendido', fecha: '05/09/2026',
       hist: [{ estado: 'Recibido', fecha: '05/09/2026', quien: 'sistema' }, { estado: 'En proceso', fecha: '08/09/2026', quien: 'admin' }, { estado: 'Atendido', fecha: '12/09/2026', quien: 'admin' }] }
   ];
   const MES_BASE = { total: 40, otra: 3 };
-  let seq, enviadosHoy, duplicadosEvitados, huellas, mes, pending, histSel, session;
+  let seq, enviadosHoy, duplicadosEvitados, ultimoEnvio, mes, pending, histSel, session;
   function initState() {
-    seq = 420; enviadosHoy = 0; duplicadosEvitados = 0; huellas = [];
+    seq = 420; enviadosHoy = 0; duplicadosEvitados = 0; ultimoEnvio = 0;
     mes = { total: MES_BASE.total, otra: MES_BASE.otra };
     pending = {}; histSel = 'PR-2026-0417'; session = false;
   }
@@ -454,37 +454,51 @@
       return;
     }
 
-    // RF-05: duplicado = misma imagen (huella) + misma zona dentro de 24 h
-    const key = file.name + '|' + file.size + '|' + file.lastModified;
+    // RF-06: intervalo de 60 s y límite diario por dispositivo
     const ahora = Date.now();
-    const dup = huellas.find(h => h.key === key && h.zona === zona && ahora - h.ts < VENTANA_DUP_MS);
-    if (dup) {
-      duplicadosEvitados++;
-      actualizarContador(); renderPanel();
-      box('res0', 'warn', '<b>Duplicado (RF-05):</b> la foto y la zona coinciden con un reporte reciente. ' +
-        'Se asoció al código existente <b>' + esc(dup.codigo) + '</b>; no se creó uno nuevo.');
+    if (ultimoEnvio && ahora - ultimoEnvio < INTERVALO_MS) {
+      box('res0', 'err', '<b>Espera antes de enviar otro reporte (RF-06):</b> faltan ' +
+        Math.ceil((INTERVALO_MS - (ahora - ultimoEnvio)) / 1000) + ' s.');
       return;
     }
-
-    // RF-06: límite diario por dispositivo
     if (enviadosHoy >= LIMITE_DIARIO) {
       box('res0', 'err', '<b>Límite diario alcanzado (RF-06):</b> este dispositivo ya envió ' + LIMITE_DIARIO +
         ' reportes hoy. El reporte no se registró.');
       return;
     }
 
-    // Registro correcto (RF-01)
+    // RF-05 / RN-01: caso abierto (Recibido o En proceso) con la misma categoría y zona → decide el ciudadano
+    const abierto = reportes.find(r => r.cat === cat && r.zona === zona && r.estado !== 'Atendido');
+    if (abierto) {
+      box('res0', 'warn', '<b>¿Es el mismo caso? (RF-05):</b> ya existe el caso abierto <b>' + esc(abierto.codigo) +
+        '</b> (' + esc(abierto.cat) + ' · ' + esc(abierto.zona) + ', ' + esc(abierto.estado) + ').' +
+        '<div class="btn-row"><button type="button" class="btn small" id="dupSi">Sí, es el mismo</button>' +
+        '<button type="button" class="btn small secondary" id="dupNo">No, es otro</button></div>');
+      $('dupSi').addEventListener('click', () => {
+        duplicadosEvitados++; enviadosHoy++; ultimoEnvio = Date.now();
+        mes.total++; if (cat === 'Otra') mes.otra++;
+        limpiarFormulario(); actualizarContador(); renderPanel(); renderP5();
+        box('res0', 'ok', 'Tu reporte se vinculó al caso <b>' + esc(abierto.codigo) +
+          '</b>. Usa ese código para consultar el estado; no se creó un código nuevo.');
+      });
+      $('dupNo').addEventListener('click', () => registrar(cat, zona));
+      return;
+    }
+    registrar(cat, zona);
+  });
+
+  // RF-01: registro de un caso nuevo con código PR-AAAA-####
+  function registrar(cat, zona) {
     const codigo = 'PR-' + new Date().getFullYear() + '-' + String(seq++).padStart(4, '0');
     const hoy = fmt(new Date());
     reportes.push({ codigo: codigo, cat: cat, zona: zona, estado: 'Recibido', fecha: hoy,
       hist: [{ estado: 'Recibido', fecha: hoy, quien: 'sistema' }] });
-    huellas.push({ key: key, zona: zona, ts: ahora, codigo: codigo });
-    enviadosHoy++;
+    enviadosHoy++; ultimoEnvio = Date.now();
     mes.total++; if (cat === 'Otra') mes.otra++;
     limpiarFormulario(); actualizarContador(); renderPanel(); renderP5();
     box('res0', 'ok', '<div>Reporte registrado correctamente.</div><div class="code">Código: ' + esc(codigo) + '</div>' +
       '<div class="hint">Guárdalo para consultar el estado.</div>');
-  });
+  }
 
   /* ---------- P02 · Consultar ---------- */
   function consultar() {
@@ -499,7 +513,7 @@
       '<div class="result-row"><span>Categoría</span><span>' + esc(r.cat) + '</span></div>' +
       '<div class="result-row"><span>Estado</span><span>' + esc(r.estado) + '</span></div>' +
       '<div class="result-row"><span>Fecha de registro</span><span>' + esc(r.fecha) + '</span></div>' +
-      '<div class="result-row"><span>Próxima acción</span><span>' + esc(PROX[r.estado]) + '</span></div>');
+      '<div class="result-row"><span>Última actualización</span><span>' + esc(r.hist[r.hist.length - 1].fecha) + '</span></div>');
   }
   $('btnConsultar').addEventListener('click', consultar);
   $('codigoInput').addEventListener('keydown', e => { if (e.key === 'Enter') consultar(); });
@@ -571,13 +585,13 @@
   });
 
   /* ---------- P04 · Mapa (RF-04) ---------- */
-  const EJEMPLO = { // valores de ejemplo por periodo, orden: Norte, Centro, Castilla, Sur, Este, Oeste
+  const EJEMPLO = { // valores de ejemplo por periodo, en el orden de ORDEN_MAPA
     '7d': [4, 11, 2, 7, 3, 1],
     '1m': [17, 46, 8, 29, 12, 5],
     '3m': [49, 128, 25, 84, 37, 14],
     '1a': [190, 510, 98, 330, 141, 60]
   };
-  const ORDEN_MAPA = ['Norte', 'Centro', 'Castilla', 'Sur', 'Este', 'Oeste'];
+  const ORDEN_MAPA = ['Castilla', 'Piura', 'La Unión', 'Veintiséis de Octubre', 'Catacaos', 'La Arena'];
   function renderMapa() {
     const v = EJEMPLO[$('periodo').value], max = Math.max.apply(null, v);
     $('mapGrid').innerHTML = ORDEN_MAPA.map((z, i) => {
