@@ -1,0 +1,29 @@
+APF2 - PiuraVigila - Semanas 5, 6 y 7 (evaluacion en la semana 8)
+Revision: 09/11/2026 (rev1, alineada con la observacion del docente del 15/10/2026 y con el codigo de APF3)
+
+Codigo: https://github.com/SoyJust/PiuraVigila  (estos documentos tambien estan en entregables/APF2)
+
+Semana 5  PiuraVigila_BPM_v0_4.xlsx                    Ficha del proceso, actividades BPMN, trazabilidad y checklist.
+          PiuraVigila_BPMN_v0_4.drawio / .png          Diagrama BPMN editable y su imagen.
+Semana 6  PiuraVigila_DisenoBD_v0_5.xlsx               Entidades, atributos, relaciones, diccionario fisico, seguridad y trazabilidad.
+          PiuraVigila_DisenoFisico_v0_5.sql            Esquema y datos iniciales (igual a database/01_schema.sql + 02_seed.sql del repo).
+          PiuraVigila_ER_v0_5.drawio / .png            Diagrama entidad-relacion editable y su imagen.
+Semana 7  PiuraVigila_Semana7_UXUI_v0_6.xlsx           Pantallas, reportes R01-R03, documentacion y trazabilidad.
+          PiuraVigila_Documentacion_v0_6.md            Diseno funcional, catalogo de mensajes, guia de usuario y catalogo de reportes.
+          PiuraVigila_Wireframes_Trazabilidad_v0_6.drawio / .png   Wireframes y mapa de trazabilidad.
+
+Correcciones de la rev1 (09/11/2026):
+  1) Regla de duplicados: se retira la comparacion por hash de foto + zona + 24 h. Ahora el sistema busca un caso
+     abierto de la misma categoria y zona y el ciudadano confirma si es el mismo (RF-05, RN-01); el reporte se vincula
+     con reporte_original_id y sin codigo propio. Aplicado en BPMN, BD (xlsx, .sql, ER), UX/UI, wireframes y .md.
+  2) BPMN: el control anti-spam (60 s, 3 por dia, suma de verificacion) va antes de la busqueda del caso abierto, como en
+     el codigo; se agregaron la compuerta de confirmacion del ciudadano y la rama "Reporte vinculado". Imagen PNG exportada.
+  3) Consulta (P02): "proxima accion" se reemplaza por "ultima actualizacion" y linea de tiempo.
+  4) Zonas = distritos reales (Piura, Castilla, Veintiseis de Octubre, Catacaos, La Arena, La Union).
+  5) SQL fisico sincronizado con el esquema vigente (secuencia del codigo RNF-03, CHECK del codigo y del vinculo).
+     Se probo en PostgreSQL 18 sobre una base temporal.
+  6) Estados y tipos ajustados a las listas de validacion de cada plantilla (habia "Tarea", "Funcional", "En elaboracion",
+     "Corregido", "Escrito", "Entero (FK)", "Confidencialidad"... que no estaban en las listas).
+  7) Se agregan: R05 (autorrelacion del vinculo), S05 (CSRF), S06 (inyeccion SQL), R03 (resumen de gestion) y T06/T07.
+
+Pendiente: Checklist de BD, criterio "El grupo puede explicar una decision de seguridad y una relacion critica" (ensayo del equipo).

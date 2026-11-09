@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2026-09-21T00:00:00.000Z" agent="ChatGPT" version="24.0.0" type="device">
+<mxfile host="app.diagrams.net" modified="2026-11-09T00:00:00.000Z" agent="ChatGPT" version="24.0.0" type="device">
 <diagram id="wireframes" name="Wireframes_UXUI_v0.6"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>
 <mxCell id="title" value="Semana 7 · Wireframes PiuraVigila v0.6" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ffffff;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="40" y="25" width="900" height="40" as="geometry"/></mxCell>
 <mxCell id="p01" value="P01 · Registrar reporte de incidencia (RF-01)
@@ -10,9 +10,10 @@ Descripción breve: [texto]
 
 Enviar reporte
 
-Duplicado → se asocia al código existente
-Límite diario → mensaje, no se guarda
-Éxito → Código: PR-AAAA-####" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="70" y="150" width="300" height="420" as="geometry"/></mxCell>
+Anti-spam: 60 s entre envíos, 3 por día, suma de verificación
+Caso abierto misma categoría y zona → «¿Es el mismo caso?»
+   Sí → se vincula al caso (sin código nuevo) · No → caso nuevo
+Éxito → Código: PR-AAAA-####" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="70" y="150" width="300" height="460" as="geometry"/></mxCell>
 <mxCell id="p02" value="P02 · Consultar estado del reporte (RF-02)
 
 Código de seguimiento: [PR-AAAA-####]
@@ -23,10 +24,10 @@ Código: PR-2026-0417
 Categoría: Bache en la vía
 Estado: En proceso
 Fecha de registro: 10/09/2026
-Próxima acción: Programado para atención
-(derivado de estado, no es columna de BD)
+Última actualización: 14/09/2026
+Línea de tiempo: Recibido → En proceso → Atendido
 
-No existe → &quot;Código no encontrado. Verifica que esté bien escrito&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="420" y="150" width="300" height="420" as="geometry"/></mxCell>
+No existe → &quot;Código no encontrado. Verifica que esté bien escrito&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7cc;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="420" y="150" width="300" height="460" as="geometry"/></mxCell>
 <mxCell id="actor1" value="Actor: Ciudadano" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#111827;fontStyle=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="70" y="110" width="650" height="30" as="geometry"/></mxCell>
 <mxCell id="p03" value="P03 · Panel de gestión municipal (RF-03 / RNF-01)
 
@@ -36,15 +37,15 @@ Iniciar sesión
 Filtros: Zona · Tipo · Estado
 
 Código | Tipo | Zona | Estado
-PR-2026-0417 | Bache | Centro | [En proceso]
-PR-2026-0418 | Luminaria | Norte | [Recibido]
+PR-2026-0417 | Bache | Piura | [En proceso]
+PR-2026-0418 | Luminaria | Castilla | [Recibido]
 
 Guardar cambios de estado
 → &quot;Estado actualizado&quot; (fecha y usuario)
 
 Aviso (RF-07): &quot;La categoría Otra superó el umbral&quot;
-Habilitar categoría nueva [texto] → Guardar" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="800" y="150" width="300" height="460" as="geometry"/></mxCell>
-<mxCell id="actor2" value="Actor: Personal municipal" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#bae6fd;strokeColor=#111827;fontStyle=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="800" y="110" width="300" height="30" as="geometry"/></mxCell>
+Habilitar categoría nueva [texto] → Guardar (solo administrador)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="800" y="150" width="300" height="460" as="geometry"/></mxCell>
+<mxCell id="actor2" value="Actor: Personal municipal" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#bae6fd;strokeColor=#111827;fontStyle=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="800" y="110" width="650" height="30" as="geometry"/></mxCell>
 <mxCell id="report" value="R01 · Zonas críticas (RF-04)
 
 Pregunta: ¿en qué zonas se concentran más incidencias?
@@ -52,9 +53,9 @@ Pregunta: ¿en qué zonas se concentran más incidencias?
 Periodo: [7 días / mes / 3 meses / año]
 Filtro por estado
 Conteo de reportes por zona
-Centro · Norte · Sur · Este · Oeste · Castilla
+Piura · Castilla · Veintiséis de Octubre · Catacaos · La Arena · La Unión
 
-Fuente: reporte, zona" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1170" y="150" width="300" height="420" as="geometry"/></mxCell>
+Fuente: reporte, zona" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1150" y="700" width="300" height="420" as="geometry"/></mxCell>
 <mxCell id="report2" value="R02 · Tiempos de atención (RF-03)
 
 Pregunta: ¿cuánto tarda un reporte en pasar de Recibido a Atendido?
@@ -63,24 +64,24 @@ Filtro: categoría, periodo
 Tabla: categoría | tiempo promedio (días)
 Gráfico de barras por categoría
 
-Fuente: reporte, historial_estado, categoria" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1520" y="150" width="300" height="420" as="geometry"/></mxCell>
-<mxCell id="e4" value="usa datos de" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111827;fontColor=#111827;fontSize=9;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p03" target="report2"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e3" value="usa datos de" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111827;fontColor=#111827;fontSize=9;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p03" target="report"><mxGeometry relative="1" as="geometry"/></mxCell>
+Fuente: reporte, historial_estado, categoria" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="800" y="700" width="300" height="420" as="geometry"/></mxCell>
+<mxCell id="e4" value="usa datos de" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#111827;fontColor=#111827;fontSize=9;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="p03" target="report2"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+<mxCell id="e3" value="usa datos de" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#111827;fontColor=#111827;fontSize=9;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="p03" target="report"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1040" y="655"/><mxPoint x="1240" y="655"/></Array></mxGeometry></mxCell>
 <mxCell id="p04" value="P04 · Mapa de zonas críticas (RF-04)
 
 Periodo: [7 días / mes / 3 meses / año]
 
-Norte: 4   Centro: 11
-Castilla: 2   Sur: 7
-Este: 3     Oeste: 1
+Piura: 11   Castilla: 4
+Veintiséis de Octubre: 7   Catacaos: 3
+La Arena: 2   La Unión: 1
 
 Más oscuro = más reportes
-(valores de ejemplo, boceto)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1590" y="110" width="300" height="420" as="geometry"/></mxCell>
-<mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111827;" edge="1" parent="1" source="report" target="p04"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="note" value="Wireframes basados en el Prototipo v0.3 y la matriz Pantallas_UXUI. Cada pantalla se vincula con su requerimiento (RF), actividad BPMN y entidades de la BD v0.5. P01/P02 las usa el Ciudadano y P03/P04 el Personal municipal — son casos de uso independientes, no un flujo secuencial único. R01 se alimenta de los datos de Reporte y Zona, no de una acción dentro de P03." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#1e3a8a;" vertex="1" parent="1"><mxGeometry x="120" y="610" width="1280" height="80" as="geometry"/></mxCell>
+(valores de ejemplo, boceto)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#111827;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="1150" y="150" width="300" height="460" as="geometry"/></mxCell>
+<mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#111827;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="report" target="p04"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="note" value="Wireframes basados en el Prototipo v0.3 y la matriz Pantallas_UXUI. Cada pantalla se vincula con su requerimiento (RF), actividad BPMN y entidades de la BD v0.5. P01/P02 las usa el Ciudadano y P03/P04 el Personal municipal — son casos de uso independientes, no un flujo secuencial único. R01 se alimenta de los datos de Reporte y Zona, no de una acción dentro de P03." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#1e3a8a;" vertex="1" parent="1"><mxGeometry x="70" y="700" width="650" height="150" as="geometry"/></mxCell>
 </root></mxGraphModel></diagram>
 <diagram id="trace" name="Mapa_Trazabilidad_UXUI"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>
-<mxCell id="title2" value="Mapa de trazabilidad · Requerimiento → BPM → BD → Pantalla → Reporte → Documento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ffffff;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="40" y="25" width="1200" height="40" as="geometry"/></mxCell>
+<mxCell id="title2" value="Mapa de trazabilidad · Requerimiento → BPM → BD → Pantalla → Reporte → Documento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ffffff;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="40" y="25" width="1435" height="40" as="geometry"/></mxCell>
 <mxCell id="h0" value="Requerimiento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#111827;strokeColor=#111827;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="40" y="90" width="210" height="45" as="geometry"/></mxCell>
 <mxCell id="h1" value="Actividad BPMN" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#111827;strokeColor=#111827;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="285" y="90" width="210" height="45" as="geometry"/></mxCell>
 <mxCell id="h2" value="Entidad BD" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#111827;strokeColor=#111827;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="530" y="90" width="210" height="45" as="geometry"/></mxCell>
@@ -131,6 +132,6 @@ Más oscuro = más reportes
 <mxCell id="er32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r32" target="r33"><mxGeometry relative="1" as="geometry"/></mxCell>
 <mxCell id="er33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r33" target="r34"><mxGeometry relative="1" as="geometry"/></mxCell>
 <mxCell id="er34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#e30613;" edge="1" parent="1" source="r34" target="r35"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="note2" value="Trazabilidad de las 4 pantallas y 2 reportes del proyecto (RF-01 a RF-04). Corregido 24/09/2026: se agregó la fila de RF-04 (antes ausente aquí aunque ya estaba en el xlsx) y se corrigió la fila de RF-03, que apuntaba por error a P04 en vez de P03." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#1e3a8a;" vertex="1" parent="1"><mxGeometry x="70" y="500" width="1370" height="90" as="geometry"/></mxCell>
+<mxCell id="note2" value="Trazabilidad de las 4 pantallas y 2 reportes del proyecto (RF-01 a RF-04). Corregido 24/09/2026: se agregó la fila de RF-04 (antes ausente aquí aunque ya estaba en el xlsx) y se corrigió la fila de RF-03, que apuntaba por error a P04 en vez de P03." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#1e3a8a;" vertex="1" parent="1"><mxGeometry x="40" y="500" width="1435" height="90" as="geometry"/></mxCell>
 </root></mxGraphModel></diagram>
 </mxfile>
