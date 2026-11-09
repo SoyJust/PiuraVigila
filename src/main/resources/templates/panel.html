@@ -24,7 +24,7 @@
 <div class="tabla"><table><thead><tr><th>Código</th><th>Categoría</th><th>Zona</th><th>Descripción</th><th>Estado</th><th>Vinc.</th><th>Ubicación</th><th>Cambiar</th></tr></thead><tbody>
  <tr th:each="f : ${filas}">
   <td th:text="${f.caso().codigoSeguimiento()}"></td>
-  <td th:text="${f.caso().categoriaId()}"></td><td th:text="${f.caso().zonaId()}"></td>
+  <td th:text="${f.categoria()}"></td><td th:text="${f.zona()}"></td>
   <td th:text="${f.caso().descripcion()}"></td><td><span class="badge" th:classappend="'est-' + ${f.caso().estado().name().toLowerCase()}" th:text="${f.caso().estado().etiqueta()}"></span></td><td th:text="${f.vinculados()}"></td>
   <td><a th:if="${f.caso().lat() != null}" target="_blank" rel="noopener" th:href="'https://www.openstreetmap.org/?mlat=' + ${f.caso().lat()} + '&amp;mlon=' + ${f.caso().lng()} + '#map=18/' + ${f.caso().lat()} + '/' + ${f.caso().lng()}">Ver en mapa</a><span class="mut" th:unless="${f.caso().lat() != null}">Sin ubicación</span></td>
   <td><form method="post" th:action="@{/panel/estado}" th:if="${f.caso().estado().name() != 'ATENDIDO'}">
