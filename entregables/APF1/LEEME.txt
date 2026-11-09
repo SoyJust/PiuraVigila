@@ -20,4 +20,4 @@ Correcciones de la rev1 (09/11/2026):
      en la consulta (antes mostraba "Proxima accion", retirada en la v0.4 de los requerimientos).
   4) Lean Canvas: se quito el rotulo "Plantilla editable" del subtitulo.
 
-Pendiente: el campo "Grupo" del Lean Canvas esta vacio (falta el numero de grupo).
+  5) Lean Canvas: campo "Grupo" completado (PiuraVigila).
