@@ -1,0 +1,24 @@
+Línea inicial de las pruebas de seguridad · commit 7785a7e (pruebas nuevas + esqueleto vacío del filtro; producción igual a fef1156) · 12/11/2026
+Comando: mvn -B test -Dtest=SeguridadWebTest
+
+[ERROR] Tests run: 5, Failures: 5, Errors: 0, Skipped: 0, Time elapsed: 15.17 s <<< FAILURE! -- in pe.edu.utp.piuravigila.controller.SeguridadWebTest
+[ERROR] pe.edu.utp.piuravigila.controller.SeguridadWebTest.cabeceras_de_seguridad -- Time elapsed: 14.50 s <<< FAILURE!
+java.lang.AssertionError: 
+Expected: (a string containing "default-src 'self'" and a string containing "script-src 'self' https://cdnjs.cloudflare.com;" and a string containing "frame-ancestors 'none'" and a string containing "object-src 'none'" and a string containing "base-uri 'self'" and a string containing "form-action 'self'")
+[ERROR] pe.edu.utp.piuravigila.controller.SeguridadWebTest.plantillas_sin_scripts_en_línea_y_con_sri -- Time elapsed: 0.093 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: script en línea en mapa.html ==> expected: <false> but was: <true>
+[ERROR] pe.edu.utp.piuravigila.controller.SeguridadWebTest.login_con_token_cambia_el_id_de_sesion -- Time elapsed: 0.056 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: el formulario de login debe recibir un token CSRF ==> expected: not <null>
+[ERROR] pe.edu.utp.piuravigila.controller.SeguridadWebTest.login_sin_token_csrf_se_rechaza -- Time elapsed: 0.071 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<403> but was:<200>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
+[ERROR] pe.edu.utp.piuravigila.controller.SeguridadWebTest.cookie_de_dispositivo_samesite -- Time elapsed: 0.304 s <<< FAILURE!
+java.lang.AssertionError: 
+Expected: a string containing "SameSite=Lax"
+Expected: (a string containing "default-src 'self'" and a string containing "script-src 'self' https://cdnjs.cloudflare.com;" and a string containing "frame-ancestors 'none'" and a string containing "object-src 'none'" and a string containing "base-uri 'self'" and a string containing "form-action 'self'")
+Expected: a string containing "SameSite=Lax"
+[ERROR]   SeguridadWebTest.login_con_token_cambia_el_id_de_sesion:63 el formulario de login debe recibir un token CSRF ==> expected: not <null>
+[ERROR]   SeguridadWebTest.login_sin_token_csrf_se_rechaza:54 Status expected:<403> but was:<200>
+[ERROR]   SeguridadWebTest.plantillas_sin_scripts_en_línea_y_con_sri:101 script en l�nea en mapa.html ==> expected: <false> but was: <true>
+[ERROR] Tests run: 5, Failures: 5, Errors: 0, Skipped: 0

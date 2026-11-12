@@ -1,0 +1,27 @@
+Ejecución final local · rama feature/s14-seguridad (c8648c4 + perfil security-sca) · 12/11/2026 · JDK 21.0.13, Maven 3.10.0, PostgreSQL 18 (piuravigila_test)
+Comando: RUN_DB_TESTS=true mvn -B clean verify
+
+[INFO] Running pe.edu.utp.piuravigila.controller.MejorasSeguridadTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.96 s -- in pe.edu.utp.piuravigila.controller.MejorasSeguridadTest
+[INFO] Running pe.edu.utp.piuravigila.controller.PanelControllerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.810 s -- in pe.edu.utp.piuravigila.controller.PanelControllerTest
+[INFO] Running pe.edu.utp.piuravigila.controller.ReporteControllerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.388 s -- in pe.edu.utp.piuravigila.controller.ReporteControllerTest
+[INFO] Running pe.edu.utp.piuravigila.controller.SeguridadWebTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.415 s -- in pe.edu.utp.piuravigila.controller.SeguridadWebTest
+[INFO] Running pe.edu.utp.piuravigila.service.ControlAntiSpamTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.061 s -- in pe.edu.utp.piuravigila.service.ControlAntiSpamTest
+[INFO] Running pe.edu.utp.piuravigila.service.ExportacionServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.184 s -- in pe.edu.utp.piuravigila.service.ExportacionServiceTest
+[INFO] Running pe.edu.utp.piuravigila.service.FotoStorageDiscoTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.321 s -- in pe.edu.utp.piuravigila.service.FotoStorageDiscoTest
+[INFO] Running pe.edu.utp.piuravigila.service.OtrosServiciosTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.102 s -- in pe.edu.utp.piuravigila.service.OtrosServiciosTest
+[INFO] Running pe.edu.utp.piuravigila.service.ReporteServiceTest
+[INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.162 s -- in pe.edu.utp.piuravigila.service.ReporteServiceTest
+[INFO] Tests run: 67, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Running pe.edu.utp.piuravigila.dao.jdbc.ReporteDAOJdbcIT
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 28.24 s -- in pe.edu.utp.piuravigila.dao.jdbc.ReporteDAOJdbcIT
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  01:25 min

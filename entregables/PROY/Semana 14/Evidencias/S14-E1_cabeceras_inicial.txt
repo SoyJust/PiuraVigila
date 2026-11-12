@@ -1,0 +1,27 @@
+Línea inicial · cabeceras HTTP de respuesta · commit fef1156 (main, antes de correcciones) · 12/11/2026 14:46 · http://localhost:8080
+
+## GET /reportar
+HTTP/1.1 200 
+Set-Cookie: JSESSIONID=<valor omitido>; Path=/; HttpOnly
+Set-Cookie: pv_dispositivo=<valor omitido>; Max-Age=31536000; Expires=Fri, 12 Nov 2027 19:46:55 GMT; Path=/; HttpOnly
+Content-Type: text/html;charset=UTF-8
+Content-Language: es-PE
+Transfer-Encoding: chunked
+
+
+## GET /login
+HTTP/1.1 200 
+Content-Type: text/html;charset=UTF-8
+Content-Language: es-PE
+Transfer-Encoding: chunked
+
+
+## GET /consultar?codigo=PR-2026-0001
+HTTP/1.1 200 
+Content-Type: text/html;charset=UTF-8
+Content-Language: es-PE
+Transfer-Encoding: chunked
+
+
+## Reflejo de entrada en /consultar (¿se escapa?)
+value="&lt;script&gt;alert(1)&lt;/script&gt;"

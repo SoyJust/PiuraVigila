@@ -1,0 +1,61 @@
+Reprueba · cabeceras HTTP de respuesta · rama feature/s14-seguridad (estado final) · 12/11/2026 15:06 · http://localhost:8080
+
+## GET /reportar
+HTTP/1.1 200 
+Content-Security-Policy: default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https://tile.openstreetmap.org https://cdnjs.cloudflare.com; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(self), camera=(), microphone=()
+Set-Cookie: JSESSIONID=<valor omitido>; Path=/; HttpOnly; SameSite=Lax
+Set-Cookie: pv_dispositivo=<valor omitido>; Path=/; Max-Age=31536000; Expires=Fri, 12 Nov 2027 20:06:59 GMT; HttpOnly; SameSite=Lax
+Content-Type: text/html;charset=UTF-8
+Content-Language: es-PE
+Transfer-Encoding: chunked
+
+
+## GET /login
+HTTP/1.1 200 
+Content-Security-Policy: default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https://tile.openstreetmap.org https://cdnjs.cloudflare.com; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(self), camera=(), microphone=()
+Set-Cookie: JSESSIONID=<valor omitido>; Path=/; HttpOnly; SameSite=Lax
+Content-Type: text/html;charset=UTF-8
+Content-Language: es-PE
+Transfer-Encoding: chunked
+
+
+## GET /consultar?codigo=PR-2026-0001
+HTTP/1.1 200 
+Content-Security-Policy: default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https://tile.openstreetmap.org https://cdnjs.cloudflare.com; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(self), camera=(), microphone=()
+Content-Type: text/html;charset=UTF-8
+Content-Language: es-PE
+Transfer-Encoding: chunked
+
+
+## GET /js/reportar-mapa.js
+HTTP/1.1 200 
+Content-Security-Policy: default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https://tile.openstreetmap.org https://cdnjs.cloudflare.com; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(self), camera=(), microphone=()
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Last-Modified: Thu, 12 Nov 2026 19:52:42 GMT
+Accept-Ranges: bytes
+Content-Type: text/javascript
+Content-Length: 1802
+
+## POST /login sin token CSRF
+HTTP 403
+
+## Reflejo de entrada en /consultar (¿se escapa?)
+value="&lt;script&gt;alert(1)&lt;/script&gt;"
