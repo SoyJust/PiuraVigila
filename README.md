@@ -39,7 +39,7 @@ Paquete base: `pe.edu.utp.piuravigila` (`model`, `dto`, `dao`, `service`, `contr
 ├── src/main/java/...              # código fuente por capas
 ├── src/main/resources/            # plantillas, CSS y application.properties
 ├── src/test/java/...              # pruebas del servicio y del panel
-├── entregables/                   # documentos por avance (APF1 a APF3; ver «Entregables»)
+├── entregables/                   # documentos por avance (APF1 a APF3 y PROY; ver «Entregables»)
 ├── evidencias/                    # evidencias de pruebas
 └── pom.xml
 ```
@@ -114,10 +114,20 @@ Las contraseñas nunca se guardan en el código ni en el repositorio.
 ## Pruebas
 
 ```powershell
-mvn test
+mvn test                     # 62 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
 ```
 
-Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios, incluida la línea de tiempo de la consulta de estado (con DAOs simulados). El panel (sesión, token CSRF, rol de administrador y R02) se prueba con MockMvc en `PanelControllerTest`. Ver `evidencias/`.
+Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios, incluida la línea de tiempo de la consulta de estado (con DAOs simulados). Los controladores se prueban con MockMvc: el panel (sesión, token CSRF, rol de administrador y R02) en `PanelControllerTest`, y el formulario público y la consulta en `ReporteControllerTest`.
+
+Pruebas de integración con PostgreSQL (`ReporteDAOJdbcIT`): se activan con `RUN_DB_TESTS=true` y usan una base aparte cuyo nombre termina en `_test`, porque cada prueba recrea su esquema.
+
+```powershell
+psql -U postgres -c "CREATE DATABASE piuravigila_test ENCODING 'UTF8' TEMPLATE template0;"
+$env:RUN_DB_TESTS="true"; $env:PIURA_TEST_DB_PASSWORD="<contraseña>"   # también PIURA_TEST_DB_URL y PIURA_TEST_DB_USER
+mvn verify                   # + 6 pruebas de integración y target/site/jacoco-it/index.html
+```
+
+El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechable y ejecuta ambas. Evidencias de la Semana 13 en `entregables/PROY/Semana 13`.
 
 ## Funcionalidades
 
@@ -147,6 +157,7 @@ Las pruebas unitarias cubren validación de reportes, control anti-spam, almacen
 | APF1 | 1–4 | `entregables/APF1` | Lean Canvas, PMBOK (Charter, WBS, Gantt), matriz de requerimientos y prototipo navegable |
 | APF2 | 5–8 | `entregables/APF2` | BPMN, diseño de base de datos (ER y SQL), UX/UI, reportes y documentación |
 | APF3 | 9–12 | `entregables/APF3` | Arquitectura, trazabilidad, capturas y control de versiones |
+| PROY · Semana 13 | 13 | `entregables/PROY/Semana 13` | Pruebas de software (60 %): casos, ejecuciones, defectos, cobertura y evidencias |
 
 Cada carpeta tiene su `LEEME.txt` con el contenido y las correcciones.
 

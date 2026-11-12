@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminInicializador.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.config</a> &gt; <span class="el_source">AdminInicializador.java</span></div><h1>AdminInicializador.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.config;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
+import pe.edu.utp.piuravigila.dao.UsuarioMunicipalDAO;
+import pe.edu.utp.piuravigila.service.HashContrasena;
+
+/**
+ * El seed (APF2) deja el hash de los usuarios «admin» y «operador» como HASH_PENDIENTE_DE_IMPLEMENTACION.
+ * Si hay una contraseña inicial en PIURA_ADMIN_PASSWORD o PIURA_OPERADOR_PASSWORD, se guarda su hash BCrypt
+ * (cada variable inicializa solo a su usuario). Nada va en el código.
+ */
+@Component
+public class AdminInicializador implements ApplicationRunner {
+<span class="nc" id="L19">    private static final Logger LOG = LoggerFactory.getLogger(AdminInicializador.class);</span>
+    private final UsuarioMunicipalDAO usuarios;
+    private final HashContrasena hash;
+    private final String claveAdmin;
+    private final String claveOperador;
+
+    public AdminInicializador(UsuarioMunicipalDAO usuarios, HashContrasena hash,
+                              @Value(&quot;${piuravigila.admin.password-inicial:}&quot;) String claveAdmin,
+<span class="nc" id="L27">                              @Value(&quot;${piuravigila.operador.password-inicial:}&quot;) String claveOperador) {</span>
+<span class="nc" id="L28">        this.usuarios = usuarios; this.hash = hash; this.claveAdmin = claveAdmin; this.claveOperador = claveOperador;</span>
+<span class="nc" id="L29">    }</span>
+
+    @Override
+    public void run(ApplicationArguments args) {
+<span class="nc" id="L33">        inicializar(&quot;admin&quot;, claveAdmin);</span>
+<span class="nc" id="L34">        inicializar(&quot;operador&quot;, claveOperador);</span>
+<span class="nc" id="L35">    }</span>
+
+    private void inicializar(String usuario, String claveInicial) {
+<span class="nc bnc" id="L38" title="All 4 branches missed.">        if (claveInicial == null || claveInicial.isBlank()) return;</span>
+<span class="nc" id="L39">        usuarios.buscarPorUsuario(usuario)</span>
+<span class="nc" id="L40">                .filter(u -&gt; u.contrasenaHash().startsWith(&quot;HASH_PENDIENTE&quot;))</span>
+<span class="nc" id="L41">                .ifPresent(u -&gt; { usuarios.actualizarHash(usuario, hash.codificar(claveInicial));</span>
+<span class="nc" id="L42">                                  LOG.info(&quot;Hash inicial del usuario {} guardado.&quot;, usuario); });</span>
+<span class="nc" id="L43">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

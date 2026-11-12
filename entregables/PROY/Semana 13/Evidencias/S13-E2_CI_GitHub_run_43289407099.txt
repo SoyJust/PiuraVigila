@@ -1,0 +1,63 @@
+Ejecución del CI (GitHub Actions) · run 43289407099 · rama feature/s13-pruebas · commit c8acd86 · 12/11/2026
+https://github.com/SoyJust/PiuraVigila/actions/runs/43289407099
+Servicio PostgreSQL 16 (base desechable piuravigila_test), RUN_DB_TESTS=true, mvn --batch-mode clean verify
+
+2026-11-12T19:22:03.1642830Z ##[group]Starting postgres service container
+2026-11-12T19:22:03.1664473Z ##[command]/usr/bin/docker pull postgres:16
+2026-11-12T19:22:03.9670285Z 16: Pulling from library/postgres
+2026-11-12T19:22:07.9660982Z Status: Downloaded newer image for postgres:16
+2026-11-12T19:22:07.9665771Z docker.io/library/postgres:16
+2026-11-12T19:22:07.9749333Z ##[command]/usr/bin/docker create --name 11640463d0654e908f53af5f1ead3852_postgres16_60c6ca --label dd00b7 --network github_network_8d2bece6c18d4554851b82594ab90ece --network-alias postgres -p 5432:5432 --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10 -e "POSTGRES_DB=piuravigila_test" -e "POSTGRES_USER=postgres" -e "POSTGRES_PASSWORD=postgres-ci" -e GITHUB_ACTIONS=true -e CI=true postgres:16
+2026-11-12T19:22:09.3223378Z postgres service is starting, waiting 2 seconds before checking again.
+2026-11-12T19:22:11.3396194Z postgres service is starting, waiting 3 seconds before checking again.
+2026-11-12T19:22:15.3040334Z postgres service is healthy.
+2026-11-12T19:22:15.3426353Z   PIURA_TEST_DB_URL: jdbc:postgresql://localhost:5432/piuravigila_test
+2026-11-12T19:22:15.3426750Z   PIURA_TEST_DB_USER: postgres
+2026-11-12T19:22:15.3427065Z   PIURA_TEST_DB_PASSWORD: postgres-ci
+2026-11-12T19:22:16.3637459Z   PIURA_TEST_DB_URL: jdbc:postgresql://localhost:5432/piuravigila_test
+2026-11-12T19:22:16.3637967Z   PIURA_TEST_DB_USER: postgres
+2026-11-12T19:22:16.3638330Z   PIURA_TEST_DB_PASSWORD: postgres-ci
+2026-11-12T19:22:16.9534942Z   PIURA_TEST_DB_URL: jdbc:postgresql://localhost:5432/piuravigila_test
+2026-11-12T19:22:16.9535369Z   PIURA_TEST_DB_USER: postgres
+2026-11-12T19:22:16.9535647Z   PIURA_TEST_DB_PASSWORD: postgres-ci
+2026-11-12T19:22:32.7933242Z [INFO] --- jacoco:0.8.15:prepare-agent (agente) @ piuravigila ---
+2026-11-12T19:22:33.6756942Z [INFO] argLine set to -javaagent:/home/runner/.m2/repository/org/jacoco/org.jacoco.agent/0.8.15/org.jacoco.agent-0.8.15-runtime.jar=destfile=/home/runner/work/PiuraVigila/PiuraVigila/target/jacoco.exec
+2026-11-12T19:22:40.8473281Z [INFO] Running pe.edu.utp.piuravigila.service.ReporteServiceTest
+2026-11-12T19:22:41.3133585Z [INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.423 s -- in pe.edu.utp.piuravigila.service.ReporteServiceTest
+2026-11-12T19:22:41.3149465Z [INFO] Running pe.edu.utp.piuravigila.service.ExportacionServiceTest
+2026-11-12T19:22:44.6555967Z [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.377 s -- in pe.edu.utp.piuravigila.service.ExportacionServiceTest
+2026-11-12T19:22:44.6562807Z [INFO] Running pe.edu.utp.piuravigila.service.OtrosServiciosTest
+2026-11-12T19:22:44.7033854Z [INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.036 s -- in pe.edu.utp.piuravigila.service.OtrosServiciosTest
+2026-11-12T19:22:44.7078295Z [INFO] Running pe.edu.utp.piuravigila.service.ControlAntiSpamTest
+2026-11-12T19:22:44.7191803Z [INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in pe.edu.utp.piuravigila.service.ControlAntiSpamTest
+2026-11-12T19:22:44.7193726Z [INFO] Running pe.edu.utp.piuravigila.service.FotoStorageDiscoTest
+2026-11-12T19:22:46.0324702Z [INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.329 s -- in pe.edu.utp.piuravigila.service.FotoStorageDiscoTest
+2026-11-12T19:22:46.0372894Z [INFO] Running pe.edu.utp.piuravigila.controller.MejorasSeguridadTest
+2026-11-12T19:22:47.1787469Z [INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.137 s -- in pe.edu.utp.piuravigila.controller.MejorasSeguridadTest
+2026-11-12T19:22:47.1789257Z [INFO] Running pe.edu.utp.piuravigila.controller.ReporteControllerTest
+2026-11-12T19:22:47.3453576Z [INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.145 s -- in pe.edu.utp.piuravigila.controller.ReporteControllerTest
+2026-11-12T19:22:47.3483183Z [INFO] Running pe.edu.utp.piuravigila.controller.PanelControllerTest
+2026-11-12T19:22:47.5015552Z [INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.178 s -- in pe.edu.utp.piuravigila.controller.PanelControllerTest
+2026-11-12T19:22:47.5693792Z [INFO] Tests run: 62, Failures: 0, Errors: 0, Skipped: 0
+2026-11-12T19:22:47.5733388Z [INFO] --- jacoco:0.8.15:report (reporte-unitarias) @ piuravigila ---
+2026-11-12T19:22:47.5812996Z [INFO] Loading execution data file /home/runner/work/PiuraVigila/PiuraVigila/target/jacoco.exec
+2026-11-12T19:22:50.1144094Z [INFO] --- jacoco:0.8.15:prepare-agent-integration (agente-integracion) @ piuravigila ---
+2026-11-12T19:22:50.1146235Z [INFO] argLine set to -javaagent:/home/runner/.m2/repository/org/jacoco/org.jacoco.agent/0.8.15/org.jacoco.agent-0.8.15-runtime.jar=destfile=/home/runner/work/PiuraVigila/PiuraVigila/target/jacoco-it.exec
+2026-11-12T19:22:51.2447248Z [INFO] Running pe.edu.utp.piuravigila.dao.jdbc.ReporteDAOJdbcIT
+2026-11-12T19:22:54.6658368Z [INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.410 s -- in pe.edu.utp.piuravigila.dao.jdbc.ReporteDAOJdbcIT
+2026-11-12T19:22:54.7190914Z [INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+2026-11-12T19:22:54.7222468Z [INFO] --- jacoco:0.8.15:report-integration (reporte-integracion) @ piuravigila ---
+2026-11-12T19:22:54.7242809Z [INFO] Loading execution data file /home/runner/work/PiuraVigila/PiuraVigila/target/jacoco-it.exec
+2026-11-12T19:22:55.3192934Z [INFO] BUILD SUCCESS
+target/site/jacoco/
+target/site/jacoco-it/
+2026-11-12T19:22:55.3773197Z   PIURA_TEST_DB_URL: jdbc:postgresql://localhost:5432/piuravigila_test
+2026-11-12T19:22:55.3773584Z   PIURA_TEST_DB_USER: postgres
+2026-11-12T19:22:55.3773837Z   PIURA_TEST_DB_PASSWORD: postgres-ci
+﻿2026-11-12T19:23:01.2078626Z Print service container logs: 11640463d0654e908f53af5f1ead3852_postgres16_60c6ca
+2026-11-12T19:23:01.2354731Z  The files belonging to this database system will be owned by user "postgres".
+2026-11-12T19:23:01.2361641Z  2026-11-12 19:22:10.185 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-11-12T19:23:01.2382983Z  fixing permissions on existing directory /var/lib/postgresql/data ... ok
+2026-11-12T19:23:01.2390848Z      pg_ctl -D /var/lib/postgresql/data -l logfile start
+2026-11-12T19:23:01.2393067Z  2026-11-12 19:22:09.873 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-11-12T19:23:01.2408852Z Stop and remove container: 11640463d0654e908f53af5f1ead3852_postgres16_60c6ca

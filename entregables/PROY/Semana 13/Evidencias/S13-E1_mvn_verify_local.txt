@@ -1,0 +1,34 @@
+Ejecución local · commit c8acd86 · 12/11/2026 · Windows 11, JDK 21.0.13, Maven 3.10.0, PostgreSQL 18 (base piuravigila_test)
+Comando: RUN_DB_TESTS=true mvn -B clean verify   (credenciales por variable de entorno, no se registran)
+
+[INFO] --- jacoco:0.8.15:prepare-agent (agente) @ piuravigila ---
+[INFO] argLine set to "-javaagent:C:\\Users\\Joss\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.15\\org.jacoco.agent-0.8.15-runtime.jar=destfile=C:\\Curso Integrador\\PiuraVigila\\target\\jacoco.exec"
+[INFO] Running pe.edu.utp.piuravigila.controller.MejorasSeguridadTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.092 s -- in pe.edu.utp.piuravigila.controller.MejorasSeguridadTest
+[INFO] Running pe.edu.utp.piuravigila.controller.PanelControllerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.528 s -- in pe.edu.utp.piuravigila.controller.PanelControllerTest
+[INFO] Running pe.edu.utp.piuravigila.controller.ReporteControllerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.299 s -- in pe.edu.utp.piuravigila.controller.ReporteControllerTest
+[INFO] Running pe.edu.utp.piuravigila.service.ControlAntiSpamTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.036 s -- in pe.edu.utp.piuravigila.service.ControlAntiSpamTest
+[INFO] Running pe.edu.utp.piuravigila.service.ExportacionServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.881 s -- in pe.edu.utp.piuravigila.service.ExportacionServiceTest
+[INFO] Running pe.edu.utp.piuravigila.service.FotoStorageDiscoTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.582 s -- in pe.edu.utp.piuravigila.service.FotoStorageDiscoTest
+[INFO] Running pe.edu.utp.piuravigila.service.OtrosServiciosTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.158 s -- in pe.edu.utp.piuravigila.service.OtrosServiciosTest
+[INFO] Running pe.edu.utp.piuravigila.service.ReporteServiceTest
+[INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.223 s -- in pe.edu.utp.piuravigila.service.ReporteServiceTest
+[INFO] Tests run: 62, Failures: 0, Errors: 0, Skipped: 0
+[INFO] --- jacoco:0.8.15:report (reporte-unitarias) @ piuravigila ---
+[INFO] Loading execution data file C:\Curso Integrador\PiuraVigila\target\jacoco.exec
+[INFO] --- jacoco:0.8.15:prepare-agent-integration (agente-integracion) @ piuravigila ---
+[INFO] argLine set to "-javaagent:C:\\Users\\Joss\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.15\\org.jacoco.agent-0.8.15-runtime.jar=destfile=C:\\Curso Integrador\\PiuraVigila\\target\\jacoco-it.exec"
+[INFO] Running pe.edu.utp.piuravigila.dao.jdbc.ReporteDAOJdbcIT
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 30.35 s -- in pe.edu.utp.piuravigila.dao.jdbc.ReporteDAOJdbcIT
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] --- jacoco:0.8.15:report-integration (reporte-integracion) @ piuravigila ---
+[INFO] Loading execution data file C:\Curso Integrador\PiuraVigila\target\jacoco-it.exec
+[INFO] BUILD SUCCESS
+[INFO] Total time:  01:21 min
+[INFO] Finished at: 2026-11-12T14:21:14-05:00

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExportacionController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.controller</a> &gt; <span class="el_source">ExportacionController.java</span></div><h1>ExportacionController.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.controller;
+
+import java.time.*;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.*;
+import pe.edu.utp.piuravigila.model.UsuarioMunicipal;
+import pe.edu.utp.piuravigila.service.ExportacionService;
+
+@Controller
+public class ExportacionController {
+    private final ExportacionService exportacion;
+    private final Clock reloj;
+<span class="nc" id="L16">    public ExportacionController(ExportacionService exportacion, Clock reloj) { this.exportacion = exportacion; this.reloj = reloj; }</span>
+    @GetMapping(&quot;/panel/exportar&quot;)
+    public ResponseEntity&lt;byte[]&gt; descargar(HttpSession sesion,
+        @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate desde,
+        @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate hasta) {
+<span class="nc bnc" id="L21" title="All 2 branches missed.">        if (!(sesion.getAttribute(&quot;usuario&quot;) instanceof UsuarioMunicipal)) return ResponseEntity.status(401).build();</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">        LocalDate fin = hasta == null ? LocalDate.now(reloj) : hasta;</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">        LocalDate inicio = desde == null ? fin.minusDays(30) : desde;</span>
+<span class="nc bnc" id="L24" title="All 4 branches missed.">        if (inicio.isAfter(fin) || inicio.isBefore(fin.minusYears(5))) return ResponseEntity.badRequest().build();</span>
+<span class="nc" id="L25">        byte[] contenido = exportacion.zonas(inicio, fin);</span>
+<span class="nc" id="L26">        org.slf4j.LoggerFactory.getLogger(ExportacionController.class).info(&quot;Exportación de zonas desde={} hasta={}&quot;, inicio, fin);</span>
+<span class="nc" id="L27">        return ResponseEntity.ok().cacheControl(CacheControl.noStore())</span>
+<span class="nc" id="L28">            .header(HttpHeaders.CONTENT_DISPOSITION, &quot;attachment; filename=PiuraVigila_Zonas.xlsx&quot;)</span>
+<span class="nc" id="L29">            .contentType(MediaType.parseMediaType(&quot;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;))</span>
+<span class="nc" id="L30">            .body(contenido);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

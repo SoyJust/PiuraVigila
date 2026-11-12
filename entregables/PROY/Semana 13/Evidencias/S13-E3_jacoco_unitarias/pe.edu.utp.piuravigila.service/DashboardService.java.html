@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DashboardService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.service</a> &gt; <span class="el_source">DashboardService.java</span></div><h1>DashboardService.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.service;
+
+import java.time.*;
+import java.util.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import pe.edu.utp.piuravigila.dao.*;
+import pe.edu.utp.piuravigila.dto.*;
+import pe.edu.utp.piuravigila.model.EstadoReporte;
+
+/** Reportes R01 a R03. Solo conteos, promedios y porcentajes: nunca fotos. */
+@Service
+public class DashboardService {
+    private final ReporteDAO reporteDAO;
+    private final HistorialEstadoDAO historialDAO;
+    private final CategoriaDAO categoriaDAO;
+    private final double umbralOtra;
+
+    public DashboardService(ReporteDAO reporteDAO, HistorialEstadoDAO historialDAO, CategoriaDAO categoriaDAO,
+<span class="fc" id="L20">                            @Value(&quot;${piuravigila.dashboard.umbral-otra:10}&quot;) double umbralOtra) {</span>
+<span class="fc" id="L21">        this.reporteDAO = Objects.requireNonNull(reporteDAO);</span>
+<span class="fc" id="L22">        this.historialDAO = Objects.requireNonNull(historialDAO);</span>
+<span class="fc" id="L23">        this.categoriaDAO = Objects.requireNonNull(categoriaDAO);</span>
+<span class="fc" id="L24">        this.umbralOtra = umbralOtra;</span>
+<span class="fc" id="L25">    }</span>
+
+    public List&lt;ConteoZona&gt; zonasCriticas(LocalDate desde, LocalDate hasta) {
+<span class="nc" id="L28">        validarPeriodo(desde, hasta);</span>
+<span class="nc" id="L29">        return reporteDAO.reportesPorZona(desde.atStartOfDay(), hasta.plusDays(1).atStartOfDay());</span>
+    }
+
+    public List&lt;PuntoReporte&gt; puntosReportes(LocalDate desde, LocalDate hasta) {
+<span class="nc" id="L33">        validarPeriodo(desde, hasta);</span>
+<span class="nc" id="L34">        return reporteDAO.puntosPeriodo(desde.atStartOfDay(), hasta.plusDays(1).atStartOfDay());</span>
+    }
+
+    public List&lt;TiempoCategoria&gt; tiemposAtencion(LocalDate desde, LocalDate hasta) {
+<span class="nc" id="L38">        validarPeriodo(desde, hasta);</span>
+<span class="nc" id="L39">        return historialDAO.tiempoPromedio(desde.atStartOfDay(), hasta.plusDays(1).atStartOfDay());</span>
+    }
+
+    public ResumenGestion resumenGestion(LocalDate desde, LocalDate hasta) {
+<span class="fc" id="L43">        validarPeriodo(desde, hasta);</span>
+<span class="fc" id="L44">        LocalDateTime d = desde.atStartOfDay(), h = hasta.plusDays(1).atStartOfDay();</span>
+<span class="fc" id="L45">        Map&lt;EstadoReporte, Integer&gt; porEstado = new EnumMap&lt;&gt;(EstadoReporte.class);</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        for (EstadoReporte e : EstadoReporte.values()) porEstado.put(e, 0);</span>
+<span class="fc" id="L47">        porEstado.putAll(reporteDAO.casosPorEstado(d, h));</span>
+<span class="fc" id="L48">        double pctOtra = categoriaDAO.porcentajeOtraMes();</span>
+<span class="fc" id="L49">        return new ResumenGestion(porEstado, reporteDAO.contarVinculadosPeriodo(d, h),</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">                reporteDAO.porcentajeActualizados(d, h), pctOtra, umbralOtra, pctOtra &gt; umbralOtra);</span>
+    }
+
+    private static void validarPeriodo(LocalDate desde, LocalDate hasta) {
+<span class="pc bpc" id="L54" title="2 of 6 branches missed.">        if (desde == null || hasta == null || desde.isAfter(hasta)) throw new IllegalArgumentException(&quot;Periodo inválido.&quot;);</span>
+<span class="fc" id="L55">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

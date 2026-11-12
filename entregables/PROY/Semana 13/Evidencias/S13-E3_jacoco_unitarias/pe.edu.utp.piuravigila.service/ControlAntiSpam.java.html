@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ControlAntiSpam.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.service</a> &gt; <span class="el_source">ControlAntiSpam.java</span></div><h1>ControlAntiSpam.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.service;
+
+import java.time.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import pe.edu.utp.piuravigila.dao.ReporteDAO;
+import pe.edu.utp.piuravigila.dto.ResultadoControl;
+
+/** Anti-spam (RF-06): verificación simple, 60 s entre reportes y 3 por día por dispositivo. */
+@Component
+public class ControlAntiSpam {
+    public static final String MSG_SUMA = &quot;Verificación incorrecta&quot;;
+    public static final String MSG_ESPERA = &quot;Espera antes de enviar otro&quot;;
+    public static final String MSG_LIMITE = &quot;Límite diario alcanzado&quot;;
+
+    private final ReporteDAO reporteDAO;
+    private final Clock reloj;
+    private final int intervaloSeg;
+    private final int maxPorDia;
+
+    public ControlAntiSpam(ReporteDAO reporteDAO, Clock reloj,
+                           @Value(&quot;${piuravigila.antispam.intervalo-seg:60}&quot;) int intervaloSeg,
+<span class="fc" id="L23">                           @Value(&quot;${piuravigila.antispam.max-por-dia:3}&quot;) int maxPorDia) {</span>
+<span class="fc" id="L24">        this.reporteDAO = reporteDAO;</span>
+<span class="fc" id="L25">        this.reloj = reloj;</span>
+<span class="fc" id="L26">        this.intervaloSeg = intervaloSeg;</span>
+<span class="fc" id="L27">        this.maxPorDia = maxPorDia;</span>
+<span class="fc" id="L28">    }</span>
+
+    public ResultadoControl validar(String dispositivoId, Integer respuestaSuma, Integer sumaEsperada) {
+<span class="fc" id="L31">        ResultadoControl suma = validarSuma(respuestaSuma, sumaEsperada);</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        return suma.permitido() ? validarLimites(dispositivoId) : suma;</span>
+    }
+
+    public ResultadoControl validarSuma(Integer respuesta, Integer esperada) {
+<span class="pc bpc" id="L36" title="1 of 6 branches missed.">        if (respuesta == null || esperada == null || !respuesta.equals(esperada)) {</span>
+<span class="fc" id="L37">            return new ResultadoControl(false, MSG_SUMA, 0, true);</span>
+        }
+<span class="fc" id="L39">        return ResultadoControl.ok();</span>
+    }
+
+    /** Intervalo mínimo y tope diario; los reportes vinculados también cuentan. */
+    public ResultadoControl validarLimites(String dispositivoId) {
+<span class="fc" id="L44">        LocalDateTime ahora = LocalDateTime.now(reloj);</span>
+<span class="fc" id="L45">        var ultimo = reporteDAO.ultimoEnvio(dispositivoId);</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (ultimo.isPresent()) {</span>
+<span class="fc" id="L47">            long transcurridos = Duration.between(ultimo.get(), ahora).getSeconds();</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">            if (transcurridos &lt; intervaloSeg) {</span>
+<span class="fc" id="L49">                return new ResultadoControl(false, MSG_ESPERA, intervaloSeg - transcurridos, false);</span>
+            }
+        }
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (reporteDAO.contarEnDia(dispositivoId, ahora.toLocalDate()) &gt;= maxPorDia) {</span>
+<span class="fc" id="L53">            return ResultadoControl.rechazo(MSG_LIMITE);</span>
+        }
+<span class="fc" id="L55">        return ResultadoControl.ok();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
