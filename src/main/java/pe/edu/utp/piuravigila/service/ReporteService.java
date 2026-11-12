@@ -123,8 +123,14 @@ public class ReporteService {
 
     public List<FilaPanel> listarPanel(Integer zonaId, Integer categoriaId, EstadoReporte estado, int pagina) {
         List<FilaPanel> filas = new ArrayList<>();
+        Map<Integer, String> categorias = new HashMap<>(); // nombres resueltos una vez por página
+        Map<Integer, String> zonas = new HashMap<>();
         for (Reporte r : reporteDAO.listarCasos(zonaId, categoriaId, estado, Math.max(pagina, 0), TAMANO_PAGINA)) {
-            filas.add(new FilaPanel(r, reporteDAO.contarVinculados(r.reporteId())));
+            String cat = categorias.computeIfAbsent(r.categoriaId(),
+                    id -> categoriaDAO.buscarPorId(id).map(Categoria::nombre).orElse("Categoría " + id));
+            String zona = zonas.computeIfAbsent(r.zonaId(),
+                    id -> zonaDAO.buscarPorId(id).map(Zona::nombre).orElse("Zona " + id));
+            filas.add(new FilaPanel(r, cat, zona, reporteDAO.contarVinculados(r.reporteId())));
         }
         return filas;
     }

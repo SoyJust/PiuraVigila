@@ -1,6 +1,6 @@
 # PiuraVigila
 
-Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basura, etc.) y que el personal municipal las gestione. Proyecto Integrador · UTP · APF3 · Semanas 9 a 11.
+Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basura, etc.) y que el personal municipal las gestione. Proyecto Integrador · UTP · Curso Integrador I: Sistemas - Software (2026-2). APF1 a APF3 entregados; Unidad 4 (pruebas, seguridad, despliegue, monitoreo y mantenimiento) en curso.
 
 ## Tecnologías
 
@@ -39,6 +39,7 @@ Paquete base: `pe.edu.utp.piuravigila` (`model`, `dto`, `dao`, `service`, `contr
 ├── src/main/java/...              # código fuente por capas
 ├── src/main/resources/            # plantillas, CSS y application.properties
 ├── src/test/java/...              # pruebas del servicio y del panel
+├── entregables/                   # documentos por avance (APF1, APF3; ver «Entregables»)
 ├── evidencias/                    # evidencias de pruebas
 └── pom.xml
 ```
@@ -139,9 +140,18 @@ Las pruebas unitarias cubren validación de reportes, control anti-spam, almacen
 - El selector de ubicación y el mapa del panel cargan Leaflet y los mosaicos de OpenStreetMap por internet; sin conexión no se dibujan (el formulario sigue funcionando, la ubicación es opcional).
 - Los datos son simulados; no registrar datos personales reales. En `04_datos_demo.sql` las coordenadas son aproximadas.
 
+## Entregables
+
+| Avance | Semanas | Carpeta | Contenido |
+|---|---|---|---|
+| APF1 | 1–4 | `entregables/APF1` | Lean Canvas, PMBOK (Charter, WBS, Gantt), matriz de requerimientos y prototipo navegable |
+| APF3 | 9–12 | `entregables/APF3` | Arquitectura, trazabilidad, capturas y control de versiones |
+
+Ver `entregables/APF1/LEEME.txt` y `entregables/APF3/LEEME.txt`.
+
 ## Autores
 
-Proyecto Integrador I · UTP Sede Piura.
+Proyecto Integrador I · UTP Sede Piura. Equipo: Leonel Ivan Moscoso Vargas, Juspin Edu Otero Saldarriaga, Giacomo Gerardo Jesus Hurtado Camino y Kreismy Nicol Lopez Saldarriaga.
 
 ## Revisión 3: librerías, exportación y seguridad
 

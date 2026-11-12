@@ -187,4 +187,12 @@ class ReporteServiceTest {
         assertThrows(IllegalArgumentException.class, () -> f.service.consultarEstado("ABC"));
         assertThrows(IllegalArgumentException.class, () -> f.service.consultarEstado(null));
     }
+
+    @Test void listado_del_panel_muestra_nombre_de_categoria_y_zona() {
+        Fx f = new Fx();
+        f.reportes.caso(2, 2, EstadoReporte.RECIBIDO);
+        FilaPanel fila = f.service.listarPanel(null, null, null, 0).get(0);
+        assertEquals("Luminaria dañada", fila.categoria());
+        assertEquals("Castilla", fila.zona());
+    }
 }
