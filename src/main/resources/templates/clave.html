@@ -1,0 +1,18 @@
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P06 · Mi contraseña</title></head><body><div th:replace="~{fragments :: cabecera('panel')}"></div>
+<main>
+<div th:replace="~{fragments :: panelnav('clave')}"></div>
+<div class="card acceso">
+ <h2 class="mt-0">Cambiar mi contraseña</h2>
+ <p class="mut">Por seguridad, primero escribe tu contraseña actual.</p>
+ <form method="post" th:action="@{/panel/clave}"><input type="hidden" name="_csrf" th:value="${csrf}">
+  <input type="text" name="username" th:value="${usuario.usuario()}" autocomplete="username" hidden>
+  <label for="actual">Contraseña actual</label><input id="actual" name="actual" type="password" required autocomplete="current-password" class="ancho-total">
+  <label for="nueva">Nueva contraseña</label><input id="nueva" name="nueva" type="password" required minlength="8" maxlength="72" autocomplete="new-password" class="ancho-total" aria-describedby="pista-nueva">
+  <small class="pista" id="pista-nueva">Al menos 8 caracteres, con letras y números, y distinta de la actual.</small>
+  <label for="confirmacion">Repite la nueva contraseña</label><input id="confirmacion" name="confirmacion" type="password" required minlength="8" maxlength="72" autocomplete="new-password" class="ancho-total">
+  <p class="acciones"><button type="submit">Guardar contraseña</button></p>
+ </form>
+</div>
+</main>
+<footer th:replace="~{fragments :: pie}"></footer>
+</body></html>

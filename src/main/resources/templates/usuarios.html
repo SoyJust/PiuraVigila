@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P05 · Usuarios del panel</title></head><body><div th:replace="~{fragments :: cabecera('panel')}"></div>
+<main>
+<div th:replace="~{fragments :: panelnav('usuarios')}"></div>
+<div class="usuarios-rejilla">
+ <div class="card">
+  <div class="encabezado-card"><h2>Personal con acceso</h2><span class="mut" th:text="${#lists.size(lista)} + ' cuentas'"></span></div>
+  <p class="mut">Desactivar una cuenta impide que inicie sesión, pero conserva su historial (quién cambió cada estado).</p>
+  <div class="tabla"><table class="tabla-casos"><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
+   <tr th:each="x : ${lista}" th:classappend="${!x.activo()} ? 'inactivo'">
+    <td class="principal"><strong th:text="${x.nombre()}"></strong> <span class="tu" th:if="${x.usuarioId() == usuario.usuarioId()}">(tú)</span></td>
+    <td data-label="Usuario" th:text="${x.usuario()}"></td>
+    <td data-label="Rol" th:text="${#strings.capitalize(x.rol().valorBD())}"></td>
+    <td data-label="Estado"><span class="estado-cuenta" th:classappend="${x.activo()} ? 'si' : 'no'" th:text="${x.activo()} ? 'Activa' : 'Desactivada'"></span></td>
+    <td data-label="Acción"><form method="post" th:action="@{/panel/usuarios/estado}" th:if="${x.usuarioId() != usuario.usuarioId()}">
+      <input type="hidden" name="_csrf" th:value="${csrf}"><input type="hidden" name="usuarioId" th:value="${x.usuarioId()}">
+      <input type="hidden" name="activo" th:value="${!x.activo()}">
+      <button class="sec" type="submit" th:text="${x.activo()} ? 'Desactivar' : 'Activar'"></button></form>
+     <span class="mut" th:if="${x.usuarioId() == usuario.usuarioId()}">—</span></td>
+   </tr></tbody></table></div>
+ </div>
+
+ <div>
+  <div class="card">
+   <h2 class="mt-0">Crear usuario</h2>
+   <form method="post" th:action="@{/panel/usuarios}"><input type="hidden" name="_csrf" th:value="${csrf}">
+    <label for="nombre">Nombre completo</label><input id="nombre" name="nombre" th:value="${fNombre}" required minlength="3" maxlength="100" class="ancho-total" placeholder="Ejemplo: Rosa Chávez">
+    <label for="usuario">Usuario para iniciar sesión</label><input id="usuario" name="usuario" th:value="${fUsuario}" required pattern="[a-z0-9._]{3,40}" maxlength="40" class="ancho-total" autocapitalize="none" spellcheck="false" placeholder="ejemplo: rchavez">
+    <small class="pista">Minúsculas, números, punto o guion bajo.</small>
+    <label for="rol">Rol</label><select id="rol" name="rol" required class="ancho-total"><option value="">Elige…</option>
+     <option th:each="r : ${roles}" th:value="${r.valorBD()}" th:text="${#strings.capitalize(r.valorBD())}" th:selected="${fRol == r.valorBD()}"></option></select>
+    <small class="pista">El operador atiende casos; el administrador además gestiona usuarios, categorías y ve los tiempos de atención.</small>
+    <label for="clave">Contraseña inicial</label><input id="clave" name="clave" type="password" required minlength="8" maxlength="72" autocomplete="new-password" class="ancho-total">
+    <small class="pista">Al menos 8 caracteres, con letras y números. Pídele al usuario que la cambie al entrar.</small>
+    <p class="acciones"><button type="submit">Crear usuario</button></p>
+   </form>
+  </div>
+  <div class="card">
+   <h2 class="mt-0">Restablecer contraseña</h2>
+   <p class="mut">Para un usuario que olvidó la suya.</p>
+   <form method="post" th:action="@{/panel/usuarios/clave}"><input type="hidden" name="_csrf" th:value="${csrf}">
+    <label for="usuarioId">Usuario</label><select id="usuarioId" name="usuarioId" required class="ancho-total"><option value="">Elige…</option>
+     <option th:each="x : ${lista}" th:if="${x.usuarioId() != usuario.usuarioId()}" th:value="${x.usuarioId()}" th:text="${x.nombre()} + ' (' + ${x.usuario()} + ')'"></option></select>
+    <label for="nueva">Nueva contraseña</label><input id="nueva" name="nueva" type="password" required minlength="8" maxlength="72" autocomplete="new-password" class="ancho-total">
+    <p class="acciones"><button type="submit" class="sec">Restablecer</button></p>
+   </form>
+  </div>
+ </div>
+</div>
+</main>
+<footer th:replace="~{fragments :: pie}"></footer>
+</body></html>

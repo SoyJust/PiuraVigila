@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Reporta baches, luminarias apagadas, basura y otros problemas de tu calle en Piura y sigue su atención con un código."><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>PiuraVigila · Reporta los problemas de tu calle</title></head><body><div th:replace="~{fragments :: cabecera('inicio')}"></div>
+<main class="sin-margen">
+<section class="portada"><div class="contenedor">
+ <div>
+  <h1>Reporta los problemas de tu calle y <em>sigue su atención</em></h1>
+  <p class="lema">Baches, luminarias apagadas, basura acumulada o fugas de agua: envía una foto y la ubicación, recibe un código y consulta cuándo la municipalidad lo atiende.</p>
+  <div class="botones">
+   <a class="boton sol" th:href="@{/reportar}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>Registrar un reporte</a>
+   <a class="boton claro" th:href="@{/consultar}">Consultar mi código</a>
+  </div>
+  <div class="confianza"><span>Sin registrarte</span><span>No pedimos nombre ni teléfono</span><span>Menos de 2 minutos</span></div>
+ </div>
+ <div class="ilustracion" aria-hidden="true">
+  <h2>Así se ve el seguimiento de un caso</h2>
+  <div class="mini-caso"><div><strong>Bache en la vía</strong><small>PR-2026-0021 · Castilla</small></div><span class="badge est-recibido">Recibido</span></div>
+  <div class="mini-caso"><div><strong>Luminaria dañada</strong><small>PR-2026-0018 · Piura</small></div><span class="badge est-en_proceso">En proceso</span></div>
+  <div class="mini-caso"><div><strong>Acumulación de basura</strong><small>PR-2026-0012 · Veintiséis de Octubre</small></div><span class="badge est-atendido">Atendido</span></div>
+ </div>
+</div></section>
+
+<div class="contenedor">
+ <section class="seccion" aria-labelledby="t-cifras">
+  <h2 id="t-cifras">PiuraVigila en cifras</h2>
+  <p class="mut">Datos agregados de todos los reportes registrados.</p>
+  <div class="cifras">
+   <div class="cifra c-total"><span class="valor" th:text="${total}">0</span><span class="etiqueta">casos registrados</span></div>
+   <div class="cifra c-atendido"><span class="valor" th:text="${atendidos}">0</span><span class="etiqueta">casos atendidos</span></div>
+   <div class="cifra c-proceso"><span class="valor" th:text="${enAtencion}">0</span><span class="etiqueta">en atención ahora</span></div>
+   <div class="cifra c-recibido"><span class="valor" th:text="${pctAtendidos} + ' %'">0 %</span><span class="etiqueta">de casos resueltos</span></div>
+  </div>
+ </section>
+
+ <section class="seccion" aria-labelledby="t-como">
+  <h2 id="t-como">¿Cómo funciona?</h2>
+  <p class="mut">Tres pasos, desde tu celular.</p>
+  <ol class="pasos-inicio">
+   <li><h3>Reporta</h3><p>Elige el tipo de problema y el distrito, escribe una descripción corta, adjunta una foto y marca el punto en el mapa.</p></li>
+   <li><h3>Guarda tu código</h3><p>Recibes un código como <strong>PR-2026-0001</strong>. Si alguien ya reportó lo mismo, tu reporte se une al caso existente.</p></li>
+   <li><h3>Sigue la atención</h3><p>El personal municipal actualiza el estado: Recibido, En proceso y Atendido. Consúltalo cuando quieras con tu código.</p></li>
+  </ol>
+ </section>
+
+ <section class="seccion" aria-labelledby="t-que">
+  <h2 id="t-que">¿Qué puedes reportar?</h2>
+  <p class="mut" th:text="'Problemas de la vía pública en los ' + ${zonas} + ' distritos de la provincia de Piura.'"></p>
+  <ul class="chips"><li th:each="c : ${categorias}" th:text="${c.nombre()}"></li></ul>
+  <p class="botones-fila"><a class="boton" th:href="@{/reportar}">Empezar mi reporte</a></p>
+ </section>
+</div>
+</main>
+<footer th:replace="~{fragments :: pie}"></footer>
+</body></html>
