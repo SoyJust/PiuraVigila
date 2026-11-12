@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReporteDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.dao</a> &gt; <span class="el_source">ReporteDAO.java</span></div><h1>ReporteDAO.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.dao;
+import java.time.*;
+import java.util.*;
+import pe.edu.utp.piuravigila.dto.ConteoZona;
+import pe.edu.utp.piuravigila.dto.PuntoReporte;
+import pe.edu.utp.piuravigila.model.*;
+
+public interface ReporteDAO {
+    /** Inserta un caso original y devuelve su código PR-AAAA-#### (lo genera la BD con la secuencia, RNF-03). */
+    String insertarCaso(Reporte r);
+    /** Inserta un reporte vinculado al caso: sin código propio (RN-01). */
+    void insertarVinculado(Reporte r, int casoId);
+    Optional&lt;Reporte&gt; buscarPorCodigo(String codigo);
+    Optional&lt;Reporte&gt; buscarPorId(int reporteId);
+    /** Caso original abierto (Recibido/En proceso) con la misma categoría y zona. */
+    Optional&lt;Reporte&gt; buscarCasoAbierto(int categoriaId, int zonaId);
+    Optional&lt;LocalDateTime&gt; ultimoEnvio(String dispositivoId);
+    /** Reportes del dispositivo en el día, incluidos los vinculados (RF-06). */
+    int contarEnDia(String dispositivoId, LocalDate dia);
+    List&lt;Reporte&gt; listarCasos(Integer zonaId, Integer categoriaId, EstadoReporte estado, int pagina, int tamano);
+    int contarCasos(Integer zonaId, Integer categoriaId, EstadoReporte estado);
+    int contarVinculados(int casoId);
+    void actualizarEstado(int reporteId, EstadoReporte nuevo);
+    // Dashboard (R01 a R03)
+    List&lt;ConteoZona&gt; reportesPorZona(LocalDateTime desde, LocalDateTime hasta);
+    Map&lt;EstadoReporte, Integer&gt; casosPorEstado(LocalDateTime desde, LocalDateTime hasta);
+    int contarVinculadosPeriodo(LocalDateTime desde, LocalDateTime hasta);
+    double porcentajeActualizados(LocalDateTime desde, LocalDateTime hasta);
+    /** Reportes del periodo con ubicación marcada (incluye vinculados), para el mapa de P04. */
+<span class="nc" id="L30">    default List&lt;PuntoReporte&gt; puntosPeriodo(LocalDateTime desde, LocalDateTime hasta) { return List.of(); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

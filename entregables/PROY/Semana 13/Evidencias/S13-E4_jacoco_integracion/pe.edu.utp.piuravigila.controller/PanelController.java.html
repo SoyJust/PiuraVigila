@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PanelController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.controller</a> &gt; <span class="el_source">PanelController.java</span></div><h1>PanelController.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.controller;
+
+import jakarta.servlet.http.*;
+import java.time.*;
+import java.util.*;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.edu.utp.piuravigila.dto.ConteoZona;
+import pe.edu.utp.piuravigila.model.*;
+import pe.edu.utp.piuravigila.service.*;
+
+/** P03 · panel municipal (RF-03, RF-07, RNF-01), resumen R01 a R03 (sin fotos) y P04 · mapa de zonas críticas (RF-04). Sesión del servidor. */
+@Controller
+public class PanelController {
+    private static final String SESION = &quot;usuario&quot;;
+    private final AuthService auth;
+    private final ReporteService reportes;
+    private final CategoriaService categorias;
+    private final DashboardService dashboard;
+    private final Clock reloj;
+
+    public PanelController(AuthService auth, ReporteService reportes, CategoriaService categorias,
+<span class="nc" id="L26">                           DashboardService dashboard, Clock reloj) {</span>
+<span class="nc" id="L27">        this.auth = auth; this.reportes = reportes; this.categorias = categorias; this.dashboard = dashboard; this.reloj = reloj;</span>
+<span class="nc" id="L28">    }</span>
+
+    @GetMapping(&quot;/login&quot;)
+    public String login(@RequestParam(required = false) String requerida, Model m) {
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        if (requerida != null) m.addAttribute(&quot;error&quot;, &quot;Sesión requerida&quot;);</span>
+<span class="nc" id="L33">        return &quot;login&quot;;</span>
+    }
+
+    @PostMapping(&quot;/login&quot;)
+    public String iniciar(@RequestParam String usuario, @RequestParam String clave, HttpServletRequest rq, Model m) {
+<span class="nc" id="L38">        Optional&lt;UsuarioMunicipal&gt; u = auth.autenticar(usuario, clave);</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (u.isEmpty()) { m.addAttribute(&quot;error&quot;, &quot;Usuario o contraseña incorrectos&quot;); return &quot;login&quot;; }</span>
+<span class="nc" id="L40">        rq.getSession(); // crea la sesión si aún no existe: changeSessionId() la exige</span>
+<span class="nc" id="L41">        rq.changeSessionId(); // evita fijación de sesión</span>
+<span class="nc" id="L42">        rq.getSession().setAttribute(SESION, u.get());</span>
+<span class="nc" id="L43">        return &quot;redirect:/panel&quot;;</span>
+    }
+
+    @PostMapping(&quot;/logout&quot;)
+    public String salir(@RequestParam(name = &quot;_csrf&quot;, required = false) String csrf, HttpSession s) {
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (Csrf.valido(s, csrf)) s.invalidate();</span>
+<span class="nc" id="L49">        return &quot;redirect:/login&quot;;</span>
+    }
+
+    @GetMapping(&quot;/panel&quot;)
+    public String panel(@RequestParam(required = false) Integer zonaId, @RequestParam(required = false) Integer categoriaId,
+                        @RequestParam(required = false) String estado, @RequestParam(defaultValue = &quot;0&quot;) int pagina,
+                        @RequestParam(defaultValue = &quot;false&quot;) boolean resumen,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+                        HttpSession s, Model m) {
+<span class="nc" id="L59">        UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (u == null) return &quot;redirect:/login?requerida&quot;;</span>
+<span class="nc" id="L61">        EstadoReporte filtroEstado = null;</span>
+<span class="nc bnc" id="L62" title="All 4 branches missed.">        if (estado != null &amp;&amp; !estado.isBlank()) {</span>
+<span class="nc" id="L63">            try { filtroEstado = EstadoReporte.desdeEtiqueta(estado); } catch (IllegalArgumentException e) { filtroEstado = null; }</span>
+        }
+<span class="nc" id="L65">        int total = reportes.totalCasos(zonaId, categoriaId, filtroEstado);</span>
+<span class="nc" id="L66">        m.addAttribute(&quot;usuario&quot;, u);</span>
+<span class="nc" id="L67">        m.addAttribute(&quot;csrf&quot;, Csrf.token(s));</span>
+<span class="nc" id="L68">        m.addAttribute(&quot;filas&quot;, reportes.listarPanel(zonaId, categoriaId, filtroEstado, pagina));</span>
+<span class="nc" id="L69">        m.addAttribute(&quot;total&quot;, total);</span>
+<span class="nc" id="L70">        m.addAttribute(&quot;pagina&quot;, Math.max(pagina, 0));</span>
+<span class="nc" id="L71">        m.addAttribute(&quot;paginas&quot;, Math.max(1, (total + ReporteService.TAMANO_PAGINA - 1) / ReporteService.TAMANO_PAGINA));</span>
+<span class="nc" id="L72">        m.addAttribute(&quot;categorias&quot;, reportes.categoriasActivas());</span>
+<span class="nc" id="L73">        m.addAttribute(&quot;zonas&quot;, reportes.zonas());</span>
+<span class="nc" id="L74">        m.addAttribute(&quot;estados&quot;, EstadoReporte.values());</span>
+<span class="nc" id="L75">        m.addAttribute(&quot;fzona&quot;, zonaId); m.addAttribute(&quot;fcat&quot;, categoriaId); m.addAttribute(&quot;festado&quot;, estado);</span>
+<span class="nc" id="L76">        m.addAttribute(&quot;avisoOtra&quot;, categorias.umbralOtraSuperado());</span>
+<span class="nc" id="L77">        m.addAttribute(&quot;pctOtra&quot;, categorias.porcentajeOtraMes());</span>
+<span class="nc" id="L78">        m.addAttribute(&quot;verResumen&quot;, resumen);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (resumen) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            LocalDate h = hasta != null ? hasta : LocalDate.now(reloj);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            LocalDate d = desde != null ? desde : h.minusDays(30);</span>
+            try {
+<span class="nc" id="L83">                m.addAttribute(&quot;desde&quot;, d); m.addAttribute(&quot;hasta&quot;, h);</span>
+<span class="nc" id="L84">                m.addAttribute(&quot;r01&quot;, dashboard.zonasCriticas(d, h));</span>
+<span class="nc" id="L85">                m.addAttribute(&quot;r03&quot;, dashboard.resumenGestion(d, h));</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                if (u.esAdministrador()) m.addAttribute(&quot;r02&quot;, dashboard.tiemposAtencion(d, h)); // R02: administrador</span>
+<span class="nc" id="L87">            } catch (IllegalArgumentException e) { m.addAttribute(&quot;errorResumen&quot;, e.getMessage()); }</span>
+        }
+<span class="nc" id="L89">        return &quot;panel&quot;;</span>
+    }
+
+    /** P04 · mapa esquemático de zonas críticas (RF-04): cuadrícula por zona con el conteo del periodo (incluye vinculados). Operador y administrador. */
+    @GetMapping(&quot;/panel/mapa&quot;)
+    public String mapa(@RequestParam(defaultValue = &quot;7d&quot;) String periodo, HttpSession s, Model m) {
+<span class="nc" id="L95">        UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (u == null) return &quot;redirect:/login?requerida&quot;;</span>
+<span class="nc" id="L97">        LocalDate hasta = LocalDate.now(reloj);</span>
+<span class="nc bnc" id="L98" title="All 4 branches missed.">        LocalDate desde = switch (periodo) {</span>
+<span class="nc" id="L99">            case &quot;mes&quot; -&gt; hasta.minusMonths(1).plusDays(1);</span>
+<span class="nc" id="L100">            case &quot;3m&quot; -&gt; hasta.minusMonths(3).plusDays(1);</span>
+<span class="nc" id="L101">            case &quot;anio&quot; -&gt; hasta.minusYears(1).plusDays(1);</span>
+<span class="nc" id="L102">            default -&gt; { periodo = &quot;7d&quot;; yield hasta.minusDays(6); }</span>
+        };
+<span class="nc" id="L104">        Map&lt;String, Integer&gt; conteos = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        for (ConteoZona c : dashboard.zonasCriticas(desde, hasta)) conteos.put(c.zona(), c.reportes());</span>
+<span class="nc" id="L106">        List&lt;ConteoZona&gt; celdas = new ArrayList&lt;&gt;(); // las zonas sin reportes también aparecen (con 0)</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        for (Zona z : reportes.zonas()) celdas.add(new ConteoZona(z.nombre(), conteos.getOrDefault(z.nombre(), 0)));</span>
+<span class="nc" id="L108">        m.addAttribute(&quot;usuario&quot;, u);</span>
+<span class="nc" id="L109">        m.addAttribute(&quot;periodo&quot;, periodo);</span>
+<span class="nc" id="L110">        m.addAttribute(&quot;desde&quot;, desde); m.addAttribute(&quot;hasta&quot;, hasta);</span>
+<span class="nc" id="L111">        m.addAttribute(&quot;celdas&quot;, celdas);</span>
+<span class="nc" id="L112">        m.addAttribute(&quot;puntos&quot;, dashboard.puntosReportes(desde, hasta));</span>
+<span class="nc" id="L113">        m.addAttribute(&quot;maximo&quot;, celdas.stream().mapToInt(ConteoZona::reportes).max().orElse(0));</span>
+<span class="nc" id="L114">        return &quot;mapa&quot;;</span>
+    }
+
+    @PostMapping(&quot;/panel/estado&quot;)
+    public String cambiarEstado(@RequestParam int reporteId, @RequestParam String nuevo,
+                                @RequestParam(name = &quot;_csrf&quot;, required = false) String csrf,
+                                HttpSession s, RedirectAttributes ra) {
+<span class="nc" id="L121">        UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (u == null) return &quot;redirect:/login?requerida&quot;;</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (!Csrf.valido(s, csrf)) { ra.addFlashAttribute(&quot;error&quot;, &quot;Solicitud no válida&quot;); return &quot;redirect:/panel&quot;; }</span>
+        try {
+<span class="nc" id="L125">            reportes.cambiarEstado(reporteId, EstadoReporte.desdeEtiqueta(nuevo), u);</span>
+<span class="nc" id="L126">            ra.addFlashAttribute(&quot;ok&quot;, &quot;Estado actualizado&quot;);</span>
+<span class="nc" id="L127">        } catch (IllegalArgumentException | IllegalStateException e) {</span>
+<span class="nc" id="L128">            ra.addFlashAttribute(&quot;error&quot;, e.getMessage());</span>
+<span class="nc" id="L129">        }</span>
+<span class="nc" id="L130">        return &quot;redirect:/panel&quot;;</span>
+    }
+
+    @PostMapping(&quot;/panel/categoria&quot;)
+    public String habilitarCategoria(@RequestParam String nombre, @RequestParam(name = &quot;_csrf&quot;, required = false) String csrf,
+                                     HttpSession s, RedirectAttributes ra) {
+<span class="nc" id="L136">        UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (u == null) return &quot;redirect:/login?requerida&quot;;</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (!Csrf.valido(s, csrf)) { ra.addFlashAttribute(&quot;error&quot;, &quot;Solicitud no válida&quot;); return &quot;redirect:/panel&quot;; }</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (!u.esAdministrador()) { ra.addFlashAttribute(&quot;error&quot;, &quot;Solo el administrador puede habilitar categorías&quot;); return &quot;redirect:/panel&quot;; }</span>
+<span class="nc" id="L140">        try { categorias.habilitar(nombre); ra.addFlashAttribute(&quot;ok&quot;, &quot;Categoría habilitada&quot;); }</span>
+<span class="nc" id="L141">        catch (IllegalArgumentException | IllegalStateException e) { ra.addFlashAttribute(&quot;error&quot;, e.getMessage()); }</span>
+<span class="nc" id="L142">        return &quot;redirect:/panel&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ManejoErrores.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.controller</a> &gt; <span class="el_source">ManejoErrores.java</span></div><h1>ManejoErrores.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+/** Errores técnicos: mensaje genérico al usuario; el detalle va al log, no a la pantalla. */
+@ControllerAdvice
+<span class="nc" id="L11">public class ManejoErrores {</span>
+<span class="nc" id="L12">    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ManejoErrores.class);</span>
+
+    @ExceptionHandler({org.springframework.dao.DataAccessException.class, java.io.UncheckedIOException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public String error(RuntimeException e, Model m) {
+<span class="nc" id="L17">        LOG.error(&quot;Error no controlado&quot;, e);</span>
+<span class="nc" id="L18">        m.addAttribute(&quot;mensaje&quot;, &quot;Ocurrió un error. Intenta de nuevo en unos minutos.&quot;);</span>
+<span class="nc" id="L19">        return &quot;error&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

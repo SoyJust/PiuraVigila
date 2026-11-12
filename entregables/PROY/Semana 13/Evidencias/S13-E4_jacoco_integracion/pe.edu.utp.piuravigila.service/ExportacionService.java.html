@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExportacionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.service</a> &gt; <span class="el_source">ExportacionService.java</span></div><h1>ExportacionService.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.service;
+
+import java.io.*;
+import java.time.LocalDate;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
+
+/** Exporta exclusivamente conteos agregados, sin fotos ni credenciales. */
+@Service
+public class ExportacionService {
+    private final DashboardService dashboard;
+<span class="nc" id="L12">    public ExportacionService(DashboardService dashboard) { this.dashboard = dashboard; }</span>
+    public byte[] zonas(LocalDate desde, LocalDate hasta) {
+<span class="nc" id="L14">        var filas = dashboard.zonasCriticas(desde, hasta);</span>
+<span class="nc" id="L15">        try (var libro = new XSSFWorkbook(); var salida = new ByteArrayOutputStream()) {</span>
+<span class="nc" id="L16">            var hoja = libro.createSheet(&quot;Reportes por zona&quot;);</span>
+<span class="nc" id="L17">            var periodo = hoja.createRow(0);</span>
+<span class="nc" id="L18">            periodo.createCell(0).setCellValue(&quot;Desde &quot; + desde + &quot; hasta &quot; + hasta);</span>
+<span class="nc" id="L19">            var cabecera = hoja.createRow(2);</span>
+<span class="nc" id="L20">            cabecera.createCell(0).setCellValue(&quot;Zona&quot;);</span>
+<span class="nc" id="L21">            cabecera.createCell(1).setCellValue(&quot;Reportes&quot;);</span>
+<span class="nc" id="L22">            var estilo = libro.createCellStyle(); var fuente = libro.createFont(); fuente.setBold(true); estilo.setFont(fuente);</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">            for (var celda : cabecera) celda.setCellStyle(estilo);</span>
+<span class="nc" id="L24">            int i = 3;</span>
+<span class="nc bnc" id="L25" title="All 2 branches missed.">            for (var fila : filas) {</span>
+<span class="nc" id="L26">                var row = hoja.createRow(i++);</span>
+                // Tipo texto explícito: nombres que empiezan con '=' no son fórmulas.
+<span class="nc" id="L28">                row.createCell(0).setCellValue(fila.zona());</span>
+<span class="nc" id="L29">                row.createCell(1).setCellValue(fila.reportes());</span>
+<span class="nc" id="L30">            }</span>
+<span class="nc" id="L31">            hoja.setColumnWidth(0, 36 * 256); hoja.setColumnWidth(1, 16 * 256);</span>
+<span class="nc" id="L32">            hoja.createFreezePane(0, 3); libro.write(salida); return salida.toByteArray();</span>
+<span class="nc" id="L33">        } catch (IOException e) { throw new UncheckedIOException(&quot;No se pudo exportar el resumen.&quot;, e); }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
