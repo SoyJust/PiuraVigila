@@ -112,9 +112,12 @@ class PanelControllerTest {
     }
 
     // ---- PV-T43 · RNF-01: iniciar sesión funciona aunque no haya una sesión previa (por ejemplo, tras cerrar sesión) ----
+    // Semana 14 (SEC-06): el login exige el token CSRF que entrega GET /login; la sesión nace en ese GET.
     @Test void pv_t43_login_sin_sesion_previa_crea_la_sesion() throws Exception {
         when(auth.autenticar("operador", "clave-de-prueba")).thenReturn(Optional.of(OPERADOR));
-        mvc.perform(post("/login").param("usuario", "operador").param("clave", "clave-de-prueba"))
+        org.springframework.mock.web.MockHttpSession s = new org.springframework.mock.web.MockHttpSession();
+        String token = (String) mvc.perform(get("/login").session(s)).andReturn().getModelAndView().getModel().get("csrf");
+        mvc.perform(post("/login").session(s).param("_csrf", token).param("usuario", "operador").param("clave", "clave-de-prueba"))
                 .andExpect(redirectedUrl("/panel"))
                 .andExpect(request().sessionAttribute("usuario", OPERADOR));
     }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P04 · Mapa de zonas críticas</title></head><body><div th:replace="~{fragments :: cabecera('panel')}"></div>
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" crossorigin="anonymous" referrerpolicy="no-referrer"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P04 · Mapa de zonas críticas</title></head><body><div th:replace="~{fragments :: cabecera('panel')}"></div>
 <main>
 <div class="card"><h1>Mapa de zonas críticas</h1>
  <p class="mut">Mapa esquemático (cuadrícula por zona, no geográfico). Cuenta todos los reportes del periodo, incluidos los vinculados. Sin fotos.</p>
@@ -13,12 +13,12 @@
  </form>
  <p class="mut">Del <span th:text="${desde}"></span> al <span th:text="${hasta}"></span></p>
  <div class="mapa">
-  <div th:each="z : ${celdas}" class="zona" th:classappend="${maximo > 0 and z.reportes() == maximo} ? 'critica'" th:style="'--i:' + (${maximo > 0} ? ${(z.reportes() * 1.0) / maximo} : 0)">
+  <div th:each="z : ${celdas}" class="zona" th:classappend="${maximo > 0 and z.reportes() == maximo} ? 'critica'" th:attr="data-i=${maximo > 0} ? ${(z.reportes() * 1.0) / maximo} : 0">
    <span class="nombre" th:text="${z.zona()}"></span><span class="conteo" th:text="${z.reportes()}"></span><span class="mut">reportes</span>
   </div>
  </div>
 </div>
-<div class="card"><h2 style="margin-top:0">Reportes con ubicación</h2>
+<div class="card"><h2 class="mt-0">Reportes con ubicación</h2>
  <p class="mut" th:if="${#lists.isEmpty(puntos)}">Ningún reporte de este periodo tiene ubicación marcada.</p>
  <p class="mut" th:unless="${#lists.isEmpty(puntos)}">Cada punto es un reporte con ubicación marcada (<span th:text="${#lists.size(puntos)}"></span> en el periodo). Toca un punto para ver el detalle.</p>
  <div id="mapa-puntos" class="selector-mapa" role="application" aria-label="Mapa de reportes con ubicación"></div>
@@ -28,30 +28,6 @@
  </ul>
  <small class="mut">Mapa © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a></small></div>
 </main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script>
-(function () {
-  var mapa = L.map('mapa-puntos').setView([-5.1945, -80.6328], 12);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(mapa);
-  var colores = { 'Recibido': '#2f5d8a', 'En proceso': '#c98a00', 'Atendido': '#1b7a47' };
-  var limites = [];
-  document.querySelectorAll('#datos-puntos li').forEach(function (li) {
-    var lat = parseFloat(li.dataset.lat), lng = parseFloat(li.dataset.lng);
-    if (isNaN(lat) || isNaN(lng)) { return; }
-    var punto = L.circleMarker([lat, lng], { radius: 8, color: '#ffffff', weight: 2, fillColor: colores[li.dataset.estado] || '#2f5d8a', fillOpacity: 0.9 }).addTo(mapa);
-    var caja = document.createElement('div');
-    var titulo = document.createElement('strong');
-    titulo.textContent = li.dataset.codigo || 'Reporte';
-    caja.appendChild(titulo);
-    caja.appendChild(document.createElement('br'));
-    caja.appendChild(document.createTextNode(li.dataset.categoria + ' · ' + li.dataset.zona));
-    caja.appendChild(document.createElement('br'));
-    caja.appendChild(document.createTextNode('Estado: ' + li.dataset.estado));
-    punto.bindPopup(caja);
-    limites.push([lat, lng]);
-  });
-  if (limites.length === 1) { mapa.setView(limites[0], 16); }
-  else if (limites.length > 1) { mapa.fitBounds(limites, { padding: [30, 30], maxZoom: 17 }); }
-})();
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script th:src="@{/js/mapa-puntos.js}"></script>
 </body></html>
