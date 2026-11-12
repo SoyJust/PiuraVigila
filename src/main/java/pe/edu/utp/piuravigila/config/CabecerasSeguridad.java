@@ -12,14 +12,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * Semana 14 · cabeceras HTTP de seguridad en todas las respuestas (hallazgos SEC-01 a SEC-03 de ZAP pasivo).
  *
  * <p>CSP: los scripts solo pueden venir del propio sitio o de cdnjs (Leaflet, con SRI); no se permiten scripts en línea.
- * Los estilos admiten 'unsafe-inline' porque Leaflet y algunas plantillas usan atributos style (riesgo aceptado y
- * documentado: no ejecuta código). Las imágenes del mapa vienen de los mosaicos de OpenStreetMap y de cdnjs.</p>
+ * Los estilos tampoco admiten 'unsafe-inline': las plantillas usan clases CSS y Leaflet aplica sus estilos por CSSOM,
+ * que la CSP no bloquea. Las imágenes del mapa vienen de los mosaicos de OpenStreetMap y de cdnjs.</p>
  */
 @Component
 public class CabecerasSeguridad extends OncePerRequestFilter {
     static final String CSP = "default-src 'self'; "
             + "script-src 'self' https://cdnjs.cloudflare.com; "
-            + "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+            + "style-src 'self' https://cdnjs.cloudflare.com; "
             + "img-src 'self' data: https://tile.openstreetmap.org https://cdnjs.cloudflare.com; "
             + "connect-src 'self'; font-src 'self'; object-src 'none'; "
             + "base-uri 'self'; form-action 'self'; frame-ancestors 'none'";

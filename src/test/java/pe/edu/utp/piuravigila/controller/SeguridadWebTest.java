@@ -82,6 +82,7 @@ class SeguridadWebTest {
         String csp = ciudadano.perform(get("/consultar")).andReturn().getResponse().getHeader("Content-Security-Policy");
         String scriptSrc = csp == null ? "" : csp.replaceAll(".*script-src([^;]*);.*", "$1");
         assertFalse(scriptSrc.contains("unsafe-inline"), "los scripts en línea no deben permitirse");
+        assertFalse(csp.contains("unsafe-inline"), "tampoco estilos en línea (SEC-08: hallazgo de ZAP en la reprueba)");
     }
 
     @Test @DisplayName("TC-SEC-06 · la cookie de dispositivo es HttpOnly y SameSite=Lax")
@@ -99,6 +100,7 @@ class SeguridadWebTest {
             for (Path p : archivos.toList()) {
                 String html = Files.readString(p, StandardCharsets.UTF_8);
                 assertFalse(scriptEnLinea.matcher(html).find(), "script en línea en " + p.getFileName());
+                assertFalse(html.matches("(?s).*(\\sstyle=\"|th:style=|<style).*"), "estilo en línea en " + p.getFileName());
                 Matcher m = externo.matcher(html);
                 while (m.find()) {
                     assertTrue(m.group().contains("integrity=\"sha"), "falta SRI en " + p.getFileName() + ": " + m.group());

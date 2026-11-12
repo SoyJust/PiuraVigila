@@ -1,5 +1,8 @@
 // Semana 14 · SEC-04: movido desde mapa.html para que la CSP no necesite 'unsafe-inline' en scripts.
 (function () {
+  // Intensidad de color de cada zona (antes un atributo style en la plantilla; CSSOM está permitido por la CSP).
+  document.querySelectorAll('.mapa .zona[data-i]').forEach(function (z) { z.style.setProperty('--i', z.dataset.i); });
+
   var mapa = L.map('mapa-puntos').setView([-5.1945, -80.6328], 12);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(mapa);
   var colores = { 'Recibido': '#2f5d8a', 'En proceso': '#c98a00', 'Atendido': '#1b7a47' };
