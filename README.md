@@ -35,7 +35,8 @@ Paquete base: `pe.edu.utp.piuravigila` (`model`, `dto`, `dao`, `service`, `contr
 │   ├── 01_schema.sql              # tablas, índices y secuencia del código de reporte
 │   ├── 02_seed.sql                # zonas (distritos), categorías y usuarios admin y operador
 │   ├── 03_consultas_dashboard.sql # consultas R01–R03 del panel
-│   └── 04_datos_demo.sql          # datos ficticios opcionales para demostración
+│   ├── 04_datos_demo.sql          # datos ficticios opcionales: 59 casos en los 10 distritos
+│   └── 05_migracion_v1_0.sql      # actualiza una base anterior a la v1.0 (columna activo y 4 distritos)
 ├── src/main/java/...              # código fuente por capas
 ├── src/main/resources/            # plantillas, CSS y application.properties
 ├── src/test/java/...              # pruebas del servicio y del panel
@@ -46,14 +47,15 @@ Paquete base: `pe.edu.utp.piuravigila` (`model`, `dto`, `dao`, `service`, `contr
 
 ## Modelo de datos
 
-Tablas: `zona`, `categoria`, `usuario_municipal`, `reporte`, `historial_estado`. Secuencia `seq_codigo_reporte` para el código `PR-AAAA-####`.
+Tablas: `zona`, `categoria`, `usuario_municipal` (con `activo` desde la v1.0), `reporte`, `historial_estado`. Secuencia `seq_codigo_reporte` para el código `PR-AAAA-####`.
 
-Las zonas son distritos de Piura: Piura, Castilla, Veintiséis de Octubre, Catacaos, La Arena y La Unión. Para agregar otra basta un `INSERT INTO zona (nombre, sector) VALUES ('Nombre', NULL);` y aparece en el formulario.
+Las zonas son los 10 distritos de la provincia de Piura: Piura, Castilla, Veintiséis de Octubre, Catacaos, Cura Mori, El Tallán, La Arena, La Unión, Las Lomas y Tambo Grande. El distrito agrupa los reportes para el mapa y los resúmenes; la ubicación exacta la da el punto que el vecino marca en el mapa y la referencia de la descripción. Para agregar otra zona basta un `INSERT INTO zona (nombre, sector) VALUES ('Nombre', NULL);` y aparece en el formulario.
 
 ## Rutas
 
 | Ruta | Método | Descripción |
 |---|---|---|
+| `/` | GET | Inicio: qué es PiuraVigila, cómo funciona y cifras públicas agregadas |
 | `/reportar` | GET, POST | Formulario público de registro de incidencia, con selector de ubicación en el mapa |
 | `/reportar/duplicado` | POST | Vincular un reporte a un caso existente |
 | `/consultar` | GET | Consulta de estado por código, con la línea de tiempo del caso |
@@ -62,6 +64,10 @@ Las zonas son distritos de Piura: Piura, Castilla, Veintiséis de Octubre, Catac
 | `/panel/mapa` | GET | Mapa de zonas críticas (P04) por periodo: conteo por zona y reportes ubicados en el mapa |
 | `/panel/estado` | POST | Cambiar el estado de un caso |
 | `/panel/categoria` | POST | Habilitar una categoría (solo administrador) |
+| `/panel/usuarios` | GET, POST | Lista y creación de cuentas del personal (solo administrador) |
+| `/panel/usuarios/estado` | POST | Activar o desactivar una cuenta (solo administrador; nadie se desactiva a sí mismo) |
+| `/panel/usuarios/clave` | POST | Restablecer la contraseña de otra cuenta (solo administrador) |
+| `/panel/clave` | GET, POST | Cambiar la propia contraseña (operador y administrador) |
 
 ## Requisitos
 
@@ -80,7 +86,13 @@ psql -U postgres -d piuravigila -f database/01_schema.sql
 psql -U postgres -d piuravigila -f database/02_seed.sql
 ```
 
-Opcional: cargar datos de demostración (ficticios) para ver el panel y el mapa con contenido. Se ejecuta una sola vez; al final del archivo están las instrucciones para quitarlos.
+Si la base ya existía con una versión anterior a la v1.0, aplicar antes la migración (se puede ejecutar más de una vez):
+
+```powershell
+psql -U postgres -d piuravigila -f database/05_migracion_v1_0.sql
+```
+
+Opcional: cargar datos de demostración (ficticios) para ver el panel y el mapa con contenido: 59 casos y 13 reportes vinculados en los 10 distritos durante los últimos 5 meses. Se ejecuta una sola vez; al final del archivo están las instrucciones para quitarlos.
 
 ```powershell
 psql -U postgres -d piuravigila -f database/04_datos_demo.sql
@@ -107,24 +119,24 @@ $env:PIURA_OPERADOR_PASSWORD="<contraseña del operador>"
 mvn spring-boot:run
 ```
 
-4. Abrir http://localhost:8080/reportar. El panel está en `/login` (usuarios `admin` y `operador`) y el mapa de zonas críticas en `/panel/mapa`.
+4. Abrir http://localhost:8080. El panel está en `/login` (usuarios `admin` y `operador`); desde ahí el administrador crea las demás cuentas en «Usuarios».
 
 Las contraseñas nunca se guardan en el código ni en el repositorio.
 
 ## Pruebas
 
 ```powershell
-mvn test                     # 62 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
+mvn test                     # 83 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
 ```
 
-Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios, incluida la línea de tiempo de la consulta de estado (con DAOs simulados). Los controladores se prueban con MockMvc: el panel (sesión, token CSRF, rol de administrador y R02) en `PanelControllerTest`, y el formulario público y la consulta en `ReporteControllerTest`.
+Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios, incluida la línea de tiempo de la consulta de estado y la gestión de usuarios (`UsuarioServiceTest`, con DAOs simulados). Los controladores se prueban con MockMvc: el panel (sesión, token CSRF, rol de administrador y R02) en `PanelControllerTest`, y el formulario público y la consulta en `ReporteControllerTest`.
 
-Pruebas de integración con PostgreSQL (`ReporteDAOJdbcIT`): se activan con `RUN_DB_TESTS=true` y usan una base aparte cuyo nombre termina en `_test`, porque cada prueba recrea su esquema.
+Pruebas de integración con PostgreSQL (`ReporteDAOJdbcIT` y `UsuarioMunicipalDAOJdbcIT`, que también prueba la migración 05): se activan con `RUN_DB_TESTS=true` y usan una base aparte cuyo nombre termina en `_test`, porque cada prueba recrea su esquema.
 
 ```powershell
 psql -U postgres -c "CREATE DATABASE piuravigila_test ENCODING 'UTF8' TEMPLATE template0;"
 $env:RUN_DB_TESTS="true"; $env:PIURA_TEST_DB_PASSWORD="<contraseña>"   # también PIURA_TEST_DB_URL y PIURA_TEST_DB_USER
-mvn verify                   # + 6 pruebas de integración y target/site/jacoco-it/index.html
+mvn verify                   # + 11 pruebas de integración y target/site/jacoco-it/index.html
 ```
 
 El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechable y ejecuta ambas. Evidencias de la Semana 13 en `entregables/PROY/Semana 13`.
@@ -135,7 +147,9 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 - Código de seguimiento `PR-AAAA-####` y consulta pública de estado con línea de tiempo (Recibido → En proceso → Atendido) y la fecha de cada paso.
 - Detección de posibles duplicados y vinculación a un caso original.
 - Control anti-spam por dispositivo: 60 s entre reportes y máximo 3 por día.
-- Panel municipal con login (BCrypt), cambio de estado con historial y habilitación de categorías (solo administrador).
+- Página de inicio con el propósito del sistema, los pasos y cifras públicas agregadas.
+- Panel municipal con login (BCrypt), tarjetas de cifras por estado, filtros, cambio de estado con historial y habilitación de categorías (solo administrador). En el celular la tabla se muestra como tarjetas.
+- Gestión de usuarios (administrador): crear cuentas, activarlas o desactivarlas y restablecer contraseñas. Cada usuario cambia su propia contraseña. Una cuenta desactivada pierde de inmediato la sesión que tuviera abierta.
 - Dashboard: reportes por zona, tiempo de atención por categoría (R02, solo administrador) y resumen de gestión.
 - Mapa de zonas críticas (P04) para 7 días, mes, 3 meses y año: cuadrícula con el conteo por zona y mapa con cada reporte ubicado, coloreado por estado. Lo ven operador y administrador.
 - Registro de eventos en `logs/piuravigila.log`.
@@ -146,7 +160,8 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 - La verificación anti-spam es una suma simple y la cookie se puede borrar; no constituye una protección robusta contra bots.
 - El código `PR-AAAA-####` usa 4 dígitos; pasado el 9999 se truncaría.
 - La foto se guarda en disco antes de confirmar la transacción; si falla la base de datos puede quedar un archivo huérfano.
-- Los usuarios `admin` y `operador` quedan con hash pendiente en el seed: sin su variable de entorno no se puede iniciar sesión con ese usuario.
+- Los usuarios `admin` y `operador` quedan con hash pendiente en el seed: sin su variable de entorno no se puede iniciar sesión con ese usuario. Las demás cuentas se crean desde «Usuarios».
+- No hay recuperación de contraseña por correo (el sistema no guarda correos): la restablece el administrador.
 - El selector de ubicación y el mapa del panel cargan Leaflet y los mosaicos de OpenStreetMap por internet; sin conexión no se dibujan (el formulario sigue funcionando, la ubicación es opcional).
 - Los datos son simulados; no registrar datos personales reales. En `04_datos_demo.sql` las coordenadas son aproximadas.
 
@@ -159,6 +174,7 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 | APF3 | 9–12 | `entregables/APF3` | Arquitectura, trazabilidad, capturas y control de versiones |
 | PROY · Semana 13 | 13 | `entregables/PROY/Semana 13` | Pruebas de software (60 %): casos, ejecuciones, defectos, cobertura y evidencias |
 | PROY · Semana 14 | 14 | `entregables/PROY/Semana 14` | Pruebas de seguridad (70 %): reporte, hallazgos, ZAP pasivo, SCA y evidencias |
+| PROY · Acabado v1.0 | 14 | `entregables/PROY/Acabado v1.0` | Interfaz final, gestión de usuarios, 10 distritos, datos de demostración y capturas antes/después |
 
 Cada carpeta tiene su `LEEME.txt` con el contenido y las correcciones.
 

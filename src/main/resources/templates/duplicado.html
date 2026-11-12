@@ -1,13 +1,13 @@
 <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>Posible duplicado</title></head><body><div th:replace="~{fragments :: cabecera('reportar')}"></div>
-<main><div class="card"><h1>Posible duplicado</h1>
-<p>Ya hay un reporte abierto con la misma categoría y zona:</p>
+<main><div class="card"><h1>¿Es el mismo problema?</h1>
+<p class="intro">Ya hay un caso abierto del mismo tipo en el mismo distrito. Si es el mismo problema, tu reporte se suma a ese caso y la municipalidad sabrá que afecta a más vecinos.</p>
 <table><tr><th>Código</th><td th:text="${caso.codigoSeguimiento()}"></td></tr>
 <tr><th>Estado</th><td><span class="badge" th:classappend="'est-' + ${caso.estado().name().toLowerCase()}" th:text="${caso.estado().etiqueta()}"></span></td></tr>
 <tr><th>Categoría</th><td th:text="${categorias[caso.categoriaId()]}"></td></tr>
 <tr><th>Descripción</th><td th:text="${caso.descripcion()}"></td></tr></table>
-<p><strong>¿Es el mismo problema?</strong></p>
-<form method="post" th:action="@{/reportar/duplicado}">
+<form method="post" th:action="@{/reportar/duplicado}" class="botones-fila">
 <input type="hidden" name="_csrf" th:value="${csrf}">
  <button name="respuesta" value="si" type="submit">Sí, es el mismo</button>
- <button class="sec" name="respuesta" value="no" type="submit">No, es otro</button>
-</form></div></main></body></html>
+ <button class="sec" name="respuesta" value="no" type="submit">No, es otro problema</button>
+</form></div></main>
+<footer th:replace="~{fragments :: pie}"></footer></body></html>

@@ -1,2 +1,6 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>Error</title></head><body><div th:replace="~{fragments :: cabecera('')}"></div>
-<main><div class="card"><h1>Error</h1><p class="error" th:text="${mensaje}"></p></div></main></body></html>
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>Algo salió mal</title></head><body><div th:replace="~{fragments :: cabecera('')}"></div>
+<main><div class="card angosta"><h1>Algo salió mal</h1><p class="error" th:text="${mensaje}" role="alert"></p>
+<p class="mut">Puedes volver a intentarlo en un momento.</p>
+<div class="botones-fila"><a class="boton" th:href="@{/}">Ir al inicio</a><a class="boton sec" th:href="@{/consultar}">Consultar un código</a></div></div></main>
+<footer th:replace="~{fragments :: pie}"></footer>
+</body></html>

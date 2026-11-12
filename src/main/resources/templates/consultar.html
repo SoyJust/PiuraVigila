@@ -1,20 +1,30 @@
 <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P02 · Consultar estado</title></head><body><div th:replace="~{fragments :: cabecera('consultar')}"></div>
 <main><div class="card"><h1>Consultar estado del reporte</h1>
+<p class="intro">Escribe el código que recibiste al registrar tu reporte.</p>
 <form method="get" th:action="@{/consultar}"><label for="codigo">Código de seguimiento</label>
-<div class="fila-busqueda"><input id="codigo" name="codigo" th:value="${codigo}" placeholder="PR-2026-0001" required class="crece"> <button type="submit">Consultar</button></div></form>
-<p class="error" th:if="${error}" th:text="${error}"></p>
-<table th:if="${consulta}" class="mt-1">
- <tr><th>Código</th><td th:text="${consulta.caso().codigoSeguimiento()}"></td></tr>
- <tr><th>Categoría</th><td th:text="${categorias[consulta.caso().categoriaId()]}"></td></tr>
- <tr><th>Estado</th><td><span class="badge" th:classappend="'est-' + ${consulta.caso().estado().name().toLowerCase()}" th:text="${consulta.caso().estado().etiqueta()}"></span></td></tr>
- <tr><th>Fecha de registro</th><td th:text="${#temporals.format(consulta.caso().fechaRegistro(),'dd/MM/yyyy HH:mm')}"></td></tr>
- <tr><th>Última actualización</th><td th:text="${#temporals.format(consulta.ultimaActualizacion(),'dd/MM/yyyy HH:mm')}"></td></tr>
-</table>
-<h2 th:if="${consulta}" class="titulo-seguimiento">Seguimiento</h2>
-<ol class="pasos" th:if="${consulta}">
- <li th:each="p : ${consulta.pasos()}" th:classappend="${p.alcanzado()} ? (${p.actual()} ? 'hecho actual' : 'hecho') : 'pendiente'">
-  <span class="paso-nombre" th:text="${p.estado().etiqueta()}"></span>
-  <span class="paso-fecha" th:text="${p.alcanzado()} ? ${#temporals.format(p.fecha(),'dd/MM/yyyy HH:mm')} : 'Pendiente'"></span>
-  <span class="paso-actual" th:if="${p.actual()}">Estado actual</span>
- </li>
-</ol></div></main></body></html>
+<div class="fila-busqueda"><input id="codigo" name="codigo" th:value="${codigo}" placeholder="PR-2026-0001" required class="crece" autocomplete="off" spellcheck="false"> <button type="submit">Consultar</button></div></form>
+<p class="error" th:if="${error}" th:text="${error}" role="alert"></p>
+<p class="ayuda" th:if="${consulta == null and error == null}">El código tiene la forma <strong>PR-año-número</strong> (por ejemplo, PR-2026-0001) y aparece al terminar tu reporte. Si tu reporte se unió a un caso existente, usa el código de ese caso.</p>
+<p class="ayuda" th:if="${error}">Revisa que esté completo, con los guiones. Si lo perdiste, puedes <a th:href="@{/reportar}">registrar el reporte de nuevo</a>: si el caso sigue abierto, se unirá al existente.</p>
+<th:block th:if="${consulta}">
+ <div class="resultado-cabecera"><p class="codigo" th:text="${consulta.caso().codigoSeguimiento()}"></p>
+  <span class="badge" th:classappend="'est-' + ${consulta.caso().estado().name().toLowerCase()}" th:text="${consulta.caso().estado().etiqueta()}"></span></div>
+ <dl class="detalle">
+  <div><dt>Tipo de problema</dt><dd th:text="${categorias[consulta.caso().categoriaId()]}"></dd></div>
+  <div><dt>Distrito</dt><dd th:text="${zona}"></dd></div>
+  <div><dt>Fecha de registro</dt><dd th:text="${#temporals.format(consulta.caso().fechaRegistro(),'dd/MM/yyyy HH:mm')}"></dd></div>
+  <div><dt>Última actualización</dt><dd th:text="${#temporals.format(consulta.ultimaActualizacion(),'dd/MM/yyyy HH:mm')}"></dd></div>
+  <div class="ancho"><dt>Descripción</dt><dd th:text="${consulta.caso().descripcion()}"></dd></div>
+ </dl>
+ <h2 class="titulo-seguimiento">Seguimiento</h2>
+ <ol class="pasos">
+  <li th:each="p : ${consulta.pasos()}" th:classappend="${p.alcanzado()} ? (${p.actual()} ? 'hecho actual' : 'hecho') : 'pendiente'">
+   <span class="paso-nombre" th:text="${p.estado().etiqueta()}"></span>
+   <span class="paso-fecha" th:text="${p.alcanzado()} ? ${#temporals.format(p.fecha(),'dd/MM/yyyy HH:mm')} : 'Pendiente'"></span>
+   <span class="paso-actual" th:if="${p.actual()}">Estado actual</span>
+  </li>
+ </ol>
+</th:block>
+</div></main>
+<footer th:replace="~{fragments :: pie}"></footer>
+</body></html>

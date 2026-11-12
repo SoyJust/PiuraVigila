@@ -79,8 +79,19 @@ final class Fakes {
 
     static final class FakeUsuarioDAO implements UsuarioMunicipalDAO {
         final Map<String, UsuarioMunicipal> m = new HashMap<>();
+        int siguienteId = 100;
         @Override public Optional<UsuarioMunicipal> buscarPorUsuario(String u) { return Optional.ofNullable(m.get(u)); }
-        @Override public void actualizarHash(String u, String h) { }
+        @Override public Optional<UsuarioMunicipal> buscarPorId(int id) { return m.values().stream().filter(x -> x.usuarioId() == id).findFirst(); }
+        @Override public List<UsuarioMunicipal> listar() { return new ArrayList<>(m.values()); }
+        @Override public int crear(String nombre, String usuario, String hash, RolUsuario rol) {
+            int id = siguienteId++; m.put(usuario, new UsuarioMunicipal(id, nombre, usuario, hash, rol, true)); return id;
+        }
+        @Override public void cambiarActivo(int id, boolean activo) {
+            buscarPorId(id).ifPresent(x -> m.put(x.usuario(), new UsuarioMunicipal(x.usuarioId(), x.nombre(), x.usuario(), x.contrasenaHash(), x.rol(), activo)));
+        }
+        @Override public void actualizarHash(String u, String h) {
+            m.computeIfPresent(u, (k, x) -> new UsuarioMunicipal(x.usuarioId(), x.nombre(), x.usuario(), h, x.rol(), x.activo()));
+        }
     }
 
     static final class FakeFotos implements FotoStorage {

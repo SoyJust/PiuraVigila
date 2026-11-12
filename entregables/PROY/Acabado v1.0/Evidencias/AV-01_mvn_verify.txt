@@ -1,0 +1,16 @@
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.296 s -- in pe.edu.utp.piuravigila.controller.MejorasSeguridadTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.306 s -- in pe.edu.utp.piuravigila.controller.PanelControllerTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.190 s -- in pe.edu.utp.piuravigila.controller.ReporteControllerTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.237 s -- in pe.edu.utp.piuravigila.controller.SeguridadWebTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.178 s -- in pe.edu.utp.piuravigila.controller.UsuarioControllerTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in pe.edu.utp.piuravigila.service.ControlAntiSpamTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.544 s -- in pe.edu.utp.piuravigila.service.ExportacionServiceTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.193 s -- in pe.edu.utp.piuravigila.service.FotoStorageDiscoTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.043 s -- in pe.edu.utp.piuravigila.service.OtrosServiciosTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.054 s -- in pe.edu.utp.piuravigila.service.ReporteServiceTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.039 s -- in pe.edu.utp.piuravigila.service.UsuarioServiceTest
+Tests run: 83, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.98 s -- in pe.edu.utp.piuravigila.dao.jdbc.ReporteDAOJdbcIT
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.066 s -- in pe.edu.utp.piuravigila.dao.jdbc.UsuarioMunicipalDAOJdbcIT
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS

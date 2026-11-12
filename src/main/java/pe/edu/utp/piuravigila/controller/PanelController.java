@@ -89,12 +89,19 @@ public class PanelController {
         m.addAttribute("avisoOtra", categorias.umbralOtraSuperado());
         m.addAttribute("pctOtra", categorias.porcentajeOtraMes());
         m.addAttribute("verResumen", resumen);
+        // v1.0 · tarjetas de cifras arriba del panel (todos los casos, sin filtros)
+        m.addAttribute("kRecibido", reportes.totalCasos(null, null, EstadoReporte.RECIBIDO));
+        m.addAttribute("kProceso", reportes.totalCasos(null, null, EstadoReporte.EN_PROCESO));
+        m.addAttribute("kAtendido", reportes.totalCasos(null, null, EstadoReporte.ATENDIDO));
+        m.addAttribute("filtrado", zonaId != null || categoriaId != null || filtroEstado != null);
         if (resumen) {
             LocalDate h = hasta != null ? hasta : LocalDate.now(reloj);
             LocalDate d = desde != null ? desde : h.minusDays(30);
             try {
                 m.addAttribute("desde", d); m.addAttribute("hasta", h);
-                m.addAttribute("r01", dashboard.zonasCriticas(d, h));
+                List<ConteoZona> r01 = dashboard.zonasCriticas(d, h);
+                m.addAttribute("r01", r01);
+                m.addAttribute("r01Max", r01.stream().mapToInt(ConteoZona::reportes).max().orElse(0));
                 m.addAttribute("r03", dashboard.resumenGestion(d, h));
                 if (u.esAdministrador()) m.addAttribute("r02", dashboard.tiemposAtencion(d, h)); // R02: administrador
             } catch (IllegalArgumentException e) { m.addAttribute("errorResumen", e.getMessage()); }
@@ -119,6 +126,7 @@ public class PanelController {
         List<ConteoZona> celdas = new ArrayList<>(); // las zonas sin reportes también aparecen (con 0)
         for (Zona z : reportes.zonas()) celdas.add(new ConteoZona(z.nombre(), conteos.getOrDefault(z.nombre(), 0)));
         m.addAttribute("usuario", u);
+        m.addAttribute("csrf", Csrf.token(s));
         m.addAttribute("periodo", periodo);
         m.addAttribute("desde", desde); m.addAttribute("hasta", hasta);
         m.addAttribute("celdas", celdas);
