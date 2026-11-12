@@ -39,7 +39,7 @@ Paquete base: `pe.edu.utp.piuravigila` (`model`, `dto`, `dao`, `service`, `contr
 ├── src/main/java/...              # código fuente por capas
 ├── src/main/resources/            # plantillas, CSS y application.properties
 ├── src/test/java/...              # pruebas del servicio y del panel
-├── entregables/                   # documentos por avance (APF1, APF3; ver «Entregables»)
+├── entregables/                   # documentos por avance (APF1 a APF3; ver «Entregables»)
 ├── evidencias/                    # evidencias de pruebas
 └── pom.xml
 ```
@@ -145,9 +145,10 @@ Las pruebas unitarias cubren validación de reportes, control anti-spam, almacen
 | Avance | Semanas | Carpeta | Contenido |
 |---|---|---|---|
 | APF1 | 1–4 | `entregables/APF1` | Lean Canvas, PMBOK (Charter, WBS, Gantt), matriz de requerimientos y prototipo navegable |
+| APF2 | 5–8 | `entregables/APF2` | BPMN, diseño de base de datos (ER y SQL), UX/UI, reportes y documentación |
 | APF3 | 9–12 | `entregables/APF3` | Arquitectura, trazabilidad, capturas y control de versiones |
 
-Ver `entregables/APF1/LEEME.txt` y `entregables/APF3/LEEME.txt`.
+Cada carpeta tiene su `LEEME.txt` con el contenido y las correcciones.
 
 ## Autores
 
