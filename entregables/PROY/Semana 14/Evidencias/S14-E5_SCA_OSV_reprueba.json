@@ -1,0 +1,33 @@
+{
+  "dependencias": 93,
+  "hallazgos": [
+    {
+      "dependencia": "org.springframework:spring-webmvc:6.2.19",
+      "alcance": "compile",
+      "id": "GHSA-j9f9-w8pj-32f8",
+      "cve": [
+        "CVE-2026-47890"
+      ],
+      "severidad": "CRITICAL",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "corregida_en": [
+        "7.0.9"
+      ],
+      "resumen": "Spring Framework Server Sent Event stream corruption while rendering fragments"
+    },
+    {
+      "dependencia": "org.springframework:spring-webmvc:6.2.19",
+      "alcance": "compile",
+      "id": "GHSA-pc63-qcmh-9cmg",
+      "cve": [
+        "CVE-2026-47884"
+      ],
+      "severidad": "CRITICAL",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "corregida_en": [
+        "7.0.9"
+      ],
+      "resumen": "Spring Framework Improper Path Limitation in XsltView"
+    }
+  ]
+}

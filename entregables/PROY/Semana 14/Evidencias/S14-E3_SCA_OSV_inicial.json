@@ -1,0 +1,380 @@
+{
+  "dependencias": 92,
+  "hallazgos": [
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-core:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-7hhh-6rmp-j9qf",
+      "cve": [
+        "CVE-2026-89425"
+      ],
+      "severidad": "HIGH",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "corregida_en": [
+        "2.18.11",
+        "2.21.7",
+        "2.22.3",
+        "3.1.7",
+        "3.2.3"
+      ],
+      "resumen": "jackson-core: UTF8DataInputJsonParser._reportInvalidToken() missing maxErrorTokenLength limit -> unbounded StringBuilder growth (DoS)"
+    },
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-core:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-p6pp-m3f8-5c89",
+      "cve": [
+        "CVE-2026-89407"
+      ],
+      "severidad": "HIGH",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "corregida_en": [
+        "2.18.11",
+        "2.21.7",
+        "2.22.3",
+        "3.1.7",
+        "3.2.2"
+      ],
+      "resumen": " jackson-core: ReDoS: quadratic backtracking in NumberInput.PATTERN_FLOAT via looksLikeValidNumber()"
+    },
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-databind:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-5gvw-p9qm-jgwh",
+      "cve": [
+        "CVE-2026-59889"
+      ],
+      "severidad": "MODERATE",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N",
+      "corregida_en": [
+        "2.18.9",
+        "2.21.5",
+        "2.22.1",
+        "3.1.5",
+        "3.2.1"
+      ],
+      "resumen": "jackson-databind: @JsonView bypassed for @JsonUnwrapped container properties on deserialization"
+    },
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-databind:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-5jmj-h7xm-6q6v",
+      "cve": [
+        "CVE-2026-54515"
+      ],
+      "severidad": "MODERATE",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+      "corregida_en": [
+        "2.18.9",
+        "2.21.5",
+        "2.22.1",
+        "3.1.4"
+      ],
+      "resumen": "jackson-databind has case-insensitive deserialization bypasses per-property @JsonIgnoreProperties"
+    },
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-databind:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-cxp5-3px4-pw24",
+      "cve": [
+        "CVE-2026-91777"
+      ],
+      "severidad": "HIGH",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "corregida_en": [
+        "2.18.11",
+        "2.21.7",
+        "2.22.3",
+        "3.1.7",
+        "3.2.3"
+      ],
+      "resumen": "jackson-databind quadratic forward-reference completion "
+    },
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-databind:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-gx83-3vf8-gh7j",
+      "cve": [
+        "CVE-2026-83557"
+      ],
+      "severidad": "MODERATE",
+      "cvss": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "corregida_en": [
+        "2.18.10",
+        "2.21.6",
+        "2.22.2",
+        "3.1.6",
+        "3.2.2"
+      ],
+      "resumen": "jackson-databind: Comparable missing from DefaultBaseTypeLimitingValidator's unsafe base types (incomplete PolymorphicTypeValidator denylist)"
+    },
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-databind:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-mhm7-754m-9p8w",
+      "cve": [],
+      "severidad": "MODERATE",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+      "corregida_en": [
+        "2.18.9",
+        "2.21.5"
+      ],
+      "resumen": "jackson-databind: `@JsonView` bypass for creator properties with `@JsonTypeInfo(include=As.EXTERNAL_PROPERTY)`"
+    },
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-databind:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-q4xh-88c3-wmh7",
+      "cve": [
+        "CVE-2026-68497"
+      ],
+      "severidad": "HIGH",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "corregida_en": [
+        "2.18.10",
+        "2.21.6",
+        "2.22.2",
+        "3.1.6",
+        "3.2.2"
+      ],
+      "resumen": "jackson-databind: Duration XMLGregorianCalendar Unbounded Number Parse DoS"
+    },
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-databind:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-vvgp-rfg2-7rr6",
+      "cve": [
+        "CVE-2026-77310"
+      ],
+      "severidad": "MODERATE",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+      "corregida_en": [
+        "2.18.9",
+        "2.21.5",
+        "2.22.1",
+        "3.1.5",
+        "3.2.1"
+      ],
+      "resumen": "jackson-databind: Incomplete fix for CVE-2026-54514: eager DNS resolution (SSRF) still present in InetAddress deserialization"
+    },
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-databind:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-wjgm-6hv5-3cvf",
+      "cve": [
+        "CVE-2026-19032"
+      ],
+      "severidad": "MODERATE",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "corregida_en": [
+        "2.18.10",
+        "2.21.6",
+        "2.22.2",
+        "3.1.6",
+        "3.2.2"
+      ],
+      "resumen": "jackson-databind: Path Deserialization Missing Scheme Allowlist for FileSystemProvider Resolution"
+    },
+    {
+      "dependencia": "com.fasterxml.jackson.core:jackson-databind:2.21.4",
+      "alcance": "compile",
+      "id": "GHSA-wv8q-qhhj-9h54",
+      "cve": [
+        "CVE-2026-91776"
+      ],
+      "severidad": "HIGH",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "corregida_en": [
+        "2.18.11",
+        "2.21.7",
+        "2.22.3",
+        "3.1.7",
+        "3.2.3"
+      ],
+      "resumen": "jackson-databind retains every unknown raw type ID "
+    },
+    {
+      "dependencia": "com.google.guava:guava:33.4.8-jre",
+      "alcance": "compile",
+      "id": "GHSA-xxph-c9ww-hj94",
+      "cve": [
+        "CVE-2026-102554"
+      ],
+      "severidad": "HIGH",
+      "cvss": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "corregida_en": [
+        "33.7.2"
+      ],
+      "resumen": "Google Guava: CompactHashMap/CompactHashSet/MapMakerInternalMap deserialization triggers uncontrolled memory allocation"
+    },
+    {
+      "dependencia": "org.apache.logging.log4j:log4j-api:2.24.3",
+      "alcance": "compile",
+      "id": "GHSA-qv9r-c865-cp47",
+      "cve": [
+        "CVE-2026-49844"
+      ],
+      "severidad": "MODERATE",
+      "cvss": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:L/SA:N",
+      "corregida_en": [
+        "2.25.5",
+        "2.26.1"
+      ],
+      "resumen": "Apache Log4j API: Improper encoding of non-finite floating-point values during MapMessage JSON serialization"
+    },
+    {
+      "dependencia": "org.apache.tomcat.embed:tomcat-embed-core:10.1.55",
+      "alcance": "compile",
+      "id": "GHSA-5v3h-fjv2-54fg",
+      "cve": [
+        "CVE-2026-55956"
+      ],
+      "severidad": "MODERATE",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+      "corregida_en": [
+        "10.1.56",
+        "11.0.23",
+        "9.0.119"
+      ],
+      "resumen": "Apache Tomcat has an Improper Authorization vulnerability"
+    },
+    {
+      "dependencia": "org.apache.tomcat.embed:tomcat-embed-core:10.1.55",
+      "alcance": "compile",
+      "id": "GHSA-9xv2-5v5q-p794",
+      "cve": [
+        "CVE-2026-65905"
+      ],
+      "severidad": "CRITICAL",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "corregida_en": [
+        "10.1.58",
+        "11.0.25",
+        "9.0.121"
+      ],
+      "resumen": "Apache Tomcat's DIGEST authenticator has an Authentication Bypass by Capture-replay vulnerability"
+    },
+    {
+      "dependencia": "org.apache.tomcat.embed:tomcat-embed-core:10.1.55",
+      "alcance": "compile",
+      "id": "GHSA-f525-44xv-f2qj",
+      "cve": [
+        "CVE-2026-65637"
+      ],
+      "severidad": "CRITICAL",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "corregida_en": [
+        "10.1.59",
+        "11.0.25",
+        "9.0.121"
+      ],
+      "resumen": "Apache Tomcat - HTTP/2 no-authority bypass of strict SNI validation"
+    },
+    {
+      "dependencia": "org.apache.tomcat.embed:tomcat-embed-core:10.1.55",
+      "alcance": "compile",
+      "id": "GHSA-gcx9-497g-6cp6",
+      "cve": [
+        "CVE-2026-65182"
+      ],
+      "severidad": "CRITICAL",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+      "corregida_en": [
+        "10.1.58",
+        "11.0.25",
+        "9.0.121"
+      ],
+      "resumen": "Apache Tomcat has an Improper Access Control, Incorrect Authorization vulnerability"
+    },
+    {
+      "dependencia": "org.apache.tomcat.embed:tomcat-embed-core:10.1.55",
+      "alcance": "compile",
+      "id": "GHSA-h3x4-894j-xpx5",
+      "cve": [
+        "CVE-2026-68525"
+      ],
+      "severidad": "CRITICAL",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+      "corregida_en": [
+        "10.1.58",
+        "11.0.25",
+        "9.0.121"
+      ],
+      "resumen": "Apache Tomcat's FORM authentication process has an Incorrect Authorization vulnerability"
+    },
+    {
+      "dependencia": "org.apache.tomcat.embed:tomcat-embed-core:10.1.55",
+      "alcance": "compile",
+      "id": "GHSA-h792-v28v-ppgr",
+      "cve": [
+        "CVE-2026-53404"
+      ],
+      "severidad": "HIGH",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "corregida_en": [
+        "10.1.56",
+        "11.0.23",
+        "9.0.119"
+      ],
+      "resumen": "Apache Tomcat's rewrite valve has an Always-Incorrect Control Flow Implementation vulnerability"
+    },
+    {
+      "dependencia": "org.apache.tomcat.embed:tomcat-embed-core:10.1.55",
+      "alcance": "compile",
+      "id": "GHSA-mqg3-r7h5-24x4",
+      "cve": [
+        "CVE-2026-55276"
+      ],
+      "severidad": "CRITICAL",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+      "corregida_en": [
+        "10.1.56",
+        "11.0.23",
+        "9.0.119"
+      ],
+      "resumen": "Apache Tomcat has an Always-Incorrect Control Flow Implementation vulnerability"
+    },
+    {
+      "dependencia": "org.springframework:spring-webmvc:6.2.19",
+      "alcance": "compile",
+      "id": "GHSA-j9f9-w8pj-32f8",
+      "cve": [
+        "CVE-2026-47890"
+      ],
+      "severidad": "CRITICAL",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "corregida_en": [
+        "7.0.9"
+      ],
+      "resumen": "Spring Framework Server Sent Event stream corruption while rendering fragments"
+    },
+    {
+      "dependencia": "org.springframework:spring-webmvc:6.2.19",
+      "alcance": "compile",
+      "id": "GHSA-pc63-qcmh-9cmg",
+      "cve": [
+        "CVE-2026-47884"
+      ],
+      "severidad": "CRITICAL",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "corregida_en": [
+        "7.0.9"
+      ],
+      "resumen": "Spring Framework Improper Path Limitation in XsltView"
+    },
+    {
+      "dependencia": "org.postgresql:postgresql:42.7.11",
+      "alcance": "runtime",
+      "id": "GHSA-j92g-9f8w-j867",
+      "cve": [
+        "CVE-2026-54291"
+      ],
+      "severidad": "HIGH",
+      "cvss": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:L/SA:N",
+      "corregida_en": [
+        "42.7.12"
+      ],
+      "resumen": "PostgreSQL JDBC Driver: Silent channel-binding authentication downgrade via unsupported certificate algorithms"
+    }
+  ]
+}
