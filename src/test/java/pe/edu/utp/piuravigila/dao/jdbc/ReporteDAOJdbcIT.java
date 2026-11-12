@@ -189,6 +189,17 @@ class ReporteDAOJdbcIT {
                 "solo el «Recibido» automático puede no tener responsable");
     }
 
+    @Test @DisplayName("TC-SEC-07 · entradas con SQL malicioso se tratan como datos (consultas parametrizadas)")
+    void inyeccion_sql_se_trata_como_dato() {
+        reportes.insertarCaso(nuevo(BACHE, PIURA, EstadoReporte.RECIBIDO, T0, "it-s1"));
+
+        assertTrue(reportes.buscarPorCodigo("' OR '1'='1").isEmpty(), "la condición inyectada no devuelve filas");
+        assertTrue(reportes.buscarPorCodigo("PR-2026-0001'; DROP TABLE reporte; --").isEmpty());
+        assertEquals(0, reportes.contarEnDia("x' OR '1'='1", T0.toLocalDate()));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM reporte", Integer.class), "la tabla sigue intacta");
+        assertTrue(reportes.buscarPorCodigo("PR-2026-0001").isPresent(), "la búsqueda legítima sigue funcionando");
+    }
+
     private void cambiar(int reporteId, EstadoReporte estado, LocalDateTime fecha) {
         reportes.actualizarEstado(reporteId, estado);
         historial.registrar(new HistorialEstado(0, reporteId, 1, estado, fecha));
