@@ -158,12 +158,23 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 | APF2 | 5–8 | `entregables/APF2` | BPMN, diseño de base de datos (ER y SQL), UX/UI, reportes y documentación |
 | APF3 | 9–12 | `entregables/APF3` | Arquitectura, trazabilidad, capturas y control de versiones |
 | PROY · Semana 13 | 13 | `entregables/PROY/Semana 13` | Pruebas de software (60 %): casos, ejecuciones, defectos, cobertura y evidencias |
+| PROY · Semana 14 | 14 | `entregables/PROY/Semana 14` | Pruebas de seguridad (70 %): reporte, hallazgos, ZAP pasivo, SCA y evidencias |
 
 Cada carpeta tiene su `LEEME.txt` con el contenido y las correcciones.
 
 ## Autores
 
 Proyecto Integrador I · UTP Sede Piura. Equipo: Leonel Ivan Moscoso Vargas, Juspin Edu Otero Saldarriaga, Giacomo Gerardo Jesus Hurtado Camino y Kreismy Nicol Lopez Saldarriaga.
+
+## Seguridad (Semana 14)
+
+- Cabeceras en todas las respuestas (`CabecerasSeguridad`): CSP sin `unsafe-inline` (scripts solo del sitio y de cdnjs), `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy` y `Permissions-Policy`.
+- Leaflet se carga con SRI (`integrity` y `crossorigin`); los scripts de las páginas están en `static/js`.
+- Cookies de sesión y de dispositivo con `HttpOnly` y `SameSite=Lax`. `Secure` y HSTS se activan al desplegar con HTTPS.
+- El formulario de login también exige token CSRF, y el login cambia el identificador de sesión.
+- Dependencias con versiones parche fijadas en el `pom.xml` (Tomcat, Jackson, PostgreSQL JDBC, Log4j y Guava).
+- `mvn -Psecurity-sca verify` ejecuta OWASP Dependency-Check; requiere la variable `NVD_API_KEY` con una clave gratuita del NVD.
+- Reporte y evidencias en `entregables/PROY/Semana 14`.
 
 ## Revisión 3: librerías, exportación y seguridad
 

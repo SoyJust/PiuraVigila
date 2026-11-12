@@ -140,3 +140,12 @@ table:not(:has(thead)) th{width:13rem;color:var(--mut);font-weight:700}
 .pasos .paso-fecha{color:var(--mut);font-size:.92rem}
 .pasos li.pendiente .paso-nombre{color:var(--mut);font-weight:400}
 .pasos .paso-actual{font-size:.8rem;font-weight:700;color:var(--ok);background:var(--ok-bg);border-radius:999px;padding:.05rem .6rem}
+
+/* Semana 14 · SEC-08: clases que reemplazan los atributos style de las plantillas (la CSP ya no necesita 'unsafe-inline'). */
+.fila-busqueda{display:flex;gap:.6rem;flex-wrap:wrap}
+.crece{flex:1;min-width:14rem}
+.mt-0{margin-top:0}
+.mt-1{margin-top:1rem}
+.titulo-seguimiento{margin:1.4rem 0 0}
+.angosta{max-width:26rem;margin-inline:auto}
+.ancho-total{width:100%}

@@ -6,5 +6,5 @@ fotos/
 .vscode/
 env.sh
 
-config/
-uploads/
+/config/
+/uploads/

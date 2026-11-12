@@ -1,0 +1,16 @@
+Comprobación funcional en navegador real con la CSP estricta (sin 'unsafe-inline' en scripts ni estilos)
+Fecha: 12/11/2026 · Versión: rama feature/s14-seguridad (4a251a3 + estilos a clases CSS) · App local http://localhost:8080
+Navegador: navegador integrado de Claude (Chromium) · Datos: database/04_datos_demo.sql (ficticios), quitados al terminar
+Usuario: operador de prueba temporal creado para esta verificación y borrado después (no se usó la contraseña real)
+
+/reportar
+  Leaflet cargado (typeof L = object) · 8 mosaicos de OpenStreetMap cargados
+  Clic en el mapa → marca dibujada (ícono desde cdnjs, cargado) · lat=-5.185157 lng=-80.632925 · «Punto marcado: -5.18516, -80.63293»
+  Consola: 0 mensajes de violación de CSP ni errores de JavaScript
+
+/panel/mapa?periodo=anio (sesión de operador)
+  Leaflet cargado · 10 mosaicos · 28 puntos dibujados (reportes con ubicación del año)
+  Intensidad de color por zona (data-i → --i aplicado por CSSOM): 1.0, 0.6, 0.2, 0.3, 0.1, 0.6 · fondo calculado de la zona crítica: color(srgb 0.55 0.44 0.16)
+  Consola: 0 mensajes de violación de CSP ni errores de JavaScript
+
+Conclusión: la CSP sin 'unsafe-inline' no rompe las funciones con mapa (P01 y P04).

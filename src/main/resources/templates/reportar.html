@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P01 · Registrar reporte</title></head><body><div th:replace="~{fragments :: cabecera('reportar')}"></div>
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" crossorigin="anonymous" referrerpolicy="no-referrer"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P01 · Registrar reporte</title></head><body><div th:replace="~{fragments :: cabecera('reportar')}"></div>
 <main><div class="card"><h1>Registrar reporte de incidencia</h1>
 <p class="error" th:if="${error}" th:text="${error}"></p>
 <form method="post" th:action="@{/reportar}" enctype="multipart/form-data">
@@ -24,40 +24,6 @@
  </div>
  <p class="acciones"><button type="submit">Enviar reporte</button></p>
 </form></div></main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script>
-(function () {
-  var mapa = L.map('mapa-reporte').setView([-5.1945, -80.6328], 13);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(mapa);
-  var marca = null;
-  var inLat = document.getElementById('lat'), inLng = document.getElementById('lng');
-  var estado = document.getElementById('mapa-estado'), quitar = document.getElementById('btn-quitar');
-  var textoInicial = estado.textContent;
-
-  function poner(lat, lng) {
-    lat = Math.round(lat * 1e6) / 1e6; lng = Math.round(lng * 1e6) / 1e6;
-    if (marca) { marca.setLatLng([lat, lng]); } else { marca = L.marker([lat, lng]).addTo(mapa); }
-    inLat.value = lat; inLng.value = lng;
-    estado.textContent = 'Punto marcado: ' + lat.toFixed(5) + ', ' + lng.toFixed(5);
-    quitar.hidden = false;
-  }
-
-  mapa.on('click', function (e) { poner(e.latlng.lat, e.latlng.lng); });
-
-  document.getElementById('btn-ubicacion').addEventListener('click', function () {
-    if (!navigator.geolocation) { estado.textContent = 'Tu navegador no permite obtener la ubicación. Toca el mapa para marcarla.'; return; }
-    estado.textContent = 'Obteniendo ubicación…';
-    navigator.geolocation.getCurrentPosition(function (p) {
-      poner(p.coords.latitude, p.coords.longitude);
-      mapa.setView([p.coords.latitude, p.coords.longitude], 17);
-    }, function () { estado.textContent = 'No se pudo obtener tu ubicación. Toca el mapa para marcarla.'; });
-  });
-
-  quitar.addEventListener('click', function () {
-    if (marca) { mapa.removeLayer(marca); marca = null; }
-    inLat.value = ''; inLng.value = '';
-    estado.textContent = textoInicial; quitar.hidden = true;
-  });
-})();
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script th:src="@{/js/reportar-mapa.js}"></script>
 </body></html>
