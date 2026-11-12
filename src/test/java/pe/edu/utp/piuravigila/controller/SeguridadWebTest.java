@@ -85,6 +85,18 @@ class SeguridadWebTest {
         assertFalse(csp.contains("unsafe-inline"), "tampoco estilos en línea (SEC-08: hallazgo de ZAP en la reprueba)");
     }
 
+    @Test @DisplayName("TC-SEC-05b · los recursos externos que importa el CSS están permitidos por la CSP (fuente tipográfica)")
+    void recursos_del_css_permitidos_por_la_csp() throws Exception {
+        String css = Files.readString(Path.of("src/main/resources/static/css/piuravigila.css"), StandardCharsets.UTF_8);
+        Matcher m = Pattern.compile("@import url\\('(https://[^/']+)").matcher(css);
+        String csp = ciudadano.perform(get("/consultar")).andReturn().getResponse().getHeader("Content-Security-Policy");
+        String estilos = csp.replaceAll(".*style-src([^;]*);.*", "$1");
+        while (m.find()) assertTrue(estilos.contains(m.group(1)), "style-src no permite " + m.group(1));
+        if (css.contains("fonts.googleapis.com"))
+            assertTrue(csp.replaceAll(".*font-src([^;]*);.*", "$1").contains("https://fonts.gstatic.com"),
+                    "font-src debe permitir los archivos de la fuente");
+    }
+
     @Test @DisplayName("TC-SEC-06 · la cookie de dispositivo es HttpOnly y SameSite=Lax")
     void cookie_de_dispositivo_samesite() throws Exception {
         ciudadano.perform(get("/reportar"))

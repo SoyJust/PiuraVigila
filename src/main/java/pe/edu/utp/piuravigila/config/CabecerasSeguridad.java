@@ -19,9 +19,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class CabecerasSeguridad extends OncePerRequestFilter {
     static final String CSP = "default-src 'self'; "
             + "script-src 'self' https://cdnjs.cloudflare.com; "
-            + "style-src 'self' https://cdnjs.cloudflare.com; "
+            + "style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
             + "img-src 'self' data: https://tile.openstreetmap.org https://cdnjs.cloudflare.com; "
-            + "connect-src 'self'; font-src 'self'; object-src 'none'; "
+            + "connect-src 'self'; font-src 'self' https://fonts.gstatic.com; object-src 'none'; "
             + "base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
 
     @Override
