@@ -58,6 +58,17 @@ $env:NVD_API_KEY="<clave del NVD>"; mvn -Psecurity-sca verify   # Dependency-Che
 
 ZAP 2.17.0: abrir la app en `http://localhost:8080`, usar *Manual Explore* (o un navegador configurado con el proxy de ZAP), navegar el flujo real y revisar *Alerts*. No hacer escaneo activo sobre sitios de terceros.
 
+## Revisión final (12/11/2026, después del PR #9)
+
+En una prueba de punta a punta (registrar reporte → consultar código → login del panel → cambiar estado → resumen R01–R03 → mapa → exportar Excel → cerrar sesión) aparecieron dos detalles más, ya corregidos y con prueba:
+
+| ID | Hallazgo | Corrección | Prueba |
+|---|---|---|---|
+| SEC-10 | Al redirigir al login, Tomcat ponía el id de sesión en la URL (`/login;jsessionid=…`), visible en el historial y en los registros | `server.servlet.session.tracking-modes=cookie` | Reprueba manual: la redirección ahora es `/login?requerida` |
+| SEC-11 | La CSP bloqueaba la hoja de Google Fonts que importa el CSS; la fuente Atkinson Hyperlegible no cargaba | `style-src` permite `https://fonts.googleapis.com` y `font-src` permite `https://fonts.gstatic.com` (los scripts siguen restringidos) | TC-SEC-05b (`SeguridadWebTest`), falla sin la corrección y pasa con ella; en el navegador la fuente carga sin violaciones de CSP |
+
+Resultado: 68 pruebas unitarias + 7 de integración, 0 fallos. El reporte .docx describe la reprueba del PR #9; estos dos hallazgos se documentan aquí.
+
 ## Pendiente para la Semana 15 (despliegue)
 
 HTTPS con HSTS y cookies `Secure`, Dependency-Check con la clave del NVD, y planificar la migración a Spring Boot 4 (riesgo R1).
