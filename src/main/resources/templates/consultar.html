@@ -1,16 +1,16 @@
 <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P02 · Consultar estado</title></head><body><div th:replace="~{fragments :: cabecera('consultar')}"></div>
 <main><div class="card"><h1>Consultar estado del reporte</h1>
 <form method="get" th:action="@{/consultar}"><label for="codigo">Código de seguimiento</label>
-<div style="display:flex;gap:.6rem;flex-wrap:wrap"><input id="codigo" name="codigo" th:value="${codigo}" placeholder="PR-2026-0001" required style="flex:1;min-width:14rem"> <button type="submit">Consultar</button></div></form>
+<div class="fila-busqueda"><input id="codigo" name="codigo" th:value="${codigo}" placeholder="PR-2026-0001" required class="crece"> <button type="submit">Consultar</button></div></form>
 <p class="error" th:if="${error}" th:text="${error}"></p>
-<table th:if="${consulta}" style="margin-top:1rem">
+<table th:if="${consulta}" class="mt-1">
  <tr><th>Código</th><td th:text="${consulta.caso().codigoSeguimiento()}"></td></tr>
  <tr><th>Categoría</th><td th:text="${categorias[consulta.caso().categoriaId()]}"></td></tr>
  <tr><th>Estado</th><td><span class="badge" th:classappend="'est-' + ${consulta.caso().estado().name().toLowerCase()}" th:text="${consulta.caso().estado().etiqueta()}"></span></td></tr>
  <tr><th>Fecha de registro</th><td th:text="${#temporals.format(consulta.caso().fechaRegistro(),'dd/MM/yyyy HH:mm')}"></td></tr>
  <tr><th>Última actualización</th><td th:text="${#temporals.format(consulta.ultimaActualizacion(),'dd/MM/yyyy HH:mm')}"></td></tr>
 </table>
-<h2 th:if="${consulta}" style="margin:1.4rem 0 0">Seguimiento</h2>
+<h2 th:if="${consulta}" class="titulo-seguimiento">Seguimiento</h2>
 <ol class="pasos" th:if="${consulta}">
  <li th:each="p : ${consulta.pasos()}" th:classappend="${p.alcanzado()} ? (${p.actual()} ? 'hecho actual' : 'hecho') : 'pendiente'">
   <span class="paso-nombre" th:text="${p.estado().etiqueta()}"></span>
