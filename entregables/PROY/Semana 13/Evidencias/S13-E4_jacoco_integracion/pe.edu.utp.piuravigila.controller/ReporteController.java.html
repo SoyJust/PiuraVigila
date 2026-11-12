@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReporteController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.controller</a> &gt; <span class="el_source">ReporteController.java</span></div><h1>ReporteController.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.controller;
+
+import jakarta.servlet.http.*;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import pe.edu.utp.piuravigila.dto.*;
+import pe.edu.utp.piuravigila.model.*;
+import pe.edu.utp.piuravigila.service.ReporteService;
+
+/** Pantallas del ciudadano: P01 (registrar) y P02 (consultar). El Controller coordina; las reglas viven en el Service. */
+@Controller
+public class ReporteController {
+    private static final String COOKIE = &quot;pv_dispositivo&quot;;
+<span class="nc" id="L22">    private static final Pattern FORMATO_DISPOSITIVO = Pattern.compile(&quot;^[A-Za-z0-9-]{8,64}$&quot;);</span>
+    private final ReporteService service;
+
+<span class="nc" id="L25">    public ReporteController(ReporteService service) { this.service = service; }</span>
+
+    @GetMapping(&quot;/&quot;)
+<span class="nc" id="L28">    public String inicio() { return &quot;redirect:/reportar&quot;; }</span>
+
+    @GetMapping(&quot;/reportar&quot;)
+    public String formulario(Model m, HttpSession s, HttpServletRequest rq, HttpServletResponse rs) {
+<span class="nc" id="L32">        dispositivo(rq, rs);</span>
+<span class="nc" id="L33">        return vistaFormulario(m, s, null, 0, 0, &quot;&quot;);</span>
+    }
+
+    @PostMapping(&quot;/reportar&quot;)
+    public String enviar(@RequestParam(defaultValue = &quot;0&quot;) int categoriaId, @RequestParam(defaultValue = &quot;0&quot;) int zonaId,
+                         @RequestParam(defaultValue = &quot;&quot;) String descripcion, @RequestParam(required = false) MultipartFile foto,
+                         @RequestParam(required = false) Double lat, @RequestParam(required = false) Double lng,
+                         @RequestParam(defaultValue = &quot;&quot;) String respuestaSuma,
+                         Model m, HttpSession s, HttpServletRequest rq, HttpServletResponse rs) {
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (!Csrf.valido(s, rq.getParameter(&quot;_csrf&quot;))) {</span>
+<span class="nc" id="L43">            rs.setStatus(403);</span>
+<span class="nc" id="L44">            return vistaFormulario(m, s, &quot;Solicitud no válida. Vuelve a enviar el formulario.&quot;, categoriaId, zonaId, descripcion);</span>
+        }
+<span class="nc" id="L46">        byte[] bytes = null;</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        try { if (foto != null) bytes = foto.getBytes(); } catch (IOException e) { bytes = null; }</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        DatosReporte d = new DatosReporte(categoriaId, zonaId, descripcion, foto == null ? null : foto.getOriginalFilename(),</span>
+<span class="nc" id="L49">                bytes, lat, lng, dispositivo(rq, rs), entero(respuestaSuma), (Integer) s.getAttribute(&quot;sumaEsperada&quot;));</span>
+        ResultadoRegistro r;
+<span class="nc" id="L51">        try { r = service.registrarReporte(d); }</span>
+<span class="nc" id="L52">        catch (IllegalArgumentException e) { r = ResultadoRegistro.rechazado(e.getMessage(), true); }</span>
+
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (r.tipo() == ResultadoRegistro.Tipo.DUPLICADO_PENDIENTE) {</span>
+<span class="nc" id="L55">            s.setAttribute(&quot;pendiente&quot;, d);</span>
+<span class="nc" id="L56">            s.setAttribute(&quot;casoId&quot;, r.casoExistente().reporteId());</span>
+<span class="nc" id="L57">            m.addAttribute(&quot;csrf&quot;, Csrf.token(s));</span>
+<span class="nc" id="L58">            m.addAttribute(&quot;caso&quot;, r.casoExistente());</span>
+<span class="nc" id="L59">            m.addAttribute(&quot;categorias&quot;, nombresCategoria());</span>
+<span class="nc" id="L60">            return &quot;duplicado&quot;;</span>
+        }
+<span class="nc" id="L62">        return resultado(r, m, s, categoriaId, zonaId, descripcion);</span>
+    }
+
+    @PostMapping(&quot;/reportar/duplicado&quot;)
+    public String responder(@RequestParam String respuesta, @RequestParam(name = &quot;_csrf&quot;, required = false) String csrf, Model m, HttpSession s) {
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (!Csrf.valido(s, csrf)) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, &quot;Solicitud no válida&quot;);</span>
+<span class="nc" id="L68">        DatosReporte pendiente = (DatosReporte) s.getAttribute(&quot;pendiente&quot;);</span>
+<span class="nc" id="L69">        Integer casoId = (Integer) s.getAttribute(&quot;casoId&quot;);</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">        if (pendiente == null || casoId == null) return &quot;redirect:/reportar&quot;;</span>
+<span class="nc" id="L71">        s.removeAttribute(&quot;pendiente&quot;); s.removeAttribute(&quot;casoId&quot;);</span>
+        ResultadoRegistro r;
+<span class="nc" id="L73">        try { r = service.responderDuplicado(pendiente, &quot;si&quot;.equals(respuesta), casoId); }</span>
+<span class="nc" id="L74">        catch (IllegalArgumentException e) { r = ResultadoRegistro.rechazado(e.getMessage(), true); }</span>
+<span class="nc" id="L75">        return resultado(r, m, s, pendiente.categoriaId(), pendiente.zonaId(), pendiente.descripcion());</span>
+    }
+
+    @GetMapping(&quot;/consultar&quot;)
+    public String consultar(@RequestParam(required = false) String codigo, Model m) {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        m.addAttribute(&quot;codigo&quot;, codigo == null ? &quot;&quot; : codigo);</span>
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        if (codigo != null &amp;&amp; !codigo.isBlank()) {</span>
+            try {
+<span class="nc" id="L83">                m.addAttribute(&quot;consulta&quot;, service.consultarEstado(codigo));</span>
+<span class="nc" id="L84">                m.addAttribute(&quot;categorias&quot;, nombresCategoria());</span>
+<span class="nc" id="L85">            } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L86">                m.addAttribute(&quot;error&quot;, &quot;Código no encontrado. Verifica que esté bien escrito&quot;);</span>
+<span class="nc" id="L87">            }</span>
+        }
+<span class="nc" id="L89">        return &quot;consultar&quot;;</span>
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String fotoExcedida(Model m, HttpSession s) {
+<span class="nc" id="L94">        return vistaFormulario(m, s, &quot;Foto demasiado pesada&quot;, 0, 0, &quot;&quot;);</span>
+    }
+
+    // ---- auxiliares ----
+    private String resultado(ResultadoRegistro r, Model m, HttpSession s, int cat, int zona, String desc) {
+<span class="nc bnc" id="L99" title="All 4 branches missed.">        if (r.tipo() == ResultadoRegistro.Tipo.REGISTRADO || r.tipo() == ResultadoRegistro.Tipo.VINCULADO) {</span>
+<span class="nc" id="L100">            s.removeAttribute(&quot;sumaEsperada&quot;);</span>
+<span class="nc" id="L101">            m.addAttribute(&quot;codigo&quot;, r.codigo());</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            m.addAttribute(&quot;vinculado&quot;, r.tipo() == ResultadoRegistro.Tipo.VINCULADO);</span>
+<span class="nc" id="L103">            return &quot;registrado&quot;;</span>
+        }
+<span class="nc" id="L105">        return vistaFormulario(m, s, r.mensaje(), cat, zona, desc);</span>
+    }
+
+    private String vistaFormulario(Model m, HttpSession s, String error, int cat, int zona, String desc) {
+<span class="nc" id="L109">        int a = ThreadLocalRandom.current().nextInt(1, 10), b = ThreadLocalRandom.current().nextInt(1, 10);</span>
+<span class="nc" id="L110">        s.setAttribute(&quot;sumaEsperada&quot;, a + b);</span>
+<span class="nc" id="L111">        m.addAttribute(&quot;csrf&quot;, Csrf.token(s));</span>
+<span class="nc" id="L112">        m.addAttribute(&quot;pregunta&quot;, a + &quot; + &quot; + b);</span>
+<span class="nc" id="L113">        m.addAttribute(&quot;categorias&quot;, service.categoriasActivas());</span>
+<span class="nc" id="L114">        m.addAttribute(&quot;zonas&quot;, service.zonas());</span>
+<span class="nc" id="L115">        m.addAttribute(&quot;error&quot;, error);</span>
+<span class="nc" id="L116">        m.addAttribute(&quot;catSel&quot;, cat); m.addAttribute(&quot;zonaSel&quot;, zona); m.addAttribute(&quot;desc&quot;, desc);</span>
+<span class="nc" id="L117">        return &quot;reportar&quot;;</span>
+    }
+
+    private Map&lt;Integer, String&gt; nombresCategoria() {
+<span class="nc" id="L121">        return service.categoriasActivas().stream().collect(Collectors.toMap(Categoria::categoriaId, Categoria::nombre));</span>
+    }
+
+    private static Integer entero(String t) {
+<span class="nc" id="L125">        try { return Integer.valueOf(t.trim()); } catch (NumberFormatException e) { return null; }</span>
+    }
+
+    /** Dispositivo = cookie anónima (sin datos personales). Limitación: borrar la cookie reinicia los límites. */
+    private static String dispositivo(HttpServletRequest rq, HttpServletResponse rs) {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (rq.getCookies() != null) {</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            for (Cookie c : rq.getCookies()) {</span>
+<span class="nc bnc" id="L132" title="All 4 branches missed.">                if (COOKIE.equals(c.getName()) &amp;&amp; FORMATO_DISPOSITIVO.matcher(c.getValue()).matches()) return c.getValue();</span>
+            }
+        }
+<span class="nc" id="L135">        String id = UUID.randomUUID().toString();</span>
+<span class="nc" id="L136">        Cookie c = new Cookie(COOKIE, id);</span>
+<span class="nc" id="L137">        c.setHttpOnly(true); c.setPath(&quot;/&quot;); c.setMaxAge(60 * 60 * 24 * 365);</span>
+<span class="nc" id="L138">        rs.addCookie(c);</span>
+<span class="nc" id="L139">        return id;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

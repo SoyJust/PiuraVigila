@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReporteDAOJdbc.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.dao.jdbc</a> &gt; <span class="el_source">ReporteDAOJdbc.java</span></div><h1>ReporteDAOJdbc.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.dao.jdbc;
+
+import java.sql.*;
+import java.time.*;
+import java.util.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import pe.edu.utp.piuravigila.dao.ReporteDAO;
+import pe.edu.utp.piuravigila.dto.ConteoZona;
+import pe.edu.utp.piuravigila.dto.PuntoReporte;
+import pe.edu.utp.piuravigila.model.*;
+
+/** SQL parametrizado (sin concatenar entradas del usuario). Las consultas del dashboard vienen del SQL físico de APF2. */
+@Repository
+public class ReporteDAOJdbc implements ReporteDAO {
+    private static final String COLUMNAS = &quot;reporte_id, codigo_seguimiento, reporte_original_id, categoria_id, zona_id, &quot;
+            + &quot;descripcion, foto_url, lat, lng, estado, dispositivo_id, fecha_registro&quot;;
+    private final JdbcTemplate jdbc;
+
+<span class="fc" id="L21">    public ReporteDAOJdbc(JdbcTemplate jdbc) { this.jdbc = jdbc; }</span>
+
+<span class="fc" id="L23">    private static final RowMapper&lt;Reporte&gt; MAPEO = (rs, n) -&gt; new Reporte(</span>
+<span class="fc" id="L24">            rs.getInt(&quot;reporte_id&quot;), rs.getString(&quot;codigo_seguimiento&quot;),</span>
+<span class="fc" id="L25">            (Integer) rs.getObject(&quot;reporte_original_id&quot;), rs.getInt(&quot;categoria_id&quot;), rs.getInt(&quot;zona_id&quot;),</span>
+<span class="fc" id="L26">            rs.getString(&quot;descripcion&quot;), rs.getString(&quot;foto_url&quot;),</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">            rs.getObject(&quot;lat&quot;) == null ? null : rs.getDouble(&quot;lat&quot;),</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">            rs.getObject(&quot;lng&quot;) == null ? null : rs.getDouble(&quot;lng&quot;),</span>
+<span class="fc" id="L29">            EstadoReporte.desdeEtiqueta(rs.getString(&quot;estado&quot;)), rs.getString(&quot;dispositivo_id&quot;),</span>
+<span class="fc" id="L30">            rs.getTimestamp(&quot;fecha_registro&quot;).toLocalDateTime());</span>
+
+    @Override
+    public String insertarCaso(Reporte r) {
+        // El número sale de la secuencia de la BD: dos envíos simultáneos nunca reciben el mismo código (RNF-03).
+<span class="fc" id="L35">        String sql = &quot;INSERT INTO reporte(codigo_seguimiento, categoria_id, zona_id, descripcion, foto_url, lat, lng, estado, dispositivo_id, fecha_registro) &quot;</span>
+                + &quot;VALUES ('PR-' || EXTRACT(YEAR FROM CAST(? AS TIMESTAMP))::int || '-' || LPAD(nextval('seq_codigo_reporte')::text, 4, '0'), &quot;
+                + &quot;?, ?, ?, ?, CAST(? AS DECIMAL(9,6)), CAST(? AS DECIMAL(9,6)), ?, ?, ?) RETURNING codigo_seguimiento&quot;;
+<span class="fc" id="L38">        Timestamp t = Timestamp.valueOf(r.fechaRegistro());</span>
+<span class="fc" id="L39">        return jdbc.queryForObject(sql, String.class, t, r.categoriaId(), r.zonaId(), r.descripcion(), r.fotoUrl(),</span>
+<span class="fc" id="L40">                r.lat(), r.lng(), r.estado().etiqueta(), r.dispositivoId(), t);</span>
+    }
+
+    @Override
+    public void insertarVinculado(Reporte r, int casoId) {
+<span class="fc" id="L45">        jdbc.update(&quot;INSERT INTO reporte(reporte_original_id, categoria_id, zona_id, descripcion, foto_url, lat, lng, estado, dispositivo_id, fecha_registro) &quot;</span>
+                + &quot;VALUES (?, ?, ?, ?, ?, CAST(? AS DECIMAL(9,6)), CAST(? AS DECIMAL(9,6)), ?, ?, ?)&quot;,
+<span class="fc" id="L47">                casoId, r.categoriaId(), r.zonaId(), r.descripcion(), r.fotoUrl(), r.lat(), r.lng(),</span>
+<span class="fc" id="L48">                r.estado().etiqueta(), r.dispositivoId(), Timestamp.valueOf(r.fechaRegistro()));</span>
+<span class="fc" id="L49">    }</span>
+
+    @Override public Optional&lt;Reporte&gt; buscarPorCodigo(String codigo) {
+<span class="fc" id="L52">        return jdbc.query(&quot;SELECT &quot; + COLUMNAS + &quot; FROM reporte WHERE codigo_seguimiento = ?&quot;, MAPEO, codigo).stream().findFirst();</span>
+    }
+
+    @Override public Optional&lt;Reporte&gt; buscarPorId(int id) {
+<span class="nc" id="L56">        return jdbc.query(&quot;SELECT &quot; + COLUMNAS + &quot; FROM reporte WHERE reporte_id = ?&quot;, MAPEO, id).stream().findFirst();</span>
+    }
+
+    @Override public Optional&lt;Reporte&gt; buscarCasoAbierto(int categoriaId, int zonaId) {
+<span class="fc" id="L60">        return jdbc.query(&quot;SELECT &quot; + COLUMNAS + &quot; FROM reporte WHERE categoria_id = ? AND zona_id = ? &quot;</span>
+                + &quot;AND reporte_original_id IS NULL AND estado IN ('Recibido','En proceso') ORDER BY fecha_registro LIMIT 1&quot;,
+<span class="fc" id="L62">                MAPEO, categoriaId, zonaId).stream().findFirst();</span>
+    }
+
+    @Override public Optional&lt;LocalDateTime&gt; ultimoEnvio(String dispositivoId) {
+<span class="nc" id="L66">        Timestamp t = jdbc.queryForObject(&quot;SELECT MAX(fecha_registro) FROM reporte WHERE dispositivo_id = ?&quot;, Timestamp.class, dispositivoId);</span>
+<span class="nc" id="L67">        return Optional.ofNullable(t).map(Timestamp::toLocalDateTime);</span>
+    }
+
+    @Override public int contarEnDia(String dispositivoId, LocalDate dia) {
+<span class="nc" id="L71">        Integer n = jdbc.queryForObject(&quot;SELECT COUNT(*) FROM reporte WHERE dispositivo_id = ? AND fecha_registro &gt;= ? AND fecha_registro &lt; ?&quot;,</span>
+<span class="nc" id="L72">                Integer.class, dispositivoId, Timestamp.valueOf(dia.atStartOfDay()), Timestamp.valueOf(dia.plusDays(1).atStartOfDay()));</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        return n == null ? 0 : n;</span>
+    }
+
+    @Override public List&lt;Reporte&gt; listarCasos(Integer zonaId, Integer categoriaId, EstadoReporte estado, int pagina, int tamano) {
+<span class="fc" id="L77">        List&lt;Object&gt; p = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L78">        String where = filtros(zonaId, categoriaId, estado, p);</span>
+<span class="fc" id="L79">        p.add(tamano); p.add((long) pagina * tamano);</span>
+<span class="fc" id="L80">        return jdbc.query(&quot;SELECT &quot; + COLUMNAS + &quot; FROM reporte WHERE reporte_original_id IS NULL&quot; + where</span>
+<span class="fc" id="L81">                + &quot; ORDER BY fecha_registro DESC LIMIT ? OFFSET ?&quot;, MAPEO, p.toArray());</span>
+    }
+
+    @Override public int contarCasos(Integer zonaId, Integer categoriaId, EstadoReporte estado) {
+<span class="fc" id="L85">        List&lt;Object&gt; p = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L86">        String where = filtros(zonaId, categoriaId, estado, p);</span>
+<span class="fc" id="L87">        Integer n = jdbc.queryForObject(&quot;SELECT COUNT(*) FROM reporte WHERE reporte_original_id IS NULL&quot; + where, Integer.class, p.toArray());</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        return n == null ? 0 : n;</span>
+    }
+
+    /** Solo se agregan fragmentos fijos; los valores van como parámetros. */
+    private static String filtros(Integer zonaId, Integer categoriaId, EstadoReporte estado, List&lt;Object&gt; p) {
+<span class="fc" id="L93">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (zonaId != null) { sb.append(&quot; AND zona_id = ?&quot;); p.add(zonaId); }</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (categoriaId != null) { sb.append(&quot; AND categoria_id = ?&quot;); p.add(categoriaId); }</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (estado != null) { sb.append(&quot; AND estado = ?&quot;); p.add(estado.etiqueta()); }</span>
+<span class="fc" id="L97">        return sb.toString();</span>
+    }
+
+    @Override public int contarVinculados(int casoId) {
+<span class="fc" id="L101">        Integer n = jdbc.queryForObject(&quot;SELECT COUNT(*) FROM reporte WHERE reporte_original_id = ?&quot;, Integer.class, casoId);</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        return n == null ? 0 : n;</span>
+    }
+
+    @Override public void actualizarEstado(int reporteId, EstadoReporte nuevo) {
+<span class="fc" id="L106">        jdbc.update(&quot;UPDATE reporte SET estado = ? WHERE reporte_id = ?&quot;, nuevo.etiqueta(), reporteId);</span>
+<span class="fc" id="L107">    }</span>
+
+    // ---- R01 · R03 ----
+    @Override public List&lt;ConteoZona&gt; reportesPorZona(LocalDateTime desde, LocalDateTime hasta) {
+<span class="fc" id="L111">        return jdbc.query(&quot;SELECT z.nombre AS zona, COUNT(*) AS reportes FROM reporte r JOIN zona z ON z.zona_id = r.zona_id &quot;</span>
+                + &quot;WHERE r.fecha_registro &gt;= ? AND r.fecha_registro &lt; ? GROUP BY z.nombre ORDER BY reportes DESC&quot;,
+<span class="fc" id="L113">                (rs, n) -&gt; new ConteoZona(rs.getString(&quot;zona&quot;), rs.getInt(&quot;reportes&quot;)),</span>
+<span class="fc" id="L114">                Timestamp.valueOf(desde), Timestamp.valueOf(hasta));</span>
+    }
+
+    @Override public List&lt;PuntoReporte&gt; puntosPeriodo(LocalDateTime desde, LocalDateTime hasta) {
+        // Un vinculado muestra el código y el estado de su caso original (RN-01).
+<span class="nc" id="L119">        return jdbc.query(&quot;SELECT r.lat, r.lng, z.nombre AS zona, c.nombre AS categoria, &quot;</span>
+                + &quot;COALESCE(o.estado, r.estado) AS estado, COALESCE(o.codigo_seguimiento, r.codigo_seguimiento) AS codigo &quot;
+                + &quot;FROM reporte r JOIN zona z ON z.zona_id = r.zona_id JOIN categoria c ON c.categoria_id = r.categoria_id &quot;
+                + &quot;LEFT JOIN reporte o ON o.reporte_id = r.reporte_original_id &quot;
+                + &quot;WHERE r.lat IS NOT NULL AND r.lng IS NOT NULL AND r.fecha_registro &gt;= ? AND r.fecha_registro &lt; ? &quot;
+                + &quot;ORDER BY r.fecha_registro DESC LIMIT 1000&quot;,
+<span class="nc" id="L125">                (rs, n) -&gt; new PuntoReporte(rs.getDouble(&quot;lat&quot;), rs.getDouble(&quot;lng&quot;), rs.getString(&quot;zona&quot;),</span>
+<span class="nc" id="L126">                        rs.getString(&quot;categoria&quot;), rs.getString(&quot;estado&quot;), rs.getString(&quot;codigo&quot;)),</span>
+<span class="nc" id="L127">                Timestamp.valueOf(desde), Timestamp.valueOf(hasta));</span>
+    }
+
+    @Override public Map&lt;EstadoReporte, Integer&gt; casosPorEstado(LocalDateTime desde, LocalDateTime hasta) {
+<span class="fc" id="L131">        Map&lt;EstadoReporte, Integer&gt; m = new EnumMap&lt;&gt;(EstadoReporte.class);</span>
+<span class="fc" id="L132">        jdbc.query(&quot;SELECT estado, COUNT(*) AS casos FROM reporte WHERE reporte_original_id IS NULL &quot;</span>
+                + &quot;AND fecha_registro &gt;= ? AND fecha_registro &lt; ? GROUP BY estado&quot;,
+<span class="fc" id="L134">                rs -&gt; { m.put(EstadoReporte.desdeEtiqueta(rs.getString(&quot;estado&quot;)), rs.getInt(&quot;casos&quot;)); },</span>
+<span class="fc" id="L135">                Timestamp.valueOf(desde), Timestamp.valueOf(hasta));</span>
+<span class="fc" id="L136">        return m;</span>
+    }
+
+    @Override public int contarVinculadosPeriodo(LocalDateTime desde, LocalDateTime hasta) {
+<span class="fc" id="L140">        Integer n = jdbc.queryForObject(&quot;SELECT COUNT(*) FROM reporte WHERE reporte_original_id IS NOT NULL &quot;</span>
+<span class="fc" id="L141">                + &quot;AND fecha_registro &gt;= ? AND fecha_registro &lt; ?&quot;, Integer.class, Timestamp.valueOf(desde), Timestamp.valueOf(hasta));</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        return n == null ? 0 : n;</span>
+    }
+
+    @Override public double porcentajeActualizados(LocalDateTime desde, LocalDateTime hasta) {
+<span class="fc" id="L146">        Double d = jdbc.queryForObject(&quot;SELECT ROUND(100.0 * COUNT(*) FILTER (WHERE estado &lt;&gt; 'Recibido') / NULLIF(COUNT(*), 0), 1) &quot;</span>
+                + &quot;FROM reporte WHERE reporte_original_id IS NULL AND fecha_registro &gt;= ? AND fecha_registro &lt; ?&quot;,
+<span class="fc" id="L148">                Double.class, Timestamp.valueOf(desde), Timestamp.valueOf(hasta));</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">        return d == null ? 0 : d;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

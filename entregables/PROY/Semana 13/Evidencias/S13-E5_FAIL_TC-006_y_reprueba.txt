@@ -1,0 +1,16 @@
+Ejecución con FAIL y reprueba · TC-006 (ReporteControllerTest.confirmar_duplicado_vincula_una_sola_vez) · 12/11/2026
+Versión: árbol de trabajo sobre v0.9-R1 (bbba9a9) antes del commit c8acd86 · comando: mvn -q -B test -Dtest=ReporteControllerTest
+
+RUN-006 (FAIL) · extracto de la salida de Maven:
+[ERROR] Tests run: 7, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 11.10 s <<< FAILURE! -- in pe.edu.utp.piuravigila.controller.ReporteControllerTest
+[ERROR] pe.edu.utp.piuravigila.controller.ReporteControllerTest.confirmar_duplicado_vincula_una_sola_vez -- Time elapsed: 0.057 s <<< FAILURE!
+java.lang.AssertionError: Redirected URL expected:</reportar> but was:<null>
+[ERROR]   ReporteControllerTest.confirmar_duplicado_vincula_una_sola_vez:93 Redirected URL expected:</reportar> but was:<null>
+
+Análisis (DEF-002): el Controller sí devuelve "redirect:/reportar" cuando ya no hay reporte pendiente en la sesión.
+La prueba usaba un resolver de vistas vacío que también recibe los nombres "redirect:...", por lo que MockMvc no
+registra la URL de redirección. Es un defecto de la prueba, no de producción: no se modificó código de producción.
+Corrección: verificar view().name("redirect:/reportar").
+
+RUN-007 (PASS) · reprueba del mismo caso:
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.302 s -- in pe.edu.utp.piuravigila.controller.ReporteControllerTest

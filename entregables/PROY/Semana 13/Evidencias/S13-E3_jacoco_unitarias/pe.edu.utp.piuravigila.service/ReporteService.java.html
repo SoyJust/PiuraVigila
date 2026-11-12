@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReporteService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.service</a> &gt; <span class="el_source">ReporteService.java</span></div><h1>ReporteService.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.service;
+
+import java.time.*;
+import java.util.*;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.edu.utp.piuravigila.dao.*;
+import pe.edu.utp.piuravigila.dto.*;
+import pe.edu.utp.piuravigila.model.*;
+
+/**
+ * Caso de uso central (RF-01, RF-02, RF-03, RF-05, RN-01).
+ * Reglas de negocio aquí; nada de SQL (DAO) ni de HTML (vistas). Clase no final: @Transactional necesita proxy.
+ */
+@Service
+public class ReporteService {
+<span class="fc" id="L20">    private static final Logger LOG = LoggerFactory.getLogger(ReporteService.class);</span>
+<span class="fc" id="L21">    private static final Pattern FORMATO_CODIGO = Pattern.compile(&quot;^PR-[0-9]{4}-[0-9]{4}$&quot;);</span>
+    public static final int TAMANO_PAGINA = 20;
+
+    private final ReporteDAO reporteDAO;
+    private final HistorialEstadoDAO historialDAO;
+    private final CategoriaDAO categoriaDAO;
+    private final ZonaDAO zonaDAO;
+    private final ValidadorReporte validador;
+    private final ControlAntiSpam antiSpam;
+    private final FotoStorage fotos;
+    private final Clock reloj;
+
+    public ReporteService(ReporteDAO reporteDAO, HistorialEstadoDAO historialDAO, CategoriaDAO categoriaDAO,
+                          ZonaDAO zonaDAO, ValidadorReporte validador, ControlAntiSpam antiSpam,
+<span class="fc" id="L35">                          FotoStorage fotos, Clock reloj) {</span>
+<span class="fc" id="L36">        this.reporteDAO = Objects.requireNonNull(reporteDAO);</span>
+<span class="fc" id="L37">        this.historialDAO = Objects.requireNonNull(historialDAO);</span>
+<span class="fc" id="L38">        this.categoriaDAO = Objects.requireNonNull(categoriaDAO);</span>
+<span class="fc" id="L39">        this.zonaDAO = Objects.requireNonNull(zonaDAO);</span>
+<span class="fc" id="L40">        this.validador = Objects.requireNonNull(validador);</span>
+<span class="fc" id="L41">        this.antiSpam = Objects.requireNonNull(antiSpam);</span>
+<span class="fc" id="L42">        this.fotos = Objects.requireNonNull(fotos);</span>
+<span class="fc" id="L43">        this.reloj = Objects.requireNonNull(reloj);</span>
+<span class="fc" id="L44">    }</span>
+
+    /** P01 · RF-01, RF-05, RF-06. Orden: campos/foto → verificación/60 s/3 por día → categoría y zona → duplicado. */
+    @Transactional
+    public ResultadoRegistro registrarReporte(DatosReporte d) {
+<span class="fc" id="L49">        ResultadoControl v = validador.validar(d);</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (!v.permitido()) return ResultadoRegistro.rechazado(v.mensaje(), false);</span>
+
+<span class="fc" id="L52">        ResultadoControl c = antiSpam.validar(d.dispositivoId(), d.respuestaSuma(), d.sumaEsperada());</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        if (!c.permitido()) {</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">            String msg = c.segundosFaltan() &gt; 0 ? c.mensaje() + &quot;: faltan &quot; + c.segundosFaltan() + &quot; s&quot; : c.mensaje();</span>
+<span class="nc" id="L55">            return ResultadoRegistro.rechazado(msg, c.regenerarSuma());</span>
+        }
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (categoriaDAO.buscarPorId(d.categoriaId()).filter(Categoria::estaActiva).isEmpty()</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">                || zonaDAO.buscarPorId(d.zonaId()).isEmpty()) {</span>
+<span class="nc" id="L59">            return ResultadoRegistro.rechazado(ValidadorReporte.MSG_FALTAN, false);</span>
+        }
+<span class="fc" id="L61">        Optional&lt;Reporte&gt; caso = reporteDAO.buscarCasoAbierto(d.categoriaId(), d.zonaId());</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (caso.isPresent()) return ResultadoRegistro.duplicado(caso.get()); // decide el ciudadano; no se comparan fotos</span>
+<span class="fc" id="L63">        return crearCaso(d);</span>
+    }
+
+    /** RN-01: «Sí, es el mismo» vincula al caso (sin código propio); «No, es otro» crea un caso nuevo. */
+    @Transactional
+    public ResultadoRegistro responderDuplicado(DatosReporte pendiente, boolean esMismo, int casoId) {
+<span class="fc" id="L69">        ResultadoControl lim = antiSpam.validarLimites(pendiente.dispositivoId());</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (!lim.permitido()) {</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">            String msg = lim.segundosFaltan() &gt; 0 ? lim.mensaje() + &quot;: faltan &quot; + lim.segundosFaltan() + &quot; s&quot; : lim.mensaje();</span>
+<span class="fc" id="L72">            return ResultadoRegistro.rechazado(msg, false);</span>
+        }
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (!esMismo) return crearCaso(pendiente);</span>
+
+<span class="pc" id="L76">        Reporte caso = reporteDAO.buscarPorId(casoId).orElseThrow(() -&gt; new IllegalArgumentException(&quot;Caso inexistente.&quot;));</span>
+<span class="pc bpc" id="L77" title="1 of 4 branches missed.">        if (caso.categoriaId() != pendiente.categoriaId() || caso.zonaId() != pendiente.zonaId()) {</span>
+<span class="fc" id="L78">            throw new IllegalArgumentException(&quot;El caso no coincide con la categoría y zona del reporte.&quot;);</span>
+        }
+<span class="pc bpc" id="L80" title="1 of 4 branches missed.">        if (!caso.esCasoOriginal() || !caso.estaAbierto()) {</span>
+<span class="fc" id="L81">            return ResultadoRegistro.rechazado(&quot;El caso ya no admite vinculaciones; registra un reporte nuevo.&quot;, false);</span>
+        }
+<span class="fc" id="L83">        LocalDateTime ahora = LocalDateTime.now(reloj);</span>
+<span class="fc" id="L84">        String ruta = fotos.guardar(pendiente.fotoNombre(), pendiente.fotoBytes());</span>
+<span class="fc" id="L85">        reporteDAO.insertarVinculado(nuevoReporte(pendiente, ruta, ahora, caso.reporteId()), caso.reporteId());</span>
+<span class="fc" id="L86">        LOG.info(&quot;Reporte vinculado al caso codigo={}&quot;, caso.codigoSeguimiento());</span>
+<span class="fc" id="L87">        return ResultadoRegistro.vinculado(caso.codigoSeguimiento());</span>
+    }
+
+    /** P02 · RF-02. Quien se vinculó consulta con el código del caso. */
+    public ConsultaEstado consultarEstado(String codigo) {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        String limpio = codigo == null ? &quot;&quot; : codigo.trim().toUpperCase(Locale.ROOT);</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (!FORMATO_CODIGO.matcher(limpio).matches()) throw new IllegalArgumentException(&quot;Código no encontrado&quot;);</span>
+<span class="fc" id="L94">        Reporte caso = reporteDAO.buscarPorCodigo(limpio).orElseThrow(() -&gt; new IllegalArgumentException(&quot;Código no encontrado&quot;));</span>
+<span class="fc" id="L95">        List&lt;HistorialEstado&gt; historial = historialDAO.listarPorReporte(caso.reporteId());</span>
+<span class="fc" id="L96">        LocalDateTime ultima = historial.stream().map(HistorialEstado::fechaCambio).max(Comparator.naturalOrder()).orElse(caso.fechaRegistro());</span>
+<span class="fc" id="L97">        return new ConsultaEstado(caso, ultima, pasos(caso, historial));</span>
+    }
+
+    /** Los tres estados en orden. Solo se expone el estado y la fecha: el responsable del cambio no se muestra al ciudadano. */
+    private static List&lt;PasoEstado&gt; pasos(Reporte caso, List&lt;HistorialEstado&gt; historial) {
+<span class="fc" id="L102">        List&lt;PasoEstado&gt; pasos = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        for (EstadoReporte e : EstadoReporte.values()) {</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            LocalDateTime fecha = historial.stream().filter(h -&gt; h.estadoNuevo() == e)</span>
+<span class="fc" id="L105">                    .map(HistorialEstado::fechaCambio).min(Comparator.naturalOrder()).orElse(null);</span>
+<span class="fc bfc" id="L106" title="All 4 branches covered.">            if (fecha == null &amp;&amp; e == EstadoReporte.RECIBIDO) fecha = caso.fechaRegistro(); // casos sin historial</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">            pasos.add(new PasoEstado(e, fecha, e == caso.estado()));</span>
+        }
+<span class="fc" id="L109">        return pasos;</span>
+    }
+
+    /** P03 · RF-03. El estado solo avanza y queda registrado con fecha y responsable. */
+    @Transactional
+    public void cambiarEstado(int reporteId, EstadoReporte nuevo, UsuarioMunicipal usuario) {
+<span class="fc" id="L115">        Objects.requireNonNull(usuario, &quot;Sesión requerida&quot;);</span>
+<span class="pc" id="L116">        Reporte r = reporteDAO.buscarPorId(reporteId).orElseThrow(() -&gt; new IllegalArgumentException(&quot;Reporte inexistente.&quot;));</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        if (!r.esCasoOriginal()) throw new IllegalStateException(&quot;Solo los casos cambian de estado; el vinculado usa el del caso.&quot;);</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (!r.estado().puedePasarA(nuevo)) throw new IllegalStateException(&quot;El estado solo avanza (Recibido → En proceso → Atendido).&quot;);</span>
+<span class="fc" id="L119">        reporteDAO.actualizarEstado(reporteId, nuevo);</span>
+<span class="fc" id="L120">        historialDAO.registrar(new HistorialEstado(0, reporteId, usuario.usuarioId(), nuevo, LocalDateTime.now(reloj)));</span>
+<span class="fc" id="L121">        LOG.info(&quot;Estado actualizado reporte={} nuevo={} usuarioId={}&quot;, reporteId, nuevo.etiqueta(), usuario.usuarioId());</span>
+<span class="fc" id="L122">    }</span>
+
+    public List&lt;FilaPanel&gt; listarPanel(Integer zonaId, Integer categoriaId, EstadoReporte estado, int pagina) {
+<span class="fc" id="L125">        List&lt;FilaPanel&gt; filas = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L126">        Map&lt;Integer, String&gt; categorias = new HashMap&lt;&gt;(); // nombres resueltos una vez por página</span>
+<span class="fc" id="L127">        Map&lt;Integer, String&gt; zonas = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        for (Reporte r : reporteDAO.listarCasos(zonaId, categoriaId, estado, Math.max(pagina, 0), TAMANO_PAGINA)) {</span>
+<span class="fc" id="L129">            String cat = categorias.computeIfAbsent(r.categoriaId(),</span>
+<span class="fc" id="L130">                    id -&gt; categoriaDAO.buscarPorId(id).map(Categoria::nombre).orElse(&quot;Categoría &quot; + id));</span>
+<span class="fc" id="L131">            String zona = zonas.computeIfAbsent(r.zonaId(),</span>
+<span class="fc" id="L132">                    id -&gt; zonaDAO.buscarPorId(id).map(Zona::nombre).orElse(&quot;Zona &quot; + id));</span>
+<span class="fc" id="L133">            filas.add(new FilaPanel(r, cat, zona, reporteDAO.contarVinculados(r.reporteId())));</span>
+<span class="fc" id="L134">        }</span>
+<span class="fc" id="L135">        return filas;</span>
+    }
+
+    public int totalCasos(Integer zonaId, Integer categoriaId, EstadoReporte estado) {
+<span class="nc" id="L139">        return reporteDAO.contarCasos(zonaId, categoriaId, estado);</span>
+    }
+
+<span class="nc" id="L142">    public List&lt;Categoria&gt; categoriasActivas() { return categoriaDAO.listarActivas(); }</span>
+<span class="nc" id="L143">    public List&lt;Zona&gt; zonas() { return zonaDAO.listar(); }</span>
+
+    // ---- internos ----
+    private ResultadoRegistro crearCaso(DatosReporte d) {
+<span class="fc" id="L147">        LocalDateTime ahora = LocalDateTime.now(reloj);</span>
+<span class="fc" id="L148">        String ruta = fotos.guardar(d.fotoNombre(), d.fotoBytes());</span>
+<span class="fc" id="L149">        String codigo = reporteDAO.insertarCaso(nuevoReporte(d, ruta, ahora, null));</span>
+<span class="pc" id="L150">        Reporte guardado = reporteDAO.buscarPorCodigo(codigo).orElseThrow(() -&gt; new IllegalStateException(&quot;Caso no encontrado tras insertar.&quot;));</span>
+<span class="fc" id="L151">        historialDAO.registrar(new HistorialEstado(0, guardado.reporteId(), null, EstadoReporte.RECIBIDO, ahora));</span>
+<span class="fc" id="L152">        LOG.info(&quot;Caso registrado codigo={} categoria={} zona={}&quot;, codigo, d.categoriaId(), d.zonaId());</span>
+<span class="fc" id="L153">        return ResultadoRegistro.registrado(codigo);</span>
+    }
+
+    private static Reporte nuevoReporte(DatosReporte d, String fotoUrl, LocalDateTime ahora, Integer originalId) {
+<span class="fc" id="L157">        return new Reporte(0, null, originalId, d.categoriaId(), d.zonaId(), d.descripcion().trim(), fotoUrl,</span>
+<span class="fc" id="L158">                d.lat(), d.lng(), EstadoReporte.RECIBIDO, d.dispositivoId(), ahora);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
