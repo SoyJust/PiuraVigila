@@ -15,3 +15,10 @@ Estado del paquete (rev3):
   4) Evidencias nuevas: EV-21 a EV-25 en Semana 10 (la salida de mvn test esta en Semana 10\Capturas\EV-21_mvn_test_54.txt).
   5) Nota: el PR #3 lo reviso y fusiono su autor (SoyJust); no hay revision de otro integrante (queda registrado asi en Semana 11, hojas Ramas_PR y Checklist_Rev3). Opcional: una captura del Excel descargado desde el panel pasaria el flujo FV-07 de Amarillo a Verde.
 Los pasos que se siguieron estan en "Semana 11\LEEME_Semana11.md" y "Semana 11\PASOS_GITHUB.txt".
+
+Revision del 12/11/2026 (verificacion de cierre de APF3):
+  1) Defecto DEF-02 (RESUELTO): la tabla del panel mostraba el ID de categoria y zona en lugar del nombre. Se ve en las capturas
+     EV-10. Corregido en el PR #5 (prueba nueva; mvn test 55 de 55, CI en verde). Evidencia: Semana 10\Capturas\EV-26_*.png.
+  2) FV-07 pasa de Amarillo a Verde: descarga real del Excel desde el panel con PostgreSQL (EV-27, captura + archivo .xlsx).
+  3) Quedan "Por disenar" las pruebas contra PostgreSQL real (PV-T36 a PV-T40: insercion, concurrencia RNF-03, caso abierto y
+     consultas R01-R03). Se trabajan en la Unidad 4 (semana 13, pruebas de software), no cambian lo entregado en APF3.
