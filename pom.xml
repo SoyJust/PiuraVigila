@@ -37,6 +37,30 @@
   <build>
     <plugins>
       <plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId></plugin>
+      <!-- Semana 13: pruebas de integración *IT contra PostgreSQL (solo con RUN_DB_TESTS=true) en "mvn verify". -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution><goals><goal>integration-test</goal><goal>verify</goal></goals></execution>
+        </executions>
+      </plugin>
+      <!-- Semana 13: cobertura como indicador (target/site/jacoco/index.html). No es una meta de calidad. -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.15</version>
+        <executions>
+          <execution><id>agente</id><goals><goal>prepare-agent</goal></goals></execution>
+          <execution><id>reporte-unitarias</id><phase>test</phase><goals><goal>report</goal></goals></execution>
+          <execution>
+            <id>agente-integracion</id><goals><goal>prepare-agent-integration</goal></goals>
+          </execution>
+          <execution>
+            <id>reporte-integracion</id><phase>post-integration-test</phase><goals><goal>report-integration</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>

@@ -7,18 +7,42 @@ permissions:
 jobs:
   pruebas:
     runs-on: ubuntu-latest
+    # Semana 13: PostgreSQL de prueba para las pruebas de integración *IT (base desechable del CI, sin datos reales).
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: piuravigila_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres-ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      RUN_DB_TESTS: "true"
+      PIURA_TEST_DB_URL: jdbc:postgresql://localhost:5432/piuravigila_test
+      PIURA_TEST_DB_USER: postgres
+      PIURA_TEST_DB_PASSWORD: postgres-ci
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Ejecutar pruebas
+      - name: Ejecutar pruebas unitarias y de integración
         run: mvn --batch-mode clean verify
-      - name: Conservar resultados
+      - name: Conservar resultados y cobertura
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: resultados-junit
-          path: target/surefire-reports/
+          name: resultados-pruebas
+          path: |
+            target/surefire-reports/
+            target/failsafe-reports/
+            target/site/jacoco/
+            target/site/jacoco-it/
