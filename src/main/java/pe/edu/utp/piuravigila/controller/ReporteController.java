@@ -133,9 +133,9 @@ public class ReporteController {
             }
         }
         String id = UUID.randomUUID().toString();
-        Cookie c = new Cookie(COOKIE, id);
-        c.setHttpOnly(true); c.setPath("/"); c.setMaxAge(60 * 60 * 24 * 365);
-        rs.addCookie(c);
+        // SEC-05: HttpOnly y SameSite=Lax (no viaja en peticiones iniciadas por otros sitios).
+        rs.addHeader("Set-Cookie", org.springframework.http.ResponseCookie.from(COOKIE, id)
+                .httpOnly(true).path("/").maxAge(java.time.Duration.ofDays(365)).sameSite("Lax").build().toString());
         return id;
     }
 }

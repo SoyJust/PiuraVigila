@@ -28,16 +28,29 @@ public class PanelController {
     }
 
     @GetMapping("/login")
-    public String login(@RequestParam(required = false) String requerida, Model m) {
+    public String login(@RequestParam(required = false) String requerida, HttpSession s, Model m) {
         if (requerida != null) m.addAttribute("error", "Sesión requerida");
+        m.addAttribute("csrf", Csrf.token(s)); // SEC-06: el formulario de login también lleva token CSRF
         return "login";
     }
 
     @PostMapping("/login")
-    public String iniciar(@RequestParam String usuario, @RequestParam String clave, HttpServletRequest rq, Model m) {
+    public String iniciar(@RequestParam String usuario, @RequestParam String clave,
+                          @RequestParam(name = "_csrf", required = false) String csrf,
+                          HttpServletRequest rq, HttpServletResponse rs, Model m) {
+        HttpSession s = rq.getSession(); // crea la sesión si aún no existe: changeSessionId() la exige
+        if (!Csrf.valido(s, csrf)) { // SEC-06: sin token válido no se intenta autenticar (login CSRF)
+            rs.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            m.addAttribute("error", "Solicitud no válida. Vuelve a cargar la página de inicio de sesión.");
+            m.addAttribute("csrf", Csrf.token(s));
+            return "login";
+        }
         Optional<UsuarioMunicipal> u = auth.autenticar(usuario, clave);
-        if (u.isEmpty()) { m.addAttribute("error", "Usuario o contraseña incorrectos"); return "login"; }
-        rq.getSession(); // crea la sesión si aún no existe: changeSessionId() la exige
+        if (u.isEmpty()) {
+            m.addAttribute("error", "Usuario o contraseña incorrectos");
+            m.addAttribute("csrf", Csrf.token(s));
+            return "login";
+        }
         rq.changeSessionId(); // evita fijación de sesión
         rq.getSession().setAttribute(SESION, u.get());
         return "redirect:/panel";
