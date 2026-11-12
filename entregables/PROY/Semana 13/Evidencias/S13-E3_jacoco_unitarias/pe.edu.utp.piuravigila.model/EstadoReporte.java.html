@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EstadoReporte.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.model</a> &gt; <span class="el_source">EstadoReporte.java</span></div><h1>EstadoReporte.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.model;
+
+/** Estado de un caso. Solo avanza: Recibido → En proceso → Atendido (P03). */
+<span class="fc" id="L4">public enum EstadoReporte {</span>
+<span class="fc" id="L5">    RECIBIDO(&quot;Recibido&quot;), EN_PROCESO(&quot;En proceso&quot;), ATENDIDO(&quot;Atendido&quot;);</span>
+
+    private final String etiqueta;
+<span class="fc" id="L8">    EstadoReporte(String etiqueta) { this.etiqueta = etiqueta; }</span>
+<span class="fc" id="L9">    public String etiqueta() { return etiqueta; }</span>
+
+    /** Abierto = admite vinculaciones (RN-01). */
+<span class="fc bfc" id="L12" title="All 2 branches covered.">    public boolean estaAbierto() { return this != ATENDIDO; }</span>
+
+<span class="pc bpc" id="L14" title="1 of 4 branches missed.">    public boolean puedePasarA(EstadoReporte nuevo) { return nuevo != null &amp;&amp; nuevo.ordinal() == ordinal() + 1; }</span>
+
+    public static EstadoReporte desdeEtiqueta(String texto) {
+<span class="nc bnc" id="L17" title="All 4 branches missed.">        for (EstadoReporte e : values()) if (e.etiqueta.equals(texto)) return e;</span>
+<span class="nc" id="L18">        throw new IllegalArgumentException(&quot;Estado desconocido: &quot; + texto);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

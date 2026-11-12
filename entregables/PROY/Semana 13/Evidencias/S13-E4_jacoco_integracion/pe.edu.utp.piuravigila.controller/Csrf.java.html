@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Csrf.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PiuraVigila</a> &gt; <a href="index.source.html" class="el_package">pe.edu.utp.piuravigila.controller</a> &gt; <span class="el_source">Csrf.java</span></div><h1>Csrf.java</h1><pre class="source lang-java linenums">package pe.edu.utp.piuravigila.controller;
+
+import jakarta.servlet.http.HttpSession;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+/** Token CSRF mínimo para las acciones del panel (sin Spring Security completo). */
+final class Csrf {
+<span class="nc" id="L9">    private static final SecureRandom RND = new SecureRandom();</span>
+    private Csrf() {}
+    static String token(HttpSession s) {
+<span class="nc" id="L12">        Object t = s.getAttribute(&quot;csrf&quot;);</span>
+<span class="nc bnc" id="L13" title="All 2 branches missed.">        if (t == null) {</span>
+<span class="nc" id="L14">            byte[] b = new byte[24]; RND.nextBytes(b);</span>
+<span class="nc" id="L15">            t = Base64.getUrlEncoder().withoutPadding().encodeToString(b);</span>
+<span class="nc" id="L16">            s.setAttribute(&quot;csrf&quot;, t);</span>
+        }
+<span class="nc" id="L18">        return (String) t;</span>
+    }
+    static boolean valido(HttpSession s, String recibido) {
+<span class="nc bnc" id="L21" title="All 4 branches missed.">        return recibido != null &amp;&amp; recibido.equals(s.getAttribute(&quot;csrf&quot;));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
