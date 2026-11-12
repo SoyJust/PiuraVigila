@@ -1,11 +1,33 @@
 <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><body>
 <header th:fragment="cabecera(activa)"><div class="barra">
- <a class="marca" th:href="@{/reportar}">
+ <a class="marca" th:href="@{/}" aria-label="PiuraVigila, ir al inicio">
   <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 4 8v8c0 7 5 11.500 12 13 7-1.500 12-6 12-13V8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="15" r="4.500" fill="#f2a900"/></svg>
   PiuraVigila</a>
  <nav aria-label="Principal">
+  <a th:href="@{/}" th:attr="aria-current=${activa == 'inicio'} ? 'page'">Inicio</a>
   <a th:href="@{/reportar}" th:attr="aria-current=${activa == 'reportar'} ? 'page'">Registrar reporte</a>
   <a th:href="@{/consultar}" th:attr="aria-current=${activa == 'consultar'} ? 'page'">Consultar estado</a>
   <a th:href="@{/panel}" th:attr="aria-current=${activa == 'panel'} ? 'page'">Panel municipal</a>
  </nav></div></header>
+
+<!-- Encabezado y pestañas del panel municipal (requiere «usuario» y «csrf» en el modelo) -->
+<div th:fragment="panelnav(activa)">
+ <div class="panel-cabecera">
+  <h1><span th:text="'Hola, ' + ${usuario.nombre()}"></span><span class="rol" th:text="${usuario.rol().valorBD()}"></span></h1>
+ </div>
+ <nav class="pestanas" aria-label="Panel municipal">
+  <a th:href="@{/panel}" th:attr="aria-current=${activa == 'casos'} ? 'page'">Casos</a>
+  <a th:href="@{/panel/mapa}" th:attr="aria-current=${activa == 'mapa'} ? 'page'">Mapa de zonas</a>
+  <a th:href="@{/panel(resumen=true)}" th:attr="aria-current=${activa == 'resumen'} ? 'page'">Resumen</a>
+  <a th:if="${usuario.esAdministrador()}" th:href="@{/panel/usuarios}" th:attr="aria-current=${activa == 'usuarios'} ? 'page'">Usuarios</a>
+  <a th:href="@{/panel/clave}" th:attr="aria-current=${activa == 'clave'} ? 'page'">Mi contraseña</a>
+  <form method="post" th:action="@{/logout}"><input type="hidden" name="_csrf" th:value="${csrf}"><button class="sec" type="submit">Cerrar sesión</button></form>
+ </nav>
+ <p class="ok" th:if="${ok}" th:text="${ok}" role="status"></p><p class="error" th:if="${error}" th:text="${error}" role="alert"></p>
+</div>
+
+<footer th:fragment="pie"><div class="contenedor">
+ <span>PiuraVigila · Reportes ciudadanos de incidencias urbanas en Piura</span>
+ <span>Proyecto académico · UTP · Curso Integrador I: Sistemas - Software · 2026</span>
+</div></footer>
 </body></html>

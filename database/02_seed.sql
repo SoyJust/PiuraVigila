@@ -3,7 +3,9 @@
 -- ============================================================
 INSERT INTO zona (nombre, sector) VALUES
     ('Piura', NULL), ('Castilla', NULL), ('Veintiséis de Octubre', NULL),
-    ('Catacaos', NULL), ('La Arena', NULL), ('La Unión', NULL);
+    ('Catacaos', NULL), ('La Arena', NULL), ('La Unión', NULL),
+    -- v1.0: se completan los 10 distritos de la provincia de Piura
+    ('Cura Mori', NULL), ('El Tallán', NULL), ('Las Lomas', NULL), ('Tambo Grande', NULL);
 
 INSERT INTO categoria (nombre, activo) VALUES
     ('Bache en la vía', TRUE),
