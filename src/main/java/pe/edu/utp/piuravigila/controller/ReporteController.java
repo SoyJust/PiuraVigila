@@ -24,8 +24,21 @@ public class ReporteController {
 
     public ReporteController(ReporteService service) { this.service = service; }
 
+    /** v1.0 · página de inicio: qué es PiuraVigila, cómo funciona y cifras públicas agregadas (sin datos personales). */
     @GetMapping("/")
-    public String inicio() { return "redirect:/reportar"; }
+    public String inicio(Model m) {
+        int recibidos = service.totalCasos(null, null, EstadoReporte.RECIBIDO);
+        int enProceso = service.totalCasos(null, null, EstadoReporte.EN_PROCESO);
+        int atendidos = service.totalCasos(null, null, EstadoReporte.ATENDIDO);
+        int total = recibidos + enProceso + atendidos;
+        m.addAttribute("total", total);
+        m.addAttribute("atendidos", atendidos);
+        m.addAttribute("enAtencion", recibidos + enProceso);
+        m.addAttribute("pctAtendidos", total == 0 ? 0 : Math.round(atendidos * 100.0 / total));
+        m.addAttribute("zonas", service.zonas().size());
+        m.addAttribute("categorias", service.categoriasActivas());
+        return "inicio";
+    }
 
     @GetMapping("/reportar")
     public String formulario(Model m, HttpSession s, HttpServletRequest rq, HttpServletResponse rs) {
@@ -80,8 +93,11 @@ public class ReporteController {
         m.addAttribute("codigo", codigo == null ? "" : codigo);
         if (codigo != null && !codigo.isBlank()) {
             try {
-                m.addAttribute("consulta", service.consultarEstado(codigo));
+                ConsultaEstado c = service.consultarEstado(codigo);
+                m.addAttribute("consulta", c);
                 m.addAttribute("categorias", nombresCategoria());
+                m.addAttribute("zona", service.zonas().stream().filter(z -> z.zonaId() == c.caso().zonaId())
+                        .map(Zona::nombre).findFirst().orElse("—"));
             } catch (IllegalArgumentException e) {
                 m.addAttribute("error", "Código no encontrado. Verifica que esté bien escrito");
             }

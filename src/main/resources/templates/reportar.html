@@ -1,29 +1,34 @@
 <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" crossorigin="anonymous" referrerpolicy="no-referrer"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P01 · Registrar reporte</title></head><body><div th:replace="~{fragments :: cabecera('reportar')}"></div>
 <main><div class="card"><h1>Registrar reporte de incidencia</h1>
-<p class="error" th:if="${error}" th:text="${error}"></p>
+<p class="intro">Tarda menos de 2 minutos. No pedimos tu nombre ni tu teléfono: al final recibirás un código para seguir el caso.</p>
+<p class="error" th:if="${error}" th:text="${error}" role="alert"></p>
 <form method="post" th:action="@{/reportar}" enctype="multipart/form-data">
 <input type="hidden" name="_csrf" th:value="${csrf}">
  <div class="rejilla">
- <div class="campo"><label for="categoriaId">Categoría</label>
+ <div class="campo"><label for="categoriaId">¿Qué tipo de problema es?</label>
  <select id="categoriaId" name="categoriaId" required><option value="">Elige…</option>
   <option th:each="c : ${categorias}" th:value="${c.categoriaId()}" th:text="${c.nombre()}" th:selected="${c.categoriaId() == catSel}"></option></select></div>
- <div class="campo"><label for="zonaId">Zona</label>
+ <div class="campo"><label for="zonaId">Distrito</label>
  <select id="zonaId" name="zonaId" required><option value="">Elige…</option>
   <option th:each="z : ${zonas}" th:value="${z.zonaId()}" th:text="${z.nombre()}" th:selected="${z.zonaId() == zonaSel}"></option></select></div>
- <div class="campo ancho"><label for="descripcion">Descripción breve (máx. 300)</label>
- <textarea id="descripcion" name="descripcion" rows="3" maxlength="300" required th:text="${desc}"></textarea></div>
- <div class="campo ancho"><label for="foto">Foto (una sola, máx. 2 MB)</label>
- <input id="foto" type="file" name="foto" accept="image/jpeg,image/png" required></div>
+ <div class="campo ancho"><label for="descripcion">Descripción breve</label>
+ <textarea id="descripcion" name="descripcion" rows="3" maxlength="300" required th:text="${desc}" placeholder="Ejemplo: bache grande frente al colegio, en la esquina con la avenida principal." aria-describedby="pista-desc"></textarea>
+ <small class="pista" id="pista-desc">Indica una referencia para encontrarlo (máximo 300 caracteres).</small></div>
+ <div class="campo ancho"><label for="foto">Foto del problema</label>
+ <input id="foto" type="file" name="foto" accept="image/jpeg,image/png" required aria-describedby="pista-foto">
+ <small class="pista" id="pista-foto">Una sola foto JPG o PNG, de hasta 2 MB.</small></div>
  <div class="campo ancho"><label id="etq-mapa">Ubicación del problema (opcional)</label>
  <div id="mapa-reporte" class="selector-mapa" role="application" aria-labelledby="etq-mapa"></div>
  <input type="hidden" id="lat" name="lat"><input type="hidden" id="lng" name="lng">
  <div class="mapa-acciones"><button type="button" class="sec" id="btn-ubicacion">Usar mi ubicación</button><button type="button" class="sec" id="btn-quitar" hidden>Quitar punto</button><span class="mut" id="mapa-estado">Toca el mapa para marcar dónde está el problema.</span></div>
  <small class="mut">Mapa © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a></small></div>
  <div class="campo"><label for="respuestaSuma">Verificación: ¿cuánto es <span th:text="${pregunta}"></span>?</label>
+ <small class="pista">Nos ayuda a evitar envíos automáticos.</small>
  <input id="respuestaSuma" name="respuestaSuma" inputmode="numeric" required></div>
  </div>
  <p class="acciones"><button type="submit">Enviar reporte</button></p>
 </form></div></main>
+<footer th:replace="~{fragments :: pie}"></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script th:src="@{/js/reportar-mapa.js}"></script>
 </body></html>

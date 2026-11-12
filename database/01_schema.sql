@@ -35,6 +35,7 @@ CREATE TABLE usuario_municipal (
     usuario VARCHAR(40) NOT NULL UNIQUE,
     contrasena_hash VARCHAR(255) NOT NULL,
     rol VARCHAR(20) NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT TRUE, -- v1.0 (Semana 14, acabado): desactivar en lugar de borrar (el historial guarda quién cambió cada estado)
     CONSTRAINT ck_usuario_rol CHECK (rol IN ('administrador','operador'))
 );
 

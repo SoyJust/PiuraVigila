@@ -1,0 +1,19 @@
+Prueba de punta a punta de la gestión de usuarios · 12/11/2026 18:01 · app en http://localhost:8080
+(contraseñas aleatorias generadas en cada ejecución; no se muestran)
+
+1. login admin:                302 http://localhost:8080/panel
+2. crear operador:             302 http://localhost:8080/panel/usuarios
+   mensaje:                    Usuario «e2e_operador» creado. Entrégale su contraseña inicial por un medio seguro.
+   en BD (hash BCrypt):        e2e_operador operador activo=true $2a$
+3. login operador:             302 http://localhost:8080/panel
+   operador entra a usuarios:  302 http://localhost:8080/panel
+4. clave actual incorrecta:    http://localhost:8080/panel/clave
+   mensaje:                    La contraseña actual no es correcta
+5. cambiar clave bien:         http://localhost:8080/panel
+   login con clave vieja:      200 
+   login con clave nueva:      302 http://localhost:8080/panel
+6. admin desactiva operador:   http://localhost:8080/panel/usuarios
+   sesión abierta del operador: 302 http://localhost:8080/login?requerida
+   nuevo login del operador:   200  (200 = rechazado, vuelve al formulario)
+7. admin se desactiva a sí:    No puedes desactivar tu propia cuenta
+limpieza: usuarios de prueba borrados

@@ -1,56 +1,97 @@
 <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>P03 · Panel de gestión</title></head><body><div th:replace="~{fragments :: cabecera('panel')}"></div>
 <main>
-<div class="card usuario"><strong th:text="${usuario.nombre()}"></strong> <span class="mut" th:text="'(' + ${usuario.rol().valorBD()} + ')'"></span>
- <a th:href="@{/panel/mapa}">Mapa de zonas críticas</a>
- <a th:href="@{/panel/exportar(desde=${desde},hasta=${hasta})}">Descargar zonas en Excel</a>
- <form method="post" th:action="@{/logout}"><input type="hidden" name="_csrf" th:value="${csrf}"><button class="sec" type="submit">Cerrar sesión</button></form></div>
-<p class="ok" th:if="${ok}" th:text="${ok}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+<div th:replace="~{fragments :: panelnav(${verResumen} ? 'resumen' : 'casos')}"></div>
 
-<div class="card" th:if="${avisoOtra}"><p class="aviso">Umbral de «Otra» superado: <span th:text="${pctOtra}"></span> % de los reportes del mes (umbral 10 %).</p>
- <form method="post" th:action="@{/panel/categoria}" th:if="${usuario.esAdministrador()}"><input type="hidden" name="_csrf" th:value="${csrf}">
- <label for="nombre">Nueva categoría</label><input id="nombre" name="nombre" maxlength="60" required> <button type="submit">Habilitar</button></form></div>
+<div class="cifras" aria-label="Cifras de todos los casos">
+ <a class="cifra c-recibido" th:classappend="${festado == 'Recibido'} ? 'activa'" th:href="@{/panel(estado='Recibido')}"><span class="valor" th:text="${kRecibido}">0</span><span class="etiqueta">por atender (Recibido)</span></a>
+ <a class="cifra c-proceso" th:classappend="${festado == 'En proceso'} ? 'activa'" th:href="@{/panel(estado='En proceso')}"><span class="valor" th:text="${kProceso}">0</span><span class="etiqueta">en proceso</span></a>
+ <a class="cifra c-atendido" th:classappend="${festado == 'Atendido'} ? 'activa'" th:href="@{/panel(estado='Atendido')}"><span class="valor" th:text="${kAtendido}">0</span><span class="etiqueta">atendidos</span></a>
+ <a class="cifra c-total" th:href="@{/panel}"><span class="valor" th:text="${kRecibido + kProceso + kAtendido}">0</span><span class="etiqueta">casos en total</span></a>
+</div>
 
-<div class="card"><h1>Casos</h1>
-<form method="get" th:action="@{/panel}" class="filtros">
- <div><label for="zonaId">Zona</label><select id="zonaId" name="zonaId"><option value="">Todas</option>
-  <option th:each="z : ${zonas}" th:value="${z.zonaId()}" th:text="${z.nombre()}" th:selected="${fzona != null and z.zonaId() == fzona}"></option></select></div>
- <div><label for="categoriaId">Tipo</label><select id="categoriaId" name="categoriaId"><option value="">Todos</option>
-  <option th:each="c : ${categorias}" th:value="${c.categoriaId()}" th:text="${c.nombre()}" th:selected="${fcat != null and c.categoriaId() == fcat}"></option></select></div>
- <div><label for="estado">Estado</label><select id="estado" name="estado"><option value="">Todos</option>
-  <option th:each="e : ${estados}" th:value="${e.etiqueta()}" th:text="${e.etiqueta()}" th:selected="${festado == e.etiqueta()}"></option></select></div>
- <div><button type="submit">Filtrar</button></div>
- <div><button class="sec" type="submit" name="resumen" value="true">Ver / ocultar resumen</button></div>
-</form>
-<div class="tabla"><table><thead><tr><th>Código</th><th>Categoría</th><th>Zona</th><th>Descripción</th><th>Estado</th><th>Vinc.</th><th>Ubicación</th><th>Cambiar</th></tr></thead><tbody>
- <tr th:each="f : ${filas}">
-  <td th:text="${f.caso().codigoSeguimiento()}"></td>
-  <td th:text="${f.categoria()}"></td><td th:text="${f.zona()}"></td>
-  <td th:text="${f.caso().descripcion()}"></td><td><span class="badge" th:classappend="'est-' + ${f.caso().estado().name().toLowerCase()}" th:text="${f.caso().estado().etiqueta()}"></span></td><td th:text="${f.vinculados()}"></td>
-  <td><a th:if="${f.caso().lat() != null}" target="_blank" rel="noopener" th:href="'https://www.openstreetmap.org/?mlat=' + ${f.caso().lat()} + '&amp;mlon=' + ${f.caso().lng()} + '#map=18/' + ${f.caso().lat()} + '/' + ${f.caso().lng()}">Ver en mapa</a><span class="mut" th:unless="${f.caso().lat() != null}">Sin ubicación</span></td>
-  <td><form method="post" th:action="@{/panel/estado}" th:if="${f.caso().estado().name() != 'ATENDIDO'}">
-   <input type="hidden" name="_csrf" th:value="${csrf}"><input type="hidden" name="reporteId" th:value="${f.caso().reporteId()}">
-   <select name="nuevo"><option th:each="e : ${estados}" th:if="${f.caso().estado().puedePasarA(e)}" th:value="${e.etiqueta()}" th:text="${e.etiqueta()}"></option></select>
-   <button type="submit">Guardar</button></form></td>
- </tr></tbody></table></div>
-<p class="mut paginacion">Total: <span th:text="${total}"></span> · Página <span th:text="${pagina + 1}"></span> de <span th:text="${paginas}"></span>
- <a th:if="${pagina > 0}" th:href="@{/panel(pagina=${pagina - 1},zonaId=${fzona},categoriaId=${fcat},estado=${festado})}">‹ Anterior</a>
- <a th:if="${pagina + 1 < paginas}" th:href="@{/panel(pagina=${pagina + 1},zonaId=${fzona},categoriaId=${fcat},estado=${festado})}">Siguiente ›</a></p></div>
+<div class="card" th:if="${avisoOtra}"><p class="aviso">Umbral de «Otra» superado: <span th:text="${pctOtra}"></span> % de los reportes del mes (umbral 10 %). Conviene habilitar una categoría nueva.</p>
+ <form method="post" th:action="@{/panel/categoria}" th:if="${usuario.esAdministrador()}" class="fila-busqueda"><input type="hidden" name="_csrf" th:value="${csrf}">
+ <label for="nombre" class="ancho-total">Nueva categoría</label><input id="nombre" name="nombre" maxlength="60" required class="crece" placeholder="Ejemplo: Poste caído"> <button type="submit">Habilitar</button></form></div>
 
-<div class="card" th:if="${verResumen}"><h1>Resumen de gestión (sin fotos)</h1>
+<!-- ===== Resumen de gestión (R01 a R03) ===== -->
+<div class="card" th:if="${verResumen}">
+ <div class="encabezado-card"><h2>Resumen de gestión</h2>
+  <a th:href="@{/panel/exportar(desde=${desde},hasta=${hasta})}" class="boton sec">Descargar zonas en Excel</a></div>
+ <form method="get" th:action="@{/panel}" class="filtros"><input type="hidden" name="resumen" value="true">
+  <div><label for="desde">Desde</label><input id="desde" type="date" name="desde" th:value="${desde}"></div>
+  <div><label for="hasta">Hasta</label><input id="hasta" type="date" name="hasta" th:value="${hasta}"></div>
+  <div><button type="submit">Actualizar</button></div></form>
  <p class="error" th:if="${errorResumen}" th:text="${errorResumen}"></p>
- <div th:if="${r03}">
-  <p class="mut">Periodo: <span th:text="${desde}"></span> a <span th:text="${hasta}"></span></p>
-  <h2>R03 · Resumen</h2>
-  <table><tr><th>Recibido</th><td th:text="${r03.casosPorEstado()[T(pe.edu.utp.piuravigila.model.EstadoReporte).RECIBIDO]}"></td></tr>
-  <tr><th>En proceso</th><td th:text="${r03.casosPorEstado()[T(pe.edu.utp.piuravigila.model.EstadoReporte).EN_PROCESO]}"></td></tr>
-  <tr><th>Atendido</th><td th:text="${r03.casosPorEstado()[T(pe.edu.utp.piuravigila.model.EstadoReporte).ATENDIDO]}"></td></tr>
-  <tr><th>Duplicados evitados</th><td th:text="${r03.duplicadosEvitados()}"></td></tr>
-  <tr><th>% de casos con estado actualizado</th><td th:text="${r03.pctActualizados()} + ' %'"></td></tr>
-  <tr><th>% «Otra» del mes (umbral 10 %)</th><td th:text="${r03.pctOtraMes()} + ' %'"></td></tr></table>
-  <h2>R01 · Zonas críticas</h2>
-  <table><tr><th>Zona</th><th>Reportes</th></tr><tr th:each="z : ${r01}"><td th:text="${z.zona()}"></td><td th:text="${z.reportes()}"></td></tr></table>
-  <div th:if="${r02 != null}"><h2>R02 · Tiempos de atención (administrador)</h2>
-  <table><tr><th>Categoría</th><th>Casos atendidos</th><th>Días promedio</th></tr>
-  <tr th:each="t : ${r02}"><td th:text="${t.categoria()}"></td><td th:text="${t.casosAtendidos()}"></td><td th:text="${t.diasPromedio()}"></td></tr></table></div>
- </div></div>
-</main></body></html>
+ <div th:if="${r03}" class="resumen-rejilla">
+  <section>
+   <h2>R03 · Gestión del periodo</h2>
+   <p class="mut" th:text="'Del ' + ${#temporals.format(desde,'dd/MM/yyyy')} + ' al ' + ${#temporals.format(hasta,'dd/MM/yyyy')}"></p>
+   <div class="datos">
+    <div class="dato"><span class="valor" th:text="${r03.casosPorEstado()[T(pe.edu.utp.piuravigila.model.EstadoReporte).RECIBIDO]}"></span><span class="etiqueta">Recibidos</span></div>
+    <div class="dato"><span class="valor" th:text="${r03.casosPorEstado()[T(pe.edu.utp.piuravigila.model.EstadoReporte).EN_PROCESO]}"></span><span class="etiqueta">En proceso</span></div>
+    <div class="dato"><span class="valor" th:text="${r03.casosPorEstado()[T(pe.edu.utp.piuravigila.model.EstadoReporte).ATENDIDO]}"></span><span class="etiqueta">Atendidos</span></div>
+    <div class="dato"><span class="valor" th:text="${r03.duplicadosEvitados()}"></span><span class="etiqueta">Duplicados evitados</span></div>
+    <div class="dato"><span class="valor" th:text="${r03.pctActualizados()} + ' %'"></span><span class="etiqueta">Casos con estado actualizado</span></div>
+    <div class="dato"><span class="valor" th:text="${r03.pctOtraMes()} + ' %'"></span><span class="etiqueta">«Otra» en el mes (umbral 10 %)</span></div>
+   </div>
+  </section>
+  <section>
+   <h2>R01 · Zonas críticas</h2>
+   <p class="mut">Reportes por distrito en el periodo (incluye los vinculados).</p>
+   <p class="mut" th:if="${#lists.isEmpty(r01)}">No hay reportes en este periodo.</p>
+   <ul class="barras">
+    <li th:each="z : ${r01}"><span th:text="${z.zona()}"></span>
+     <span class="barra" th:attr="data-i=${r01Max > 0} ? ${(z.reportes() * 1.0) / r01Max} : 0"></span><span class="n" th:text="${z.reportes()}"></span></li>
+   </ul>
+  </section>
+  <section th:if="${r02 != null}" class="ancho-total">
+   <h2>R02 · Tiempos de atención <span class="mut">(solo administrador)</span></h2>
+   <p class="mut" th:if="${#lists.isEmpty(r02)}">Aún no hay casos atendidos en este periodo.</p>
+   <div class="tabla" th:unless="${#lists.isEmpty(r02)}"><table><thead><tr><th>Categoría</th><th>Casos atendidos</th><th>Días promedio</th></tr></thead><tbody>
+   <tr th:each="t : ${r02}"><td th:text="${t.categoria()}"></td><td th:text="${t.casosAtendidos()}"></td><td th:text="${t.diasPromedio()}"></td></tr></tbody></table></div>
+  </section>
+ </div>
+</div>
+
+<!-- ===== Casos ===== -->
+<div class="card" th:unless="${verResumen}">
+ <div class="encabezado-card"><h2>Casos</h2>
+  <span class="mut" th:text="${total} + (${total == 1} ? ' caso' : ' casos') + (${filtrado} ? ' con estos filtros' : '')"></span></div>
+ <form method="get" th:action="@{/panel}" class="filtros">
+  <div><label for="zonaId">Distrito</label><select id="zonaId" name="zonaId"><option value="">Todos</option>
+   <option th:each="z : ${zonas}" th:value="${z.zonaId()}" th:text="${z.nombre()}" th:selected="${fzona != null and z.zonaId() == fzona}"></option></select></div>
+  <div><label for="categoriaId">Tipo</label><select id="categoriaId" name="categoriaId"><option value="">Todos</option>
+   <option th:each="c : ${categorias}" th:value="${c.categoriaId()}" th:text="${c.nombre()}" th:selected="${fcat != null and c.categoriaId() == fcat}"></option></select></div>
+  <div><label for="estado">Estado</label><select id="estado" name="estado"><option value="">Todos</option>
+   <option th:each="e : ${estados}" th:value="${e.etiqueta()}" th:text="${e.etiqueta()}" th:selected="${festado == e.etiqueta()}"></option></select></div>
+  <div><button type="submit">Filtrar</button></div>
+  <div th:if="${filtrado}"><a class="limpiar" th:href="@{/panel}">Quitar filtros</a></div>
+ </form>
+
+ <div class="vacio" th:if="${#lists.isEmpty(filas)}">
+  <strong th:text="${filtrado} ? 'No hay casos con estos filtros' : 'Todavía no hay reportes'"></strong>
+  <span th:text="${filtrado} ? 'Prueba con otro distrito, tipo o estado.' : 'Cuando un vecino registre un reporte, aparecerá aquí.'"></span>
+ </div>
+
+ <div class="tabla" th:unless="${#lists.isEmpty(filas)}"><table class="tabla-casos"><thead><tr><th>Código</th><th>Problema</th><th>Descripción</th><th>Estado</th><th title="Reportes de otros vecinos unidos a este caso">Vinc.</th><th>Ubicación</th><th>Cambiar estado</th></tr></thead><tbody>
+  <tr th:each="f : ${filas}">
+   <td class="principal"><span class="codigo-caso" th:text="${f.caso().codigoSeguimiento()}"></span><span class="fecha" th:text="${#temporals.format(f.caso().fechaRegistro(),'dd/MM/yyyy HH:mm')}"></span></td>
+   <td class="sin-etiqueta" data-label="Problema"><span th:text="${f.categoria()}"></span><span class="sub" th:text="${f.zona()}"></span></td>
+   <td class="sin-etiqueta" data-label="Descripción"><p class="desc" th:text="${f.caso().descripcion()}" th:title="${f.caso().descripcion()}"></p></td>
+   <td class="compacta" data-label="Estado"><span class="badge" th:classappend="'est-' + ${f.caso().estado().name().toLowerCase()}" th:text="${f.caso().estado().etiqueta()}"></span></td>
+   <td class="compacta" data-label="Vinculados"><span class="vinc" th:classappend="${f.vinculados() > 0} ? 'hay'" th:text="${f.vinculados()}"></span></td>
+   <td class="compacta" data-label="Ubicación"><a class="ubic" th:if="${f.caso().lat() != null}" target="_blank" rel="noopener" th:href="'https://www.openstreetmap.org/?mlat=' + ${f.caso().lat()} + '&amp;mlon=' + ${f.caso().lng()} + '#map=18/' + ${f.caso().lat()} + '/' + ${f.caso().lng()}"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.200 7-12a7 7 0 0 0-14 0c0 5.800 7 12 7 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.500" fill="currentColor"/></svg>Ver mapa</a><span class="mut" th:unless="${f.caso().lat() != null}">Sin ubicación</span></td>
+   <td data-label="Cambiar estado"><form method="post" th:action="@{/panel/estado}" th:if="${f.caso().estado().name() != 'ATENDIDO'}">
+    <input type="hidden" name="_csrf" th:value="${csrf}"><input type="hidden" name="reporteId" th:value="${f.caso().reporteId()}">
+    <select name="nuevo" th:attr="aria-label='Nuevo estado de ' + ${f.caso().codigoSeguimiento()}"><option th:each="e : ${estados}" th:if="${f.caso().estado().puedePasarA(e)}" th:value="${e.etiqueta()}" th:text="${e.etiqueta()}"></option></select>
+    <button type="submit">Guardar</button></form>
+    <span class="cerrado" th:unless="${f.caso().estado().name() != 'ATENDIDO'}">Caso cerrado</span></td>
+  </tr></tbody></table></div>
+ <p class="mut paginacion" th:if="${paginas > 1}">Página <span th:text="${pagina + 1}"></span> de <span th:text="${paginas}"></span>
+  <a th:if="${pagina > 0}" th:href="@{/panel(pagina=${pagina - 1},zonaId=${fzona},categoriaId=${fcat},estado=${festado})}">‹ Anterior</a>
+  <a th:if="${pagina + 1 < paginas}" th:href="@{/panel(pagina=${pagina + 1},zonaId=${fzona},categoriaId=${fcat},estado=${festado})}">Siguiente ›</a></p>
+</div>
+</main>
+<footer th:replace="~{fragments :: pie}"></footer>
+<script th:src="@{/js/barras.js}"></script>
+</body></html>

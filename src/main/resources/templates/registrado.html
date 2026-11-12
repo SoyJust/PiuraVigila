@@ -1,7 +1,14 @@
 <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title>Reporte enviado</title></head><body><div th:replace="~{fragments :: cabecera('reportar')}"></div>
 <main><div class="card">
-<h1 th:text="${vinculado} ? 'Reporte vinculado' : 'Código registrado'"></h1>
-<p class="mut" th:if="${vinculado}">Tu reporte se unió a uno existente; usa este código para consultar el estado.</p>
+<p class="ok" role="status" th:text="${vinculado} ? 'Tu reporte se unió a un caso que ya estaba abierto.' : '¡Listo! Tu reporte fue registrado.'"></p>
+<h1 th:text="${vinculado} ? 'Reporte vinculado a un caso existente' : 'Guarda tu código de seguimiento'"></h1>
+<p class="mut" th:if="${vinculado}">Otro vecino ya había reportado el mismo problema. Para no duplicar trabajo, tu reporte se sumó a ese caso: usa este código para ver su estado.</p>
 <div class="ticket"><small>Código de seguimiento</small><p class="codigo" th:text="${codigo}"></p></div>
-<p>Guarda este código para consultar el estado en «Consultar estado».</p>
-</div></main></body></html>
+<p>Anótalo o toma una captura de pantalla: lo necesitarás para consultar en qué estado está tu reporte.</p>
+<div class="botones-fila">
+ <a class="boton" th:href="@{/consultar(codigo=${codigo})}">Ver el estado ahora</a>
+ <a class="boton sec" th:href="@{/reportar}">Registrar otro reporte</a>
+</div>
+</div></main>
+<footer th:replace="~{fragments :: pie}"></footer>
+</body></html>
