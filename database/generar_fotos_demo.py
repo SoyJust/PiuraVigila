@@ -61,7 +61,7 @@ def main():
     sql = open(SQL, encoding='utf-8').read()
     os.makedirs(DESTINO, exist_ok=True)
     variables = {}  # cN / eNN := demo_caso(...) → categoría (los vinculados la heredan)
-    caso = re.compile(r"(?:(\w+) := |PERFORM )pg_temp\.demo_caso\('([^']+)',\s*'[^']*',\s*'((?:[^']|'')*)'.*?'(fotos/[\w.-]+)'\);", re.S)
+    caso = re.compile(r"(?:(\w+) := |PERFORM )pg_temp\.(?:demo_caso|demo_descartado)\('([^']+)',\s*'[^']*',\s*'((?:[^']|'')*)'.*?'(fotos/[\w.-]+)'\);", re.S)
     vinc = re.compile(r"PERFORM pg_temp\.demo_vinculado\((\w+),\s*'((?:[^']|'')*)'.*?'(fotos/[\w.-]+)'\);", re.S)
     sentencias = sorted([(m.start(), 'c', m) for m in caso.finditer(sql)] + [(m.start(), 'v', m) for m in vinc.finditer(sql)])
     n = 0

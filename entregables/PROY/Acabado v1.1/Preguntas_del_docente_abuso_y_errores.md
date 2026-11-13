@@ -1,6 +1,6 @@
 # PiuraVigila · Preguntas del docente: spam, abuso, errores de usuario y fotos
 
-Respuestas basadas en lo que hace el sistema hoy (v1.1, 13/11/2026), con la prueba que lo demuestra. Cuando algo **no** está resuelto, se dice y se explica por qué.
+Respuestas basadas en lo que hace el sistema hoy (v1.2, 13/11/2026; el estado «Descartado» se agregó en la v1.2), con la prueba que lo demuestra. Cuando algo **no** está resuelto, se dice y se explica por qué.
 
 Abreviaturas: **TC-** = prueba automática (`mvn test` / `mvn verify`); **AV11-** = evidencia en `Evidencias/`.
 
@@ -73,7 +73,7 @@ Hay dos casos distintos:
 - **Mismo problema, distinta foto.** No comparamos fotos: así lo decidió la revisión del 15/10/2026, y por eso se quitó `hash_foto`. Dos vecinos nunca toman la misma foto del mismo bache (ángulo, luz, celular), y comparar imágenes «parecidas» es poco confiable y costoso. El duplicado se detecta por categoría + distrito + caso abierto, y lo confirma el propio vecino («Sí, es el mismo»).
 - **La misma foto exacta reenviada** (spam). Se calcula la huella SHA-256 del archivo. Si ese mismo archivo ya se envió en las últimas 24 h, venga del teléfono que venga, se rechaza con «Esta misma foto ya se envió hace poco» (TC-F04, AV11-04). La huella vive en memoria y no se guarda en la base de datos (se respeta la decisión del 15/10).
 - **Límite honesto:** si alguien cambia un píxel, la huella cambia y la foto pasa. Para ese caso quedan los límites de envío y la revisión del personal, que ahora sí ve la foto.
-- **Fotos falsas u ofensivas:** no hay detección automática. Las ve el personal en el detalle del caso. Ver el pendiente del estado «Descartado» en la sección 7.
+- **Fotos falsas u ofensivas:** no hay detección automática. Las ve el personal en el detalle del caso y puede **descartar** el reporte con un motivo (v1.2). Un caso descartado no cuenta en las zonas críticas ni en el % de atendidos.
 
 ---
 
@@ -125,7 +125,8 @@ Antes, con fotos de hasta 2 MB, eran hasta 6 o 7 veces más.
 | Borra las cookies para saltarse el límite diario | Aplica el límite por IP (20 cada 10 min) | TC-A03 |
 | Cambia de wifi a datos móviles **y además** borra cookies | Queda como teléfono nuevo con IP nueva: **puede saltarse los límites**. Es el riesgo residual de no pedir identificación; se mitiga con el CAPTCHA del despliegue y la revisión del personal | Riesgo aceptado |
 | Se queda sin internet a mitad del envío | No se guarda nada a medias (todo va en una transacción); vuelve a enviar | Diseño |
-| Dice «No, es otro» cuando sí era el mismo | Se crea un caso nuevo; el personal puede atender ambos | Diseño |
+| Dice «No, es otro» cuando sí era el mismo | Se crea un caso nuevo; el personal puede descartar el repetido con el motivo «duplicado de PR-…» | Diseño, TC-D02 |
+| Envía un reporte falso, de prueba o que no es de la vía pública («el foco de mi sala») | El personal lo **descarta** con un motivo obligatorio que el vecino ve en su consulta; no cuenta como atendido ni como zona crítica | TC-D01 a TC-D11, AV12-02 |
 
 ### Al consultar (vecino)
 
@@ -145,6 +146,7 @@ Antes, con fotos de hasta 2 MB, eran hasta 6 o 7 veces más.
 | Se desactiva una cuenta que tiene la sesión abierta | Pierde la sesión en su siguiente clic | TC-U15 |
 | Un operador intenta entrar a «Usuarios» o habilitar categorías | Se rechaza (solo administrador) | TC-U11, PV-T41 |
 | Intenta retroceder un estado (Atendido → Recibido) o saltarse uno | «El estado solo avanza» | `ReporteServiceTest` |
+| Intenta descartar sin escribir el motivo, o descartar un caso ya atendido | Se rechaza; la base de datos también exige el motivo (`ck_historial_motivo`) | TC-D02, TC-D03, TC-D08 |
 | Dos operadores cambian el mismo caso a la vez | El segundo ve el cambio del primero; no se duplica el historial | TC-C06 |
 | Escribe un comentario de más de 200 caracteres | Se rechaza sin cambiar el estado | TC-C04 |
 | Escribe datos personales en el comentario (lo verá el público) | El formulario advierte «No escribas datos personales»; no hay filtro automático | Aviso en pantalla |
@@ -156,7 +158,7 @@ Antes, con fotos de hasta 2 MB, eran hasta 6 o 7 veces más.
 
 ## 7. Lo que sigue pendiente (dicho con honestidad)
 
-1. **Estado «Descartado».** Hoy un reporte falso o improcedente solo puede terminar como «Atendido», lo que infla las cifras. Lo correcto sería un cuarto estado «Descartado» con comentario obligatorio. Cambia el modelo de estados aprobado (CHECK de la base, transiciones y R03), así que conviene consultarlo antes con el docente.
+1. ~~Estado «Descartado»~~ **Hecho en la v1.2** (ver `entregables/PROY/Acabado v1.2`). Como cambia el modelo de estados aprobado, conviene comentarlo con el docente en la próxima revisión.
 2. **CAPTCHA real** en el despliegue (semana 15), en lugar de la suma.
 3. **Límites que se reinician si se reinicia la aplicación.** Los límites por IP y las huellas de fotos viven en memoria. Para un solo servidor es suficiente; con varios servidores habría que guardarlos en la base o en Redis.
 4. **Distrito frente al punto del mapa:** no se cruza con el contorno de cada distrito.
