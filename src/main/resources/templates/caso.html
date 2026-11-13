@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" crossorigin="anonymous" referrerpolicy="no-referrer"><link rel="stylesheet" th:href="@{/css/piuravigila.css}"><title th:text="'Caso ' + ${detalle.caso().codigoSeguimiento()} + ' · Panel'">Caso · Panel</title></head><body><div th:replace="~{fragments :: cabecera('panel')}"></div>
+<main th:with="c=${detalle.caso()}">
+<div th:replace="~{fragments :: panelnav('casos')}"></div>
+<p class="migas"><a th:href="@{/panel}">‹ Volver a la lista de casos</a></p>
+
+<div class="card">
+ <div class="resultado-cabecera mt-0"><h1 class="codigo" th:text="${c.codigoSeguimiento()}"></h1>
+  <span class="badge" th:classappend="'est-' + ${c.estado().name().toLowerCase()}" th:text="${c.estado().etiqueta()}"></span>
+  <span class="mut" th:text="'Registrado el ' + ${#temporals.format(c.fechaRegistro(),'dd/MM/yyyy HH:mm')}"></span></div>
+ <div class="detalle-caso">
+  <figure class="foto-caso">
+   <a th:href="@{/panel/foto/{id}(id=${c.reporteId()})}" target="_blank" rel="noopener" title="Abrir la foto en tamaño completo">
+    <img th:src="@{/panel/foto/{id}(id=${c.reporteId()})}" th:alt="'Foto del caso ' + ${c.codigoSeguimiento()}" loading="lazy" class="foto-evidencia"></a>
+   <p class="sin-foto" hidden>Foto no disponible (se eliminó por antigüedad o no se pudo leer).</p>
+   <figcaption class="mut">Foto enviada por el vecino. Solo la ve el personal municipal.</figcaption>
+  </figure>
+  <div>
+   <dl class="detalle">
+    <div><dt>Tipo de problema</dt><dd th:text="${detalle.categoria()}"></dd></div>
+    <div><dt>Distrito</dt><dd th:text="${detalle.zona()}"></dd></div>
+    <div><dt>Vecinos que reportaron lo mismo</dt><dd th:text="${#lists.size(detalle.vinculados())}"></dd></div>
+    <div><dt>Ubicación</dt><dd><a th:if="${c.lat() != null}" target="_blank" rel="noopener" th:href="'https://www.openstreetmap.org/?mlat=' + ${c.lat()} + '&amp;mlon=' + ${c.lng()} + '#map=18/' + ${c.lat()} + '/' + ${c.lng()}">Abrir en OpenStreetMap</a><span class="mut" th:unless="${c.lat() != null}">Sin ubicación marcada</span></dd></div>
+    <div class="ancho"><dt>Descripción</dt><dd th:text="${c.descripcion()}"></dd></div>
+   </dl>
+   <div th:if="${c.lat() != null}" id="mapa-caso" class="mapa-caso" role="img" th:attr="aria-label='Mapa con la ubicación del caso ' + ${c.codigoSeguimiento()},data-lat=${c.lat()},data-lng=${c.lng()}"></div>
+  </div>
+ </div>
+</div>
+
+<div class="detalle-rejilla">
+ <div class="card">
+  <h2 class="mt-0">Cambiar estado</h2>
+  <p class="mut" th:if="${c.estado().name() == 'ATENDIDO'}">El caso está atendido y cerrado; ya no cambia de estado.</p>
+  <form method="post" th:action="@{/panel/estado}" th:unless="${c.estado().name() == 'ATENDIDO'}">
+   <input type="hidden" name="_csrf" th:value="${csrf}"><input type="hidden" name="reporteId" th:value="${c.reporteId()}"><input type="hidden" name="volver" th:value="${c.codigoSeguimiento()}">
+   <label for="nuevo">Nuevo estado</label>
+   <select id="nuevo" name="nuevo" class="ancho-total"><option th:each="e : ${estados}" th:if="${c.estado().puedePasarA(e)}" th:value="${e.etiqueta()}" th:text="${e.etiqueta()}"></option></select>
+   <label for="comentario">Comentario para el vecino <span class="mut">(opcional)</span></label>
+   <textarea id="comentario" name="comentario" rows="3" th:attr="maxlength=${maxComentario}" placeholder="Ejemplo: Se programó la cuadrilla para el lunes." aria-describedby="pista-com"></textarea>
+   <small class="pista" id="pista-com" th:text="'Lo verá quien consulte el código. No escribas datos personales. Máximo ' + ${maxComentario} + ' caracteres.'"></small>
+   <p class="acciones"><button type="submit">Guardar cambio</button></p>
+  </form>
+ </div>
+ <div class="card">
+  <h2 class="mt-0">Historial</h2>
+  <ol class="pasos historial">
+   <li th:each="h : ${detalle.movimientos()}" class="hecho">
+    <span class="paso-nombre" th:text="${h.estado().etiqueta()}"></span>
+    <span class="paso-fecha" th:text="${#temporals.format(h.fecha(),'dd/MM/yyyy HH:mm')} + ' · ' + (${h.responsable()} ?: 'Sistema (registro del vecino)')"></span>
+    <span class="comentario-paso" th:if="${h.comentario()}" th:text="'«' + ${h.comentario()} + '»'"></span>
+   </li>
+  </ol>
+ </div>
+</div>
+
+<div class="card" th:unless="${#lists.isEmpty(detalle.vinculados())}">
+ <h2 class="mt-0" th:text="'Reportes de otros vecinos sobre el mismo problema (' + ${#lists.size(detalle.vinculados())} + ')'"></h2>
+ <p class="mut">Se unieron a este caso porque el vecino confirmó que era el mismo problema. No tienen código propio.</p>
+ <ul class="vinculados">
+  <li th:each="v : ${detalle.vinculados()}">
+   <a th:href="@{/panel/foto/{id}(id=${v.reporteId()})}" target="_blank" rel="noopener"><img th:src="@{/panel/foto/{id}(id=${v.reporteId()})}" alt="Foto del reporte vinculado" loading="lazy" class="foto-evidencia"></a>
+   <p class="sin-foto" hidden>Foto no disponible</p>
+   <div><span class="mut" th:text="${#temporals.format(v.fechaRegistro(),'dd/MM/yyyy HH:mm')}"></span><p th:text="${v.descripcion()}"></p></div>
+  </li>
+ </ul>
+</div>
+</main>
+<footer th:replace="~{fragments :: pie}"></footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script th:src="@{/js/caso.js}"></script>
+</body></html>

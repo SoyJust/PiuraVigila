@@ -76,14 +76,14 @@ class PanelControllerTest {
         mvc.perform(post("/panel/estado").param("reporteId", "1").param("nuevo", "En proceso")
                         .sessionAttr("usuario", OPERADOR).sessionAttr("csrf", "token-correcto"))
                 .andExpect(redirectedUrl("/panel")).andExpect(flash().attribute("error", "Solicitud no válida"));
-        verify(reportes, never()).cambiarEstado(anyInt(), any(EstadoReporte.class), any(UsuarioMunicipal.class));
+        verify(reportes, never()).cambiarEstado(anyInt(), any(EstadoReporte.class), any(UsuarioMunicipal.class), any());
     }
 
     @Test void pv_t39_post_con_token_distinto_es_rechazado() throws Exception {
         mvc.perform(post("/panel/estado").param("reporteId", "1").param("nuevo", "En proceso").param("_csrf", "otro")
                         .sessionAttr("usuario", OPERADOR).sessionAttr("csrf", "token-correcto"))
                 .andExpect(redirectedUrl("/panel")).andExpect(flash().attribute("error", "Solicitud no válida"));
-        verify(reportes, never()).cambiarEstado(anyInt(), any(EstadoReporte.class), any(UsuarioMunicipal.class));
+        verify(reportes, never()).cambiarEstado(anyInt(), any(EstadoReporte.class), any(UsuarioMunicipal.class), any());
     }
 
     // ---- PV-T41 · T-22: el operador no puede habilitar categorías ----

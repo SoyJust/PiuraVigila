@@ -96,6 +96,7 @@ CREATE TABLE historial_estado (
     usuario_id INT,
     estado_nuevo VARCHAR(20) NOT NULL,
     fecha_cambio TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    comentario VARCHAR(200), -- v1.1: nota opcional del personal, visible para el vecino en la consulta (p. ej. «Cuadrilla programada para el lunes»)
     CONSTRAINT fk_historial_reporte FOREIGN KEY (reporte_id)
         REFERENCES reporte(reporte_id),
     CONSTRAINT fk_historial_usuario FOREIGN KEY (usuario_id)

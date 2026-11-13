@@ -45,6 +45,9 @@ final class Fakes {
         @Override public Map<EstadoReporte, Integer> casosPorEstado(LocalDateTime d, LocalDateTime h) { return porEstado; }
         @Override public int contarVinculadosPeriodo(LocalDateTime d, LocalDateTime h) { return vinculadosPeriodo; }
         @Override public double porcentajeActualizados(LocalDateTime d, LocalDateTime h) { return pctAct; }
+        final List<String> bloqueos = new ArrayList<>();
+        @Override public void bloquear(String clave) { bloqueos.add(clave); }
+        @Override public List<Reporte> listarVinculados(int casoId) { return filas.stream().filter(r -> Objects.equals(r.reporteOriginalId(), casoId)).toList(); }
         /** Atajo para preparar un caso existente. */
         Reporte caso(int cat, int zona, EstadoReporte estado) {
             insertarCaso(new Reporte(0, null, null, cat, zona, "caso previo", "fotos/x.jpg", null, null, EstadoReporte.RECIBIDO, "otro", LocalDateTime.of(2026, 10, 1, 8, 0)));
@@ -59,6 +62,9 @@ final class Fakes {
         @Override public List<HistorialEstado> listarPorReporte(int id) { return filas.stream().filter(h -> h.reporteId() == id).toList(); }
         @Override public Optional<LocalDateTime> ultimaActualizacion(int id) { return listarPorReporte(id).stream().map(HistorialEstado::fechaCambio).max(Comparator.naturalOrder()); }
         @Override public List<TiempoCategoria> tiempoPromedio(LocalDateTime d, LocalDateTime h) { return List.of(); }
+        @Override public List<MovimientoCaso> listarDetalle(int id) {
+            return listarPorReporte(id).stream().map(h -> new MovimientoCaso(h.estadoNuevo(), h.fechaCambio(), h.usuarioId() == null ? null : "Usuario " + h.usuarioId(), h.comentario())).toList();
+        }
     }
 
     static final class FakeCategoriaDAO implements CategoriaDAO {

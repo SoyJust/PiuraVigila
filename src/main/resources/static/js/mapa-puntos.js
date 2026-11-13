@@ -19,6 +19,13 @@
     caja.appendChild(document.createTextNode(li.dataset.categoria + ' · ' + li.dataset.zona));
     caja.appendChild(document.createElement('br'));
     caja.appendChild(document.createTextNode('Estado: ' + li.dataset.estado));
+    if (li.dataset.codigo) { // v1.1 · abre el detalle del caso (foto e historial)
+      caja.appendChild(document.createElement('br'));
+      var ver = document.createElement('a');
+      ver.href = '/panel/caso?codigo=' + encodeURIComponent(li.dataset.codigo);
+      ver.textContent = 'Ver caso';
+      caja.appendChild(ver);
+    }
     punto.bindPopup(caja);
     limites.push([lat, lng]);
   });

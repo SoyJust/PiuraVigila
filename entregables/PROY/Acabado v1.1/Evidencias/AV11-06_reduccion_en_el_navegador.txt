@@ -1,0 +1,5 @@
+Reducción de la foto en el navegador antes de enviarla (Chrome/Edge, página /reportar) · 13/11/2026
+Se simuló una foto de 4000 x 3000 elegida en el campo «Foto del problema»:
+  foto original: 0.71 MB · foto que se envía: 0.13 MB (JPEG, 1600 px de lado mayor)
+  vista previa visible: sí · mensaje: «Foto lista: 0.13 MB (antes 0.71 MB)»
+  violaciones de CSP: 0 (img-src permite blob: solo para la vista previa)

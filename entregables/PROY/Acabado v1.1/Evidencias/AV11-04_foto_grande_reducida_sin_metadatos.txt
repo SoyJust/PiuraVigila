@@ -1,0 +1,7 @@
+Foto grande con metadatos enviada sin JavaScript (como un celular antiguo) Â· 13/11/2026
+
+envÃ­o:      PR-2026-0060
+original:   4000 x 3000 · 1253 KB · con EXIF (modelo del teléfono y texto «GPS ... casa del vecino»)
+guardada:   1600 x 1200 · 255 KB (80 % menos) · EXIF: no · «TelefonoDePrueba»: no · «casa del vecino»: no
+reenvÃ­o:    Esta misma foto ya se enviÃ³ hace poco. Toma una foto nueva del problema.
+limpieza hecha
