@@ -22,6 +22,7 @@
    <span class="paso-nombre" th:text="${p.estado().etiqueta()}"></span>
    <span class="paso-fecha" th:text="${p.alcanzado()} ? ${#temporals.format(p.fecha(),'dd/MM/yyyy HH:mm')} : 'Pendiente'"></span>
    <span class="paso-actual" th:if="${p.actual()}">Estado actual</span>
+   <span class="comentario-paso" th:if="${p.comentario()}" th:text="'Municipalidad: «' + ${p.comentario()} + '»'"></span>
   </li>
  </ol>
 </th:block>

@@ -16,7 +16,7 @@
 <!-- ===== Resumen de gestión (R01 a R03) ===== -->
 <div class="card" th:if="${verResumen}">
  <div class="encabezado-card"><h2>Resumen de gestión</h2>
-  <a th:href="@{/panel/exportar(desde=${desde},hasta=${hasta})}" class="boton sec">Descargar zonas en Excel</a></div>
+  <a th:href="@{/panel/exportar(desde=${desde},hasta=${hasta})}" class="boton sec">Descargar reporte en Excel</a></div>
  <form method="get" th:action="@{/panel}" class="filtros"><input type="hidden" name="resumen" value="true">
   <div><label for="desde">Desde</label><input id="desde" type="date" name="desde" th:value="${desde}"></div>
   <div><label for="hasta">Hasta</label><input id="hasta" type="date" name="hasta" th:value="${hasta}"></div>
@@ -56,7 +56,7 @@
 <!-- ===== Casos ===== -->
 <div class="card" th:unless="${verResumen}">
  <div class="encabezado-card"><h2>Casos</h2>
-  <span class="mut" th:text="${total} + (${total == 1} ? ' caso' : ' casos') + (${filtrado} ? ' con estos filtros' : '')"></span></div>
+  <span class="mut"><span th:text="${total} + (${total == 1} ? ' caso' : ' casos') + (${filtrado} ? ' con estos filtros' : '')"></span> · <a th:href="@{/panel/exportar}">Descargar Excel (últimos 30 días)</a></span></div>
  <form method="get" th:action="@{/panel}" class="filtros">
   <div><label for="zonaId">Distrito</label><select id="zonaId" name="zonaId"><option value="">Todos</option>
    <option th:each="z : ${zonas}" th:value="${z.zonaId()}" th:text="${z.nombre()}" th:selected="${fzona != null and z.zonaId() == fzona}"></option></select></div>
@@ -75,7 +75,7 @@
 
  <div class="tabla" th:unless="${#lists.isEmpty(filas)}"><table class="tabla-casos"><thead><tr><th>Código</th><th>Problema</th><th>Descripción</th><th>Estado</th><th title="Reportes de otros vecinos unidos a este caso">Vinc.</th><th>Ubicación</th><th>Cambiar estado</th></tr></thead><tbody>
   <tr th:each="f : ${filas}">
-   <td class="principal"><span class="codigo-caso" th:text="${f.caso().codigoSeguimiento()}"></span><span class="fecha" th:text="${#temporals.format(f.caso().fechaRegistro(),'dd/MM/yyyy HH:mm')}"></span></td>
+   <td class="principal"><a class="codigo-caso" th:href="@{/panel/caso(codigo=${f.caso().codigoSeguimiento()})}" th:text="${f.caso().codigoSeguimiento()}" title="Ver detalle, foto e historial"></a><span class="fecha" th:text="${#temporals.format(f.caso().fechaRegistro(),'dd/MM/yyyy HH:mm')}"></span></td>
    <td class="sin-etiqueta" data-label="Problema"><span th:text="${f.categoria()}"></span><span class="sub" th:text="${f.zona()}"></span></td>
    <td class="sin-etiqueta" data-label="Descripción"><p class="desc" th:text="${f.caso().descripcion()}" th:title="${f.caso().descripcion()}"></p></td>
    <td class="compacta" data-label="Estado"><span class="badge" th:classappend="'est-' + ${f.caso().estado().name().toLowerCase()}" th:text="${f.caso().estado().etiqueta()}"></span></td>

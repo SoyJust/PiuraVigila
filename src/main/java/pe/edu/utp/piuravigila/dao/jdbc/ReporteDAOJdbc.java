@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import pe.edu.utp.piuravigila.dao.ReporteDAO;
 import pe.edu.utp.piuravigila.dto.ConteoZona;
+import pe.edu.utp.piuravigila.dto.FilaExportacion;
 import pe.edu.utp.piuravigila.dto.PuntoReporte;
 import pe.edu.utp.piuravigila.model.*;
 
@@ -54,6 +55,11 @@ public class ReporteDAOJdbc implements ReporteDAO {
 
     @Override public Optional<Reporte> buscarPorId(int id) {
         return jdbc.query("SELECT " + COLUMNAS + " FROM reporte WHERE reporte_id = ?", MAPEO, id).stream().findFirst();
+    }
+
+    /** pg_advisory_xact_lock se libera solo al terminar la transacción (commit o rollback). */
+    @Override public void bloquear(String clave) {
+        jdbc.query("SELECT pg_advisory_xact_lock(hashtext(?))", rs -> null, clave);
     }
 
     @Override public Optional<Reporte> buscarCasoAbierto(int categoriaId, int zonaId) {
@@ -112,6 +118,31 @@ public class ReporteDAOJdbc implements ReporteDAO {
                 + "WHERE r.fecha_registro >= ? AND r.fecha_registro < ? GROUP BY z.nombre ORDER BY reportes DESC",
                 (rs, n) -> new ConteoZona(rs.getString("zona"), rs.getInt("reportes")),
                 Timestamp.valueOf(desde), Timestamp.valueOf(hasta));
+    }
+
+    @Override public List<Reporte> listarVinculados(int casoId) {
+        return jdbc.query("SELECT " + COLUMNAS + " FROM reporte WHERE reporte_original_id = ? ORDER BY fecha_registro", MAPEO, casoId);
+    }
+
+    @Override public List<FilaExportacion> casosParaExportar(LocalDateTime desde, LocalDateTime hasta) {
+        return jdbc.query("SELECT r.codigo_seguimiento, r.fecha_registro, c.nombre AS categoria, z.nombre AS zona, r.estado, "
+                + "(SELECT COUNT(*) FROM reporte v WHERE v.reporte_original_id = r.reporte_id) AS vinculados, "
+                + "(SELECT MAX(h.fecha_cambio) FROM historial_estado h WHERE h.reporte_id = r.reporte_id) AS ultima, "
+                + "(SELECT MIN(h.fecha_cambio) FROM historial_estado h WHERE h.reporte_id = r.reporte_id AND h.estado_nuevo = 'Atendido') AS atendido, "
+                + "r.descripcion FROM reporte r JOIN categoria c ON c.categoria_id = r.categoria_id JOIN zona z ON z.zona_id = r.zona_id "
+                + "WHERE r.reporte_original_id IS NULL AND r.fecha_registro >= ? AND r.fecha_registro < ? ORDER BY r.fecha_registro DESC LIMIT 20000",
+                (rs, n) -> new FilaExportacion(rs.getString("codigo_seguimiento"), rs.getTimestamp("fecha_registro").toLocalDateTime(),
+                        rs.getString("categoria"), rs.getString("zona"), rs.getString("estado"), rs.getInt("vinculados"),
+                        rs.getTimestamp("ultima") == null ? null : rs.getTimestamp("ultima").toLocalDateTime(),
+                        rs.getTimestamp("atendido") == null ? null : rs.getTimestamp("atendido").toLocalDateTime(),
+                        rs.getString("descripcion")),
+                Timestamp.valueOf(desde), Timestamp.valueOf(hasta));
+    }
+
+    @Override public List<String> fotosDeCasosAtendidosAntesDe(LocalDateTime limite) {
+        return jdbc.queryForList("SELECT r.foto_url FROM reporte r JOIN reporte o ON o.reporte_id = COALESCE(r.reporte_original_id, r.reporte_id) "
+                + "WHERE o.estado = 'Atendido' AND (SELECT MIN(h.fecha_cambio) FROM historial_estado h "
+                + "WHERE h.reporte_id = o.reporte_id AND h.estado_nuevo = 'Atendido') < ?", String.class, Timestamp.valueOf(limite));
     }
 
     @Override public List<PuntoReporte> puntosPeriodo(LocalDateTime desde, LocalDateTime hasta) {
