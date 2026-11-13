@@ -69,7 +69,8 @@ CREATE TABLE reporte (
         REFERENCES zona(zona_id),
     CONSTRAINT fk_reporte_original FOREIGN KEY (reporte_original_id)
         REFERENCES reporte(reporte_id),
-    CONSTRAINT ck_reporte_estado CHECK (estado IN ('Recibido','En proceso','Atendido')),
+    -- v1.2: 'Descartado' = reporte falso, de prueba o que no corresponde a la vía pública (estado final, con motivo)
+    CONSTRAINT ck_reporte_estado CHECK (estado IN ('Recibido','En proceso','Atendido','Descartado')),
     -- Original: código con formato PR-AAAA-####. Vinculado: sin código propio.
     CONSTRAINT ck_reporte_codigo CHECK (
         (reporte_original_id IS NULL AND codigo_seguimiento IS NOT NULL
@@ -101,7 +102,9 @@ CREATE TABLE historial_estado (
         REFERENCES reporte(reporte_id),
     CONSTRAINT fk_historial_usuario FOREIGN KEY (usuario_id)
         REFERENCES usuario_municipal(usuario_id),
-    CONSTRAINT ck_historial_estado CHECK (estado_nuevo IN ('Recibido','En proceso','Atendido')),
+    CONSTRAINT ck_historial_estado CHECK (estado_nuevo IN ('Recibido','En proceso','Atendido','Descartado')),
+    -- v1.2: descartar exige un motivo de al menos 10 caracteres (lo ve el vecino en la consulta)
+    CONSTRAINT ck_historial_motivo CHECK (estado_nuevo <> 'Descartado' OR length(btrim(coalesce(comentario, ''))) >= 10),
     -- S03: todo cambio hecho por personal debe traer responsable; el NULL solo se permite
     -- para el 'Recibido' automático que genera el sistema al crear el reporte.
     CONSTRAINT ck_historial_responsable CHECK (usuario_id IS NOT NULL OR estado_nuevo = 'Recibido')

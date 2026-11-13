@@ -1,0 +1,7 @@
+Formulario de descarte en el navegador (Edge, detalle del caso) · 13/11/2026
+Al elegir «Descartado» en «Nuevo estado»:
+  comentario obligatorio: sí (required, mínimo 10 caracteres)
+  etiqueta: «(obligatorio: motivo del descarte)» · aviso visible: sí
+  errores en la consola del navegador: ninguno
+
+Tildes: el motivo «ningún vía» llega a la base como UTF-8 correcto (bytes 6e696e67 c3ba 6e20 76 c3ad 61).

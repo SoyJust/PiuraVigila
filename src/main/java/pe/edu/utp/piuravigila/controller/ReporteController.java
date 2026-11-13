@@ -46,11 +46,13 @@ public class ReporteController {
         int recibidos = service.totalCasos(null, null, EstadoReporte.RECIBIDO);
         int enProceso = service.totalCasos(null, null, EstadoReporte.EN_PROCESO);
         int atendidos = service.totalCasos(null, null, EstadoReporte.ATENDIDO);
-        int total = recibidos + enProceso + atendidos;
+        int descartados = service.totalCasos(null, null, EstadoReporte.DESCARTADO);
+        int total = recibidos + enProceso + atendidos + descartados;
+        int validos = total - descartados; // v1.2 · el % resuelto no cuenta los reportes descartados
         m.addAttribute("total", total);
         m.addAttribute("atendidos", atendidos);
         m.addAttribute("enAtencion", recibidos + enProceso);
-        m.addAttribute("pctAtendidos", total == 0 ? 0 : Math.round(atendidos * 100.0 / total));
+        m.addAttribute("pctAtendidos", validos == 0 ? 0 : Math.round(atendidos * 100.0 / validos));
         m.addAttribute("zonas", service.zonas().size());
         m.addAttribute("categorias", service.categoriasActivas());
         return "inicio";

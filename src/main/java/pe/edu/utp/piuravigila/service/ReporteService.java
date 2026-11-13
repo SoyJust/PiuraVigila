@@ -105,7 +105,13 @@ public class ReporteService {
     /** Los tres estados en orden. Solo se expone el estado y la fecha: el responsable del cambio no se muestra al ciudadano. */
     private static List<PasoEstado> pasos(Reporte caso, List<HistorialEstado> historial) {
         List<PasoEstado> pasos = new ArrayList<>();
-        for (EstadoReporte e : EstadoReporte.values()) {
+        // v1.2 · un caso descartado muestra Recibido → (En proceso, si llegó) → Descartado; los demás, los tres estados normales
+        List<EstadoReporte> ruta = caso.estado() != EstadoReporte.DESCARTADO
+                ? List.of(EstadoReporte.RECIBIDO, EstadoReporte.EN_PROCESO, EstadoReporte.ATENDIDO)
+                : historial.stream().anyMatch(h -> h.estadoNuevo() == EstadoReporte.EN_PROCESO)
+                        ? List.of(EstadoReporte.RECIBIDO, EstadoReporte.EN_PROCESO, EstadoReporte.DESCARTADO)
+                        : List.of(EstadoReporte.RECIBIDO, EstadoReporte.DESCARTADO);
+        for (EstadoReporte e : ruta) {
             LocalDateTime fecha = historial.stream().filter(h -> h.estadoNuevo() == e)
                     .map(HistorialEstado::fechaCambio).min(Comparator.naturalOrder()).orElse(null);
             if (fecha == null && e == EstadoReporte.RECIBIDO) fecha = caso.fechaRegistro(); // casos sin historial
@@ -136,7 +142,10 @@ public class ReporteService {
         reporteDAO.bloquear("reporte:" + reporteId); // v1.1 · dos operadores a la vez: el segundo ve el estado ya cambiado
         Reporte r = reporteDAO.buscarPorId(reporteId).orElseThrow(() -> new IllegalArgumentException("Reporte inexistente."));
         if (!r.esCasoOriginal()) throw new IllegalStateException("Solo los casos cambian de estado; el vinculado usa el del caso.");
-        if (!r.estado().puedePasarA(nuevo)) throw new IllegalStateException("El estado solo avanza (Recibido → En proceso → Atendido).");
+        if (!r.estado().puedePasarA(nuevo))
+            throw new IllegalStateException("El estado solo avanza (Recibido → En proceso → Atendido); un caso abierto también puede descartarse.");
+        if (nuevo.exigeMotivo() && (nota == null || nota.length() < EstadoReporte.MIN_MOTIVO))
+            throw new IllegalArgumentException("Para descartar el caso escribe el motivo (al menos " + EstadoReporte.MIN_MOTIVO + " caracteres): lo verá el vecino.");
         reporteDAO.actualizarEstado(reporteId, nuevo);
         historialDAO.registrar(new HistorialEstado(0, reporteId, usuario.usuarioId(), nuevo, LocalDateTime.now(reloj), nota));
         LOG.info("Estado actualizado reporte={} nuevo={} usuarioId={}", reporteId, nuevo.etiqueta(), usuario.usuarioId());

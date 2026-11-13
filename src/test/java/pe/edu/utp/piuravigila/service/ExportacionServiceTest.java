@@ -30,7 +30,7 @@ class ExportacionServiceTest {
         dao = mock(ReporteDAO.class);
         when(dashboard.zonasCriticas(D, H)).thenReturn(List.of(new ConteoZona("=1+1", 4), new ConteoZona("Castilla", 2)));
         when(dashboard.resumenGestion(D, H)).thenReturn(new ResumenGestion(
-                Map.of(EstadoReporte.RECIBIDO, 1, EstadoReporte.EN_PROCESO, 1, EstadoReporte.ATENDIDO, 2), 3, 75.0, 4.0, 10.0, false));
+                Map.of(EstadoReporte.RECIBIDO, 1, EstadoReporte.EN_PROCESO, 1, EstadoReporte.ATENDIDO, 2, EstadoReporte.DESCARTADO, 1), 3, 75.0, 4.0, 10.0, false));
         when(dashboard.tiemposAtencion(D, H)).thenReturn(List.of(new TiempoCategoria("Bache en la vía", 2, 3.5)));
         LocalDateTime t = LocalDateTime.of(2026, 10, 2, 9, 0);
         when(dao.casosParaExportar(any(), any())).thenReturn(List.of(
@@ -78,7 +78,7 @@ class ExportacionServiceTest {
         }
     }
 
-    @Test @DisplayName("TC-X04 · Distritos suma el total y trae un gráfico de barras; Resumen calcula el % atendido")
+    @Test @DisplayName("TC-X04 · Distritos suma el total y trae un gráfico de barras; Resumen cuenta descartados y calcula el % atendido sin ellos")
     void distritos_y_resumen() throws Exception {
         try (var l = abrir(svc.libro(D, H, false))) {
             var d = l.getSheet("Distritos");
@@ -86,8 +86,9 @@ class ExportacionServiceTest {
             assertEquals(6.0, d.getRow(7).getCell(1).getNumericCellValue());
             assertEquals(1, d.getDrawingPatriarch().getCharts().size());
             var r = l.getSheet("Resumen");
-            assertEquals(4.0, r.getRow(5).getCell(1).getNumericCellValue());   // casos del periodo
-            assertEquals(50.0, r.getRow(9).getCell(1).getNumericCellValue());  // 2 de 4 atendidos
+            assertEquals(5.0, r.getRow(5).getCell(1).getNumericCellValue());   // casos del periodo (incluye 1 descartado)
+            assertEquals(1.0, r.getRow(9).getCell(1).getNumericCellValue());   // descartados
+            assertEquals(50.0, r.getRow(10).getCell(1).getNumericCellValue()); // 2 de 4 no descartados
             assertTrue(r.getRow(1).getCell(0).getStringCellValue().contains("01/10/2026"));
         }
     }

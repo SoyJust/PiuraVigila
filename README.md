@@ -130,7 +130,7 @@ Las contraseñas nunca se guardan en el código ni en el repositorio.
 ## Pruebas
 
 ```powershell
-mvn test                     # 109 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
+mvn test                     # 116 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
 ```
 
 Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios, incluida la línea de tiempo de la consulta de estado y la gestión de usuarios (`UsuarioServiceTest`, con DAOs simulados). Los controladores se prueban con MockMvc: el panel (sesión, token CSRF, rol de administrador y R02) en `PanelControllerTest`, y el formulario público y la consulta en `ReporteControllerTest`.
@@ -140,7 +140,7 @@ Pruebas de integración con PostgreSQL (`ReporteDAOJdbcIT`, `UsuarioMunicipalDAO
 ```powershell
 psql -U postgres -c "CREATE DATABASE piuravigila_test ENCODING 'UTF8' TEMPLATE template0;"
 $env:RUN_DB_TESTS="true"; $env:PIURA_TEST_DB_PASSWORD="<contraseña>"   # también PIURA_TEST_DB_URL y PIURA_TEST_DB_USER
-mvn verify                   # + 16 pruebas de integración y target/site/jacoco-it/index.html
+mvn verify                   # + 20 pruebas de integración y target/site/jacoco-it/index.html
 ```
 
 El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechable y ejecuta ambas. Evidencias de la Semana 13 en `entregables/PROY/Semana 13`.
@@ -149,6 +149,7 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 
 - Registro de incidencias con categoría, zona (distrito), descripción (máx. 300), foto JPG/PNG real (máx. 2 MB y 20 megapíxeles), ubicación opcional (se marca en el mapa o con «Usar mi ubicación») y verificación aritmética.
 - Código de seguimiento `PR-AAAA-####` y consulta pública de estado con línea de tiempo (Recibido → En proceso → Atendido) y la fecha de cada paso.
+- Estado «Descartado» (v1.2) para reportes falsos, de prueba o que no son de la vía pública: solo desde un caso abierto, con motivo obligatorio (también en la base de datos) que el vecino ve; no cuenta como atendido ni como zona crítica.
 - Detección de posibles duplicados y vinculación a un caso original.
 - Control anti-spam en capas: suma de verificación; 60 s entre reportes y máximo 3 por día por dispositivo (también con envíos simultáneos, gracias a un bloqueo en PostgreSQL); 20 envíos cada 10 min por IP; la misma foto exacta no se acepta dos veces en 24 h. Límite de 60 consultas cada 10 min por IP y bloqueo temporal tras 5 contraseñas incorrectas.
 - Fotos reducidas a 1600 px en JPEG en el celular y en el servidor (unos 250 KB en lugar de hasta 2 MB), sin metadatos EXIF (ubicación GPS) y enderezadas. Solo las ve el personal. Se borran 365 días después de atendido el caso (`piuravigila.foto.retencion-dias`).
@@ -167,7 +168,6 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 - El código `PR-AAAA-####` usa 4 dígitos; pasado el 9999 se truncaría.
 - La foto se guarda en disco antes de confirmar la transacción; si falla la base de datos puede quedar un archivo huérfano.
 - Los límites por IP y las huellas de fotos viven en memoria: se reinician si se reinicia la aplicación y no se comparten entre varios servidores.
-- Un reporte falso solo puede terminar como «Atendido»: falta un estado «Descartado» (pendiente de consultar con el docente).
 - Los usuarios `admin` y `operador` quedan con hash pendiente en el seed: sin su variable de entorno no se puede iniciar sesión con ese usuario. Las demás cuentas se crean desde «Usuarios».
 - No hay recuperación de contraseña por correo (el sistema no guarda correos): la restablece el administrador.
 - El selector de ubicación y el mapa del panel cargan Leaflet y los mosaicos de OpenStreetMap por internet; sin conexión no se dibujan (el formulario sigue funcionando, la ubicación es opcional).
@@ -184,6 +184,7 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 | PROY · Semana 14 | 14 | `entregables/PROY/Semana 14` | Pruebas de seguridad (70 %): reporte, hallazgos, ZAP pasivo, SCA y evidencias |
 | PROY · Acabado v1.0 | 14 | `entregables/PROY/Acabado v1.0` | Interfaz final, gestión de usuarios, 10 distritos, datos de demostración y capturas antes/después |
 | PROY · Acabado v1.1 | 14 | `entregables/PROY/Acabado v1.1` | Detalle del caso con fotos, Excel completo, concurrencia y anti-spam corregidos, respuestas a las preguntas del docente |
+| PROY · Acabado v1.2 | 14 | `entregables/PROY/Acabado v1.2` | Estado «Descartado» con motivo obligatorio |
 
 Cada carpeta tiene su `LEEME.txt` con el contenido y las correcciones.
 

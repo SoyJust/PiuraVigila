@@ -66,14 +66,16 @@ public class ExportacionService {
         int rec = r.casosPorEstado().getOrDefault(EstadoReporte.RECIBIDO, 0);
         int pro = r.casosPorEstado().getOrDefault(EstadoReporte.EN_PROCESO, 0);
         int ate = r.casosPorEstado().getOrDefault(EstadoReporte.ATENDIDO, 0);
-        int total = rec + pro + ate;
+        int des = r.casosPorEstado().getOrDefault(EstadoReporte.DESCARTADO, 0);
+        int total = rec + pro + ate + des, validos = total - des;
         fila(h, 4, e.cabecera, "Indicador", "Valor");
         Object[][] datos = {
                 {"Casos registrados en el periodo", total},
                 {"Recibidos (por atender)", rec},
                 {"En proceso", pro},
                 {"Atendidos", ate},
-                {"Casos atendidos (%)", total == 0 ? 0.0 : ate * 100.0 / total},
+                {"Descartados (reportes falsos, de prueba o fuera de la vía pública)", des},
+                {"Casos atendidos (% de los no descartados)", validos == 0 ? 0.0 : ate * 100.0 / validos},
                 {"Reportes de vecinos unidos a un caso (duplicados evitados)", r.duplicadosEvitados()},
                 {"Casos con estado actualizado (%)", r.pctActualizados()},
                 {"Reportes en «Otra» del mes (%) · umbral " + (int) r.umbralOtra() + " %", r.pctOtraMes()},
@@ -109,7 +111,7 @@ public class ExportacionService {
             numero(row, 5, f.vinculados(), e.entero);
             fecha(row, 6, f.ultimaActualizacion() == null ? f.fechaRegistro() : f.ultimaActualizacion(), e.fecha);
             if (f.fechaAtendido() != null) numero(row, 7, dias(f.fechaRegistro(), f.fechaAtendido()), e.decimal);
-            else numero(row, 8, dias(f.fechaRegistro(), ahora), e.decimal);
+            else if (!"Descartado".equals(f.estado())) numero(row, 8, dias(f.fechaRegistro(), ahora), e.decimal); // cerrado: sin días abierto
             texto(row, 9, f.descripcion(), e.ajustado);
         }
         if (filas.isEmpty()) texto(h.createRow(5), 0, "No hay casos registrados en este periodo.", e.nota);
