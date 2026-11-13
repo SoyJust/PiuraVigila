@@ -2,7 +2,7 @@
 <main>
 <div th:replace="~{fragments :: panelnav('mapa')}"></div>
 <div class="card"><h2 class="mt-0">Mapa de zonas críticas</h2>
- <p class="mut">Reportes por distrito en el periodo elegido, incluidos los vinculados. El distrito con más reportes se marca en rojo.</p>
+ <p class="mut">Reportes por distrito en el periodo elegido, incluidos los vinculados (sin los descartados). El distrito con más reportes se marca en rojo.</p>
  <form method="get" th:action="@{/panel/mapa}" class="filtros">
   <div><label for="periodo">Periodo</label><select id="periodo" name="periodo">
    <option value="7d" th:selected="${periodo == '7d'}">Últimos 7 días</option>
@@ -22,7 +22,7 @@
  <p class="mut" th:if="${#lists.isEmpty(puntos)}">Ningún reporte de este periodo tiene ubicación marcada.</p>
  <p class="mut" th:unless="${#lists.isEmpty(puntos)}">Cada punto es un reporte con ubicación marcada (<span th:text="${#lists.size(puntos)}"></span> en el periodo). Toca un punto para ver el detalle.</p>
  <div id="mapa-puntos" class="selector-mapa" role="application" aria-label="Mapa de reportes con ubicación"></div>
- <ul class="leyenda"><li><span class="punto p-recibido"></span>Recibido</li><li><span class="punto p-en_proceso"></span>En proceso</li><li><span class="punto p-atendido"></span>Atendido</li></ul>
+ <ul class="leyenda"><li><span class="punto p-recibido"></span>Recibido</li><li><span class="punto p-en_proceso"></span>En proceso</li><li><span class="punto p-atendido"></span>Atendido</li><li><span class="punto p-descartado"></span>Descartado</li></ul>
  <ul id="datos-puntos" hidden>
   <li th:each="p : ${puntos}" th:data-lat="${p.lat()}" th:data-lng="${p.lng()}" th:data-zona="${p.zona()}" th:data-categoria="${p.categoria()}" th:data-estado="${p.estado()}" th:data-codigo="${p.codigo()}"></li>
  </ul>

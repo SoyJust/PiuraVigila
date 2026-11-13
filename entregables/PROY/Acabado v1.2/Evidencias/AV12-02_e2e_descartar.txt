@@ -1,0 +1,14 @@
+Prueba de punta a punta del estado «Descartado» · 13/11/2026 · app en localhost:8080
+(usuario temporal creado y borrado; el caso usado vuelve a «Recibido» al terminar)
+
+1. tarjetas del panel:              13 por atender (Recibido) 11 en proceso 35 atendidos 3 descartados 62 casos en total
+   la lista rápida no ofrece «Descartado» (exige motivo): 1 opciones en la tabla; enlaces «Descartar…»: 17
+2. detalle PR-2026-0062 ofrece:      En proceso Descartado 
+3. descartar sin motivo:            http://localhost:8080/panel/caso?codigo=PR-2026-0062 → Para descartar el caso escribe el motivo (al menos 10 caracteres): lo verá el vecino.
+   estado en la BD:                 Recibido
+4. descartar con motivo:            http://localhost:8080/panel/caso?codigo=PR-2026-0062 → Descartado
+   el detalle ya no permite cambios: El caso fue descartado y está cerrado; ya no cambia de estado
+5. el vecino ve:                    estado=Descartado · Motivo: «Prueba E2E: la foto no muestra ningún problema en la vía pública.»
+   pasos de la línea de tiempo:     Recibido Descartado 
+6. ¿un nuevo reporte se une al descartado? buscarCasoAbierto lo ignora (TC-D06, TC-D08)
+limpieza: caso PR-2026-0062 vuelto a Recibido y usuario de prueba borrado

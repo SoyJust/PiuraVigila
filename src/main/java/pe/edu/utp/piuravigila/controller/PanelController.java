@@ -115,6 +115,7 @@ public class PanelController {
         m.addAttribute("kRecibido", reportes.totalCasos(null, null, EstadoReporte.RECIBIDO));
         m.addAttribute("kProceso", reportes.totalCasos(null, null, EstadoReporte.EN_PROCESO));
         m.addAttribute("kAtendido", reportes.totalCasos(null, null, EstadoReporte.ATENDIDO));
+        m.addAttribute("kDescartado", reportes.totalCasos(null, null, EstadoReporte.DESCARTADO));
         m.addAttribute("filtrado", zonaId != null || categoriaId != null || filtroEstado != null);
         if (resumen) {
             LocalDate h = hasta != null ? hasta : LocalDate.now(reloj);

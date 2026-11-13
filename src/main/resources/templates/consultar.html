@@ -18,11 +18,11 @@
  </dl>
  <h2 class="titulo-seguimiento">Seguimiento</h2>
  <ol class="pasos">
-  <li th:each="p : ${consulta.pasos()}" th:classappend="${p.alcanzado()} ? (${p.actual()} ? 'hecho actual' : 'hecho') : 'pendiente'">
+  <li th:each="p : ${consulta.pasos()}" th:class="${(p.alcanzado() ? (p.actual() ? 'hecho actual' : 'hecho') : 'pendiente') + (p.estado().name() == 'DESCARTADO' ? ' descartado' : '')}">
    <span class="paso-nombre" th:text="${p.estado().etiqueta()}"></span>
    <span class="paso-fecha" th:text="${p.alcanzado()} ? ${#temporals.format(p.fecha(),'dd/MM/yyyy HH:mm')} : 'Pendiente'"></span>
    <span class="paso-actual" th:if="${p.actual()}">Estado actual</span>
-   <span class="comentario-paso" th:if="${p.comentario()}" th:text="'Municipalidad: «' + ${p.comentario()} + '»'"></span>
+   <span class="comentario-paso" th:if="${p.comentario()}" th:text="(${p.estado().name() == 'DESCARTADO'} ? 'Motivo: «' : 'Municipalidad: «') + ${p.comentario()} + '»'"></span>
   </li>
  </ol>
 </th:block>
