@@ -30,14 +30,15 @@
 <div class="detalle-rejilla">
  <div class="card">
   <h2 class="mt-0">Cambiar estado</h2>
-  <p class="mut" th:if="${c.estado().name() == 'ATENDIDO'}">El caso está atendido y cerrado; ya no cambia de estado.</p>
-  <form method="post" th:action="@{/panel/estado}" th:unless="${c.estado().name() == 'ATENDIDO'}">
+  <p class="mut" th:unless="${c.estado().estaAbierto()}" th:text="${c.estado().name() == 'DESCARTADO'} ? 'El caso fue descartado y está cerrado; ya no cambia de estado.' : 'El caso está atendido y cerrado; ya no cambia de estado.'"></p>
+  <form method="post" th:action="@{/panel/estado}" th:if="${c.estado().estaAbierto()}" id="form-estado">
    <input type="hidden" name="_csrf" th:value="${csrf}"><input type="hidden" name="reporteId" th:value="${c.reporteId()}"><input type="hidden" name="volver" th:value="${c.codigoSeguimiento()}">
    <label for="nuevo">Nuevo estado</label>
    <select id="nuevo" name="nuevo" class="ancho-total"><option th:each="e : ${estados}" th:if="${c.estado().puedePasarA(e)}" th:value="${e.etiqueta()}" th:text="${e.etiqueta()}"></option></select>
-   <label for="comentario">Comentario para el vecino <span class="mut">(opcional)</span></label>
+   <label for="comentario">Comentario para el vecino <span class="mut" id="com-opcional">(opcional)</span></label>
    <textarea id="comentario" name="comentario" rows="3" th:attr="maxlength=${maxComentario}" placeholder="Ejemplo: Se programó la cuadrilla para el lunes." aria-describedby="pista-com"></textarea>
    <small class="pista" id="pista-com" th:text="'Lo verá quien consulte el código. No escribas datos personales. Máximo ' + ${maxComentario} + ' caracteres.'"></small>
+   <p class="aviso aviso-descarte" id="aviso-descarte" hidden>Descartar cierra el caso: úsalo solo si el reporte es falso, de prueba o no corresponde a la vía pública. El motivo es obligatorio y el vecino lo verá.</p>
    <p class="acciones"><button type="submit">Guardar cambio</button></p>
   </form>
  </div>

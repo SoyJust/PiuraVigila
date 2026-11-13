@@ -5,7 +5,7 @@
 
   var mapa = L.map('mapa-puntos').setView([-5.1945, -80.6328], 12);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(mapa);
-  var colores = { 'Recibido': '#2f5d8a', 'En proceso': '#c98a00', 'Atendido': '#1b7a47' };
+  var colores = { 'Recibido': '#2f5d8a', 'En proceso': '#c98a00', 'Atendido': '#1b7a47', 'Descartado': '#7a8794' };
   var limites = [];
   document.querySelectorAll('#datos-puntos li').forEach(function (li) {
     var lat = parseFloat(li.dataset.lat), lng = parseFloat(li.dataset.lng);

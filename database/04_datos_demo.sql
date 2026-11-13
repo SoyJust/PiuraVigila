@@ -1,6 +1,6 @@
 -- ============================================================
 -- PiuraVigila · Datos de demostración (ficticios)
--- 59 casos + 13 reportes vinculados repartidos en los 10 distritos (últimos 5 meses), con estados,
+-- 62 casos (3 descartados) + 13 reportes vinculados en los 10 distritos (últimos 5 meses), con estados,
 -- historial y coordenadas aproximadas de Piura. Las fechas son relativas a HOY,
 -- así que el mapa y el panel se ven "vivos" en cualquier momento.
 --
@@ -71,6 +71,25 @@ BEGIN
     INSERT INTO reporte(reporte_original_id, categoria_id, zona_id, descripcion, foto_url, lat, lng, estado, dispositivo_id, fecha_registro)
     SELECT reporte_id, categoria_id, zona_id, p_desc, p_foto, p_lat, p_lng, 'Recibido', p_disp, v_fecha
     FROM reporte WHERE reporte_id = p_original;
+END $$;
+
+-- v1.2 · Caso descartado: se registra como Recibido y luego un administrador lo descarta con un motivo (lo ve el vecino).
+CREATE FUNCTION pg_temp.demo_descartado(
+    p_cat text, p_zona text, p_desc text, p_lat numeric, p_lng numeric,
+    p_dias numeric, p_d_descarte numeric, p_motivo text, p_disp text, p_foto text) RETURNS int
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_id int; v_adm int; v_fecha timestamp;
+    v_ahora timestamp := (now() AT TIME ZONE 'America/Lima');
+BEGIN
+    v_id := pg_temp.demo_caso(p_cat, p_zona, p_desc, p_lat, p_lng, p_dias, 'Recibido', NULL, NULL, p_disp, p_foto);
+    SELECT usuario_id INTO v_adm FROM usuario_municipal WHERE usuario = 'admin';
+    SELECT fecha_registro INTO v_fecha FROM reporte WHERE reporte_id = v_id;
+    UPDATE reporte SET estado = 'Descartado' WHERE reporte_id = v_id;
+    INSERT INTO historial_estado(reporte_id, usuario_id, estado_nuevo, fecha_cambio, comentario)
+    VALUES (v_id, COALESCE(v_adm, (SELECT MIN(usuario_id) FROM usuario_municipal)), 'Descartado',
+            LEAST(date_trunc('minute', v_fecha + make_interval(secs => (p_d_descarte * 86400)::float8)), v_ahora), p_motivo);
+    RETURN v_id;
 END $$;
 
 -- Todo en un solo bloque: si algo falla, no se inserta nada.
@@ -151,6 +170,10 @@ BEGIN
     PERFORM pg_temp.demo_caso('Sem', 'Piura',
         'Semáforo peatonal sin luz verde en el cruce del hospital; las personas cruzan sin saber cuándo.',
         -5.1938, -80.6398, 45.0, 'Atendido', 1, 4, 'demo-e19', 'fotos/demo-e19.jpg');
+    PERFORM pg_temp.demo_descartado('Otra', 'Piura',
+        'Están construyendo una casa en mi cuadra y hacen ruido todo el día, hasta en la noche.',
+        -5.1980, -80.6400, 44.0, 1.0,
+        'El ruido de una obra privada no es un problema de la vía pública. Corresponde a Fiscalización de Obras Privadas de la municipalidad.', 'demo-x01', 'fotos/demo-x01.jpg');
     e20 := pg_temp.demo_caso('Fuga', 'Tambo Grande',
         'Desagüe colapsado en la calle del mercado; las aguas negras llegan hasta los puestos de venta.',
         -4.9262, -80.3452, 42.0, 'En proceso', 6, NULL, 'demo-e20', 'fotos/demo-e20.jpg');
@@ -196,6 +219,10 @@ BEGIN
     PERFORM pg_temp.demo_caso('Luminaria', 'Catacaos',
         'Alumbrado público apagado en toda la calle de la iglesia. Los vecinos piden revisar el circuito porque ya van varias noches a oscuras.',
         -5.2681, -80.6762, 17.4, 'Atendido', 2, 5, 'demo-d08', 'fotos/demo-08.jpg');
+    PERFORM pg_temp.demo_descartado('Bache', 'Castilla',
+        'prueba prueba asdf',
+        -5.2010, -80.6150, 17.0, 0.3,
+        'Reporte de prueba: la descripción y la foto no muestran ningún problema en la vía.', 'demo-x02', 'fotos/demo-x02.jpg');
     PERFORM pg_temp.demo_caso('Luminaria', 'El Tall',
         'Postes sin luz en la carretera hacia el pueblo; de noche no se ve a los peatones.',
         -5.4102, -80.6790, 16.0, 'Recibido', NULL, NULL, 'demo-e29', 'fotos/demo-e29.jpg');
@@ -229,6 +256,10 @@ BEGIN
     PERFORM pg_temp.demo_vinculado(c10,
         'Confirmo: los cables siguen bajos y el poste cada vez más inclinado.',
         -5.1914, -80.6352, 8.0, 'demo-d13', 'fotos/demo-13.jpg');
+    PERFORM pg_temp.demo_descartado('Luminaria', 'Catacaos',
+        'El foco de la sala de mi casa no prende desde ayer.',
+        -5.2672, -80.6745, 8.0, 0.5,
+        'Es una instalación dentro de una vivienda; la municipalidad solo atiende el alumbrado público de calles y parques.', 'demo-x03', 'fotos/demo-x03.jpg');
     PERFORM pg_temp.demo_caso('Acumulaci', 'Tambo Grande',
         'Basura acumulada en la plaza después de la fiesta patronal.',
         -4.9275, -80.3435, 6.5, 'Recibido', NULL, NULL, 'demo-e32', 'fotos/demo-e32.jpg');

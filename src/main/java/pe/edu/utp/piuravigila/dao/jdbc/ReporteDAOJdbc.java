@@ -114,8 +114,10 @@ public class ReporteDAOJdbc implements ReporteDAO {
 
     // ---- R01 · R03 ----
     @Override public List<ConteoZona> reportesPorZona(LocalDateTime desde, LocalDateTime hasta) {
+        // v1.2 · los reportes descartados (y los vinculados a un caso descartado) no cuentan como zona crítica
         return jdbc.query("SELECT z.nombre AS zona, COUNT(*) AS reportes FROM reporte r JOIN zona z ON z.zona_id = r.zona_id "
-                + "WHERE r.fecha_registro >= ? AND r.fecha_registro < ? GROUP BY z.nombre ORDER BY reportes DESC",
+                + "JOIN reporte o ON o.reporte_id = COALESCE(r.reporte_original_id, r.reporte_id) "
+                + "WHERE r.fecha_registro >= ? AND r.fecha_registro < ? AND o.estado <> 'Descartado' GROUP BY z.nombre ORDER BY reportes DESC",
                 (rs, n) -> new ConteoZona(rs.getString("zona"), rs.getInt("reportes")),
                 Timestamp.valueOf(desde), Timestamp.valueOf(hasta));
     }
@@ -141,8 +143,8 @@ public class ReporteDAOJdbc implements ReporteDAO {
 
     @Override public List<String> fotosDeCasosAtendidosAntesDe(LocalDateTime limite) {
         return jdbc.queryForList("SELECT r.foto_url FROM reporte r JOIN reporte o ON o.reporte_id = COALESCE(r.reporte_original_id, r.reporte_id) "
-                + "WHERE o.estado = 'Atendido' AND (SELECT MIN(h.fecha_cambio) FROM historial_estado h "
-                + "WHERE h.reporte_id = o.reporte_id AND h.estado_nuevo = 'Atendido') < ?", String.class, Timestamp.valueOf(limite));
+                + "WHERE o.estado IN ('Atendido', 'Descartado') AND (SELECT MIN(h.fecha_cambio) FROM historial_estado h "
+                + "WHERE h.reporte_id = o.reporte_id AND h.estado_nuevo = o.estado) < ?", String.class, Timestamp.valueOf(limite));
     }
 
     @Override public List<PuntoReporte> puntosPeriodo(LocalDateTime desde, LocalDateTime hasta) {

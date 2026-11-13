@@ -38,6 +38,6 @@ public interface ReporteDAO {
     default List<Reporte> listarVinculados(int casoId) { return List.of(); }
     /** v1.1 · casos originales del periodo con nombres y fechas, para la hoja «Casos» del Excel. */
     default List<FilaExportacion> casosParaExportar(LocalDateTime desde, LocalDateTime hasta) { return List.of(); }
-    /** v1.1 · fotos (caso y vinculados) de casos atendidos antes de la fecha límite: política de retención. */
+    /** v1.1 · fotos (caso y vinculados) de casos cerrados (atendidos o descartados, v1.2) antes de la fecha límite: retención. */
     default List<String> fotosDeCasosAtendidosAntesDe(LocalDateTime limite) { return List.of(); }
 }
