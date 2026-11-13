@@ -5,6 +5,7 @@
 -- así que el mapa y el panel se ven "vivos" en cualquier momento.
 --
 -- Requisitos: haber cargado 01_schema.sql y 02_seed.sql (10 distritos) o, en una base antigua, 05_migracion_v1_0.sql.
+-- Imágenes ilustrativas opcionales para el detalle del caso: python database/generar_fotos_demo.py
 -- Uso:        psql -U postgres -d piuravigila -f database/04_datos_demo.sql
 -- Se puede ejecutar UNA sola vez (si ya hay datos demo, no inserta nada).
 -- Todo lo demo se reconoce por dispositivo_id = 'demo-...'. Para quitarlo, ver el final.
@@ -43,15 +44,17 @@ BEGIN
 
     IF p_estado IN ('En proceso', 'Atendido') THEN
         v_resp := COALESCE(CASE WHEN v_id % 2 = 0 THEN v_op ELSE v_adm END, v_op, v_adm);
-        INSERT INTO historial_estado(reporte_id, usuario_id, estado_nuevo, fecha_cambio)
+        INSERT INTO historial_estado(reporte_id, usuario_id, estado_nuevo, fecha_cambio, comentario)
         VALUES (v_id, v_resp, 'En proceso',
-                LEAST(date_trunc('minute', v_fecha + make_interval(secs => (p_d_proceso * 86400)::float8)), v_ahora));
+                LEAST(date_trunc('minute', v_fecha + make_interval(secs => (p_d_proceso * 86400)::float8)), v_ahora),
+                'Caso asignado a la cuadrilla del distrito. Se programó la inspección.');
     END IF;
     IF p_estado = 'Atendido' THEN
         v_resp := COALESCE(v_op, v_adm);
-        INSERT INTO historial_estado(reporte_id, usuario_id, estado_nuevo, fecha_cambio)
+        INSERT INTO historial_estado(reporte_id, usuario_id, estado_nuevo, fecha_cambio, comentario)
         VALUES (v_id, v_resp, 'Atendido',
-                LEAST(date_trunc('minute', v_fecha + make_interval(secs => (p_d_atendido * 86400)::float8)), v_ahora));
+                LEAST(date_trunc('minute', v_fecha + make_interval(secs => (p_d_atendido * 86400)::float8)), v_ahora),
+                'Trabajo terminado. Gracias por reportar.');
     END IF;
     RETURN v_id;
 END $$;

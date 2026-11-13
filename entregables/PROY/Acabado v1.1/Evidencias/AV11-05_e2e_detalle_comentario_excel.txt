@@ -1,0 +1,22 @@
+Prueba de punta a punta v1.1: detalle del caso, fotos, comentario visible al vecino y Excel Â· 13/11/2026
+(usuario temporal creado y borrado; contraseÃ±as aleatorias no mostradas)
+
+1. login:                          http://localhost:8080/panel
+2. detalle PR-2026-0058:            tÃ­tulo=PR-2026-0058 Â· fotos en la pÃ¡gina=2 Â· historial=1
+3. foto del caso:                  200 image/jpeg 109295 bytes
+   foto del vinculado:             200 image/jpeg
+   foto sin sesiÃ³n:                401
+   foto inexistente (id 99999):    404
+   Â¿se sirve como archivo pÃºblico? 404
+4. cambiar a En proceso con nota:  http://localhost:8080/panel/caso?codigo=PR-2026-0058
+5. el vecino ve:                   Municipalidad: Â«Prueba E2E: cuadrilla programada para el lunesÂ»
+   y no ve al responsable:         0 coincidencias de Â«Admin E2EÂ»
+   el personal ve responsable:     En proceso 13/11/2026 14:22 Â· Admin E2E
+6. comentario de 201 caracteres:   http://localhost:8080/panel/caso?codigo=PR-2026-0058 â†’ El comentario no puede superar los 200 caracteres.
+7. Excel:                          200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+   hojas: Resumen, Casos, Distritos, Tiempos de atención
+   filas en «Casos»: 32 · filtro: A5:J37 · primera: PR-2026-0059 13/11/2026 07:10 Fuga de agua o desagüe colapsado Recibido
+   gráficos en «Distritos»: 1
+   resumen: Casos registrados en el periodo = 32.0
+8. caso PR-2026-0058 devuelto a Recibido: Recibido
+limpieza: usuario de prueba borrado
