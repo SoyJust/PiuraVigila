@@ -1,0 +1,20 @@
+Envíos simultáneos desde el MISMO teléfono (misma cookie y sesión, una foto distinta en cada envío) · 13/11/2026 · app en localhost:8080
+Regla: 1 reporte cada 60 s y 3 por día por dispositivo (RF-06).
+
+ANTES del arreglo (sin bloqueo por dispositivo):
+envíos simultáneos: 5 · aceptados: 5 · guardados en BD: 5
+  envío 0: PR-2026-0060
+  envío 1: PR-2026-0062
+  envío 2: PR-2026-0064
+  envío 3: PR-2026-0063
+  envío 4: PR-2026-0061
+limpieza hecha (secuencia vuelta a 59)
+
+DESPUÉS del arreglo (pg_advisory_xact_lock por dispositivo), versión final:
+envíos simultáneos: 5 · aceptados: 1 · guardados en BD: 1
+  envío 0: Espera antes de enviar otro: faltan 60 s
+  envío 1: Espera antes de enviar otro: faltan 60 s
+  envío 2: PR-2026-0060
+  envío 3: Espera antes de enviar otro: faltan 60 s
+  envío 4: Espera antes de enviar otro: faltan 60 s
+limpieza hecha (secuencia vuelta a 59) · reportes de prueba que quedan: 0

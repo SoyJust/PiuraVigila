@@ -20,7 +20,7 @@ public class CabecerasSeguridad extends OncePerRequestFilter {
     static final String CSP = "default-src 'self'; "
             + "script-src 'self' https://cdnjs.cloudflare.com; "
             + "style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
-            + "img-src 'self' data: https://tile.openstreetmap.org https://cdnjs.cloudflare.com; "
+            + "img-src 'self' data: blob: https://tile.openstreetmap.org https://cdnjs.cloudflare.com; "
             + "connect-src 'self'; font-src 'self' https://fonts.gstatic.com; object-src 'none'; "
             + "base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
 

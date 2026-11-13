@@ -21,10 +21,21 @@ public class PanelController {
     private final CategoriaService categorias;
     private final DashboardService dashboard;
     private final Clock reloj;
+    private final LimitadorIntentos limitador;
+    /** v1.1 · fuerza bruta en el login: 5 fallos por usuario o 20 por IP en 15 minutos bloquean nuevos intentos. */
+    static final int MAX_FALLOS_USUARIO = 5, MAX_FALLOS_IP = 20;
+    static final Duration VENTANA_LOGIN = Duration.ofMinutes(15);
 
     public PanelController(AuthService auth, ReporteService reportes, CategoriaService categorias,
                            DashboardService dashboard, Clock reloj) {
+        this(auth, reportes, categorias, dashboard, reloj, new LimitadorIntentos(reloj));
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public PanelController(AuthService auth, ReporteService reportes, CategoriaService categorias,
+                           DashboardService dashboard, Clock reloj, LimitadorIntentos limitador) {
         this.auth = auth; this.reportes = reportes; this.categorias = categorias; this.dashboard = dashboard; this.reloj = reloj;
+        this.limitador = limitador;
     }
 
     @GetMapping("/login")
@@ -45,12 +56,23 @@ public class PanelController {
             m.addAttribute("csrf", Csrf.token(s));
             return "login";
         }
+        String claveUsuario = "login-u:" + usuario.trim().toLowerCase(Locale.ROOT), claveIp = "login-ip:" + rq.getRemoteAddr();
+        if (limitador.bloqueado(claveUsuario, MAX_FALLOS_USUARIO, VENTANA_LOGIN) || limitador.bloqueado(claveIp, MAX_FALLOS_IP, VENTANA_LOGIN)) {
+            long seg = Math.max(limitador.segundosParaLiberar(claveUsuario, MAX_FALLOS_USUARIO, VENTANA_LOGIN),
+                    limitador.segundosParaLiberar(claveIp, MAX_FALLOS_IP, VENTANA_LOGIN));
+            rs.setStatus(429);
+            m.addAttribute("error", "Demasiados intentos fallidos. Espera " + Math.max(1, (seg + 59) / 60) + " min antes de volver a intentarlo.");
+            m.addAttribute("csrf", Csrf.token(s));
+            return "login";
+        }
         Optional<UsuarioMunicipal> u = auth.autenticar(usuario, clave);
         if (u.isEmpty()) {
+            limitador.registrar(claveUsuario); limitador.registrar(claveIp);
             m.addAttribute("error", "Usuario o contraseña incorrectos");
             m.addAttribute("csrf", Csrf.token(s));
             return "login";
         }
+        limitador.limpiar(claveUsuario);
         rq.changeSessionId(); // evita fijación de sesión
         rq.getSession().setAttribute(SESION, u.get());
         return "redirect:/panel";
@@ -137,18 +159,22 @@ public class PanelController {
 
     @PostMapping("/panel/estado")
     public String cambiarEstado(@RequestParam int reporteId, @RequestParam String nuevo,
+                                @RequestParam(required = false) String comentario,
+                                @RequestParam(required = false) String volver,
                                 @RequestParam(name = "_csrf", required = false) String csrf,
                                 HttpSession s, RedirectAttributes ra) {
         UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);
         if (u == null) return "redirect:/login?requerida";
-        if (!Csrf.valido(s, csrf)) { ra.addFlashAttribute("error", "Solicitud no válida"); return "redirect:/panel"; }
+        // v1.1 · desde el detalle del caso se vuelve al detalle (solo códigos con formato válido: nada de redirecciones abiertas)
+        String destino = volver != null && volver.matches("PR-\\d{4}-\\d{4,}") ? "redirect:/panel/caso?codigo=" + volver : "redirect:/panel";
+        if (!Csrf.valido(s, csrf)) { ra.addFlashAttribute("error", "Solicitud no válida"); return destino; }
         try {
-            reportes.cambiarEstado(reporteId, EstadoReporte.desdeEtiqueta(nuevo), u);
+            reportes.cambiarEstado(reporteId, EstadoReporte.desdeEtiqueta(nuevo), u, comentario);
             ra.addFlashAttribute("ok", "Estado actualizado");
         } catch (IllegalArgumentException | IllegalStateException e) {
             ra.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/panel";
+        return destino;
     }
 
     @PostMapping("/panel/categoria")

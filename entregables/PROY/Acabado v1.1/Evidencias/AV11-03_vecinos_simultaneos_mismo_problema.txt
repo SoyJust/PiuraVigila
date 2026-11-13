@@ -1,0 +1,10 @@
+5 vecinos distintos (cada uno con su cookie, su sesión y su propia foto) reportan el MISMO tipo de problema en el MISMO distrito a la vez · 13/11/2026 · versión final
+Esperado: un solo caso nuevo; los demás ven «¿Es el mismo problema?» (RF-05, RN-01).
+
+  vecino 0: caso nuevo PR-2026-0060
+  vecino 1: pantalla de duplicado
+  vecino 2: pantalla de duplicado
+  vecino 3: pantalla de duplicado
+  vecino 4: pantalla de duplicado
+vecinos simultáneos: 5 · casos nuevos: 1 · vieron «¿Es el mismo problema?»: 4
+limpieza hecha · reportes de prueba que quedan: 0

@@ -36,7 +36,8 @@ Paquete base: `pe.edu.utp.piuravigila` (`model`, `dto`, `dao`, `service`, `contr
 │   ├── 02_seed.sql                # zonas (distritos), categorías y usuarios admin y operador
 │   ├── 03_consultas_dashboard.sql # consultas R01–R03 del panel
 │   ├── 04_datos_demo.sql          # datos ficticios opcionales: 59 casos en los 10 distritos
-│   └── 05_migracion_v1_0.sql      # actualiza una base anterior a la v1.0 (columna activo y 4 distritos)
+│   ├── 05_migracion_v1_0.sql      # actualiza una base anterior (columnas activo y comentario, 4 distritos)
+│   └── generar_fotos_demo.py      # opcional: imágenes ilustrativas para los reportes de demostración
 ├── src/main/java/...              # código fuente por capas
 ├── src/main/resources/            # plantillas, CSS y application.properties
 ├── src/test/java/...              # pruebas del servicio y del panel
@@ -62,7 +63,10 @@ Las zonas son los 10 distritos de la provincia de Piura: Piura, Castilla, Veinti
 | `/login`, `/logout` | GET, POST | Acceso del personal municipal |
 | `/panel` | GET | Panel municipal (tabla y dashboard) |
 | `/panel/mapa` | GET | Mapa de zonas críticas (P04) por periodo: conteo por zona y reportes ubicados en el mapa |
-| `/panel/estado` | POST | Cambiar el estado de un caso |
+| `/panel/estado` | POST | Cambiar el estado de un caso, con comentario opcional para el vecino |
+| `/panel/caso` | GET | Detalle del caso: foto, mapa, historial con responsable y reportes vinculados |
+| `/panel/foto/{id}` | GET | Foto de un reporte (solo con sesión del personal) |
+| `/panel/exportar` | GET | Excel de gestión: Resumen, Casos, Distritos y, para el administrador, Tiempos de atención |
 | `/panel/categoria` | POST | Habilitar una categoría (solo administrador) |
 | `/panel/usuarios` | GET, POST | Lista y creación de cuentas del personal (solo administrador) |
 | `/panel/usuarios/estado` | POST | Activar o desactivar una cuenta (solo administrador; nadie se desactiva a sí mismo) |
@@ -126,17 +130,17 @@ Las contraseñas nunca se guardan en el código ni en el repositorio.
 ## Pruebas
 
 ```powershell
-mvn test                     # 83 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
+mvn test                     # 109 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
 ```
 
 Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios, incluida la línea de tiempo de la consulta de estado y la gestión de usuarios (`UsuarioServiceTest`, con DAOs simulados). Los controladores se prueban con MockMvc: el panel (sesión, token CSRF, rol de administrador y R02) en `PanelControllerTest`, y el formulario público y la consulta en `ReporteControllerTest`.
 
-Pruebas de integración con PostgreSQL (`ReporteDAOJdbcIT` y `UsuarioMunicipalDAOJdbcIT`, que también prueba la migración 05): se activan con `RUN_DB_TESTS=true` y usan una base aparte cuyo nombre termina en `_test`, porque cada prueba recrea su esquema.
+Pruebas de integración con PostgreSQL (`ReporteDAOJdbcIT`, `UsuarioMunicipalDAOJdbcIT`, que también prueba la migración 05, y `ConcurrenciaYConsultasV11IT`, que comprueba los bloqueos contra envíos simultáneos): se activan con `RUN_DB_TESTS=true` y usan una base aparte cuyo nombre termina en `_test`, porque cada prueba recrea su esquema.
 
 ```powershell
 psql -U postgres -c "CREATE DATABASE piuravigila_test ENCODING 'UTF8' TEMPLATE template0;"
 $env:RUN_DB_TESTS="true"; $env:PIURA_TEST_DB_PASSWORD="<contraseña>"   # también PIURA_TEST_DB_URL y PIURA_TEST_DB_USER
-mvn verify                   # + 11 pruebas de integración y target/site/jacoco-it/index.html
+mvn verify                   # + 16 pruebas de integración y target/site/jacoco-it/index.html
 ```
 
 El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechable y ejecuta ambas. Evidencias de la Semana 13 en `entregables/PROY/Semana 13`.
@@ -146,7 +150,9 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 - Registro de incidencias con categoría, zona (distrito), descripción (máx. 300), foto JPG/PNG real (máx. 2 MB y 20 megapíxeles), ubicación opcional (se marca en el mapa o con «Usar mi ubicación») y verificación aritmética.
 - Código de seguimiento `PR-AAAA-####` y consulta pública de estado con línea de tiempo (Recibido → En proceso → Atendido) y la fecha de cada paso.
 - Detección de posibles duplicados y vinculación a un caso original.
-- Control anti-spam por dispositivo: 60 s entre reportes y máximo 3 por día.
+- Control anti-spam en capas: suma de verificación; 60 s entre reportes y máximo 3 por día por dispositivo (también con envíos simultáneos, gracias a un bloqueo en PostgreSQL); 20 envíos cada 10 min por IP; la misma foto exacta no se acepta dos veces en 24 h. Límite de 60 consultas cada 10 min por IP y bloqueo temporal tras 5 contraseñas incorrectas.
+- Fotos reducidas a 1600 px en JPEG en el celular y en el servidor (unos 250 KB en lugar de hasta 2 MB), sin metadatos EXIF (ubicación GPS) y enderezadas. Solo las ve el personal. Se borran 365 días después de atendido el caso (`piuravigila.foto.retencion-dias`).
+- Detalle del caso para el personal con foto, mapa, historial y fotos de los vecinos vinculados; comentario opcional al cambiar de estado, que el vecino ve en su consulta.
 - Página de inicio con el propósito del sistema, los pasos y cifras públicas agregadas.
 - Panel municipal con login (BCrypt), tarjetas de cifras por estado, filtros, cambio de estado con historial y habilitación de categorías (solo administrador). En el celular la tabla se muestra como tarjetas.
 - Gestión de usuarios (administrador): crear cuentas, activarlas o desactivarlas y restablecer contraseñas. Cada usuario cambia su propia contraseña. Una cuenta desactivada pierde de inmediato la sesión que tuviera abierta.
@@ -160,6 +166,8 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 - La verificación anti-spam es una suma simple y la cookie se puede borrar; no constituye una protección robusta contra bots.
 - El código `PR-AAAA-####` usa 4 dígitos; pasado el 9999 se truncaría.
 - La foto se guarda en disco antes de confirmar la transacción; si falla la base de datos puede quedar un archivo huérfano.
+- Los límites por IP y las huellas de fotos viven en memoria: se reinician si se reinicia la aplicación y no se comparten entre varios servidores.
+- Un reporte falso solo puede terminar como «Atendido»: falta un estado «Descartado» (pendiente de consultar con el docente).
 - Los usuarios `admin` y `operador` quedan con hash pendiente en el seed: sin su variable de entorno no se puede iniciar sesión con ese usuario. Las demás cuentas se crean desde «Usuarios».
 - No hay recuperación de contraseña por correo (el sistema no guarda correos): la restablece el administrador.
 - El selector de ubicación y el mapa del panel cargan Leaflet y los mosaicos de OpenStreetMap por internet; sin conexión no se dibujan (el formulario sigue funcionando, la ubicación es opcional).
@@ -175,6 +183,7 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 | PROY · Semana 13 | 13 | `entregables/PROY/Semana 13` | Pruebas de software (60 %): casos, ejecuciones, defectos, cobertura y evidencias |
 | PROY · Semana 14 | 14 | `entregables/PROY/Semana 14` | Pruebas de seguridad (70 %): reporte, hallazgos, ZAP pasivo, SCA y evidencias |
 | PROY · Acabado v1.0 | 14 | `entregables/PROY/Acabado v1.0` | Interfaz final, gestión de usuarios, 10 distritos, datos de demostración y capturas antes/después |
+| PROY · Acabado v1.1 | 14 | `entregables/PROY/Acabado v1.1` | Detalle del caso con fotos, Excel completo, concurrencia y anti-spam corregidos, respuestas a las preguntas del docente |
 
 Cada carpeta tiene su `LEEME.txt` con el contenido y las correcciones.
 

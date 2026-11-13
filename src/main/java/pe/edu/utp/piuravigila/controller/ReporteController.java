@@ -20,9 +20,25 @@ import pe.edu.utp.piuravigila.service.ReporteService;
 public class ReporteController {
     private static final String COOKIE = "pv_dispositivo";
     private static final Pattern FORMATO_DISPOSITIVO = Pattern.compile("^[A-Za-z0-9-]{8,64}$");
+    /**
+     * v1.1 · como máximo 20 envíos cada 10 minutos desde una misma IP. Es holgado a propósito: muchas personas pueden
+     * compartir una IP (wifi de un colegio, datos móviles con CGNAT); el límite fino es el de 60 s y 3/día por dispositivo.
+     */
+    static final int MAX_ENVIOS_IP = 20;
+    static final java.time.Duration VENTANA_IP = java.time.Duration.ofMinutes(10);
+    /** v1.1 · como máximo 60 consultas de código cada 10 minutos por IP: frena a quien prueba códigos uno por uno. */
+    static final int MAX_CONSULTAS_IP = 60;
     private final ReporteService service;
+    private final pe.edu.utp.piuravigila.service.LimitadorIntentos limitador;
 
-    public ReporteController(ReporteService service) { this.service = service; }
+    public ReporteController(ReporteService service) {
+        this(service, new pe.edu.utp.piuravigila.service.LimitadorIntentos(java.time.Clock.systemDefaultZone()));
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public ReporteController(ReporteService service, pe.edu.utp.piuravigila.service.LimitadorIntentos limitador) {
+        this.service = service; this.limitador = limitador;
+    }
 
     /** v1.0 · página de inicio: qué es PiuraVigila, cómo funciona y cifras públicas agregadas (sin datos personales). */
     @GetMapping("/")
@@ -55,6 +71,10 @@ public class ReporteController {
         if (!Csrf.valido(s, rq.getParameter("_csrf"))) {
             rs.setStatus(403);
             return vistaFormulario(m, s, "Solicitud no válida. Vuelve a enviar el formulario.", categoriaId, zonaId, descripcion);
+        }
+        if (limitador.registrarYExcede("envio-ip:" + rq.getRemoteAddr(), MAX_ENVIOS_IP, VENTANA_IP)) {
+            rs.setStatus(429);
+            return vistaFormulario(m, s, "Demasiados envíos desde esta conexión. Intenta de nuevo en unos minutos.", categoriaId, zonaId, descripcion);
         }
         byte[] bytes = null;
         try { if (foto != null) bytes = foto.getBytes(); } catch (IOException e) { bytes = null; }
@@ -89,8 +109,14 @@ public class ReporteController {
     }
 
     @GetMapping("/consultar")
-    public String consultar(@RequestParam(required = false) String codigo, Model m) {
+    public String consultar(@RequestParam(required = false) String codigo, Model m, HttpServletRequest rq, HttpServletResponse rs) {
         m.addAttribute("codigo", codigo == null ? "" : codigo);
+        if (codigo != null && !codigo.isBlank()
+                && limitador.registrarYExcede("consulta-ip:" + rq.getRemoteAddr(), MAX_CONSULTAS_IP, VENTANA_IP)) {
+            rs.setStatus(429);
+            m.addAttribute("error", "Demasiadas consultas seguidas desde esta conexión. Espera unos minutos.");
+            return "consultar";
+        }
         if (codigo != null && !codigo.isBlank()) {
             try {
                 ConsultaEstado c = service.consultarEstado(codigo);

@@ -6,6 +6,7 @@ import java.util.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import pe.edu.utp.piuravigila.dao.HistorialEstadoDAO;
+import pe.edu.utp.piuravigila.dto.MovimientoCaso;
 import pe.edu.utp.piuravigila.dto.TiempoCategoria;
 import pe.edu.utp.piuravigila.model.*;
 
@@ -15,15 +16,23 @@ public class HistorialEstadoDAOJdbc implements HistorialEstadoDAO {
     public HistorialEstadoDAOJdbc(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
     @Override public void registrar(HistorialEstado h) {
-        jdbc.update("INSERT INTO historial_estado(reporte_id, usuario_id, estado_nuevo, fecha_cambio) VALUES (?, CAST(? AS INT), ?, ?)",
-                h.reporteId(), h.usuarioId(), h.estadoNuevo().etiqueta(), Timestamp.valueOf(h.fechaCambio()));
+        jdbc.update("INSERT INTO historial_estado(reporte_id, usuario_id, estado_nuevo, fecha_cambio, comentario) VALUES (?, CAST(? AS INT), ?, ?, ?)",
+                h.reporteId(), h.usuarioId(), h.estadoNuevo().etiqueta(), Timestamp.valueOf(h.fechaCambio()), h.comentario());
     }
 
     @Override public List<HistorialEstado> listarPorReporte(int reporteId) {
-        return jdbc.query("SELECT historial_id, reporte_id, usuario_id, estado_nuevo, fecha_cambio FROM historial_estado "
+        return jdbc.query("SELECT historial_id, reporte_id, usuario_id, estado_nuevo, fecha_cambio, comentario FROM historial_estado "
                 + "WHERE reporte_id = ? ORDER BY fecha_cambio, historial_id",
                 (rs, n) -> new HistorialEstado(rs.getInt("historial_id"), rs.getInt("reporte_id"), (Integer) rs.getObject("usuario_id"),
-                        EstadoReporte.desdeEtiqueta(rs.getString("estado_nuevo")), rs.getTimestamp("fecha_cambio").toLocalDateTime()), reporteId);
+                        EstadoReporte.desdeEtiqueta(rs.getString("estado_nuevo")), rs.getTimestamp("fecha_cambio").toLocalDateTime(),
+                        rs.getString("comentario")), reporteId);
+    }
+
+    @Override public List<MovimientoCaso> listarDetalle(int reporteId) {
+        return jdbc.query("SELECT h.estado_nuevo, h.fecha_cambio, u.nombre, h.comentario FROM historial_estado h "
+                + "LEFT JOIN usuario_municipal u ON u.usuario_id = h.usuario_id WHERE h.reporte_id = ? ORDER BY h.fecha_cambio, h.historial_id",
+                (rs, n) -> new MovimientoCaso(EstadoReporte.desdeEtiqueta(rs.getString("estado_nuevo")),
+                        rs.getTimestamp("fecha_cambio").toLocalDateTime(), rs.getString("nombre"), rs.getString("comentario")), reporteId);
     }
 
     @Override public Optional<LocalDateTime> ultimaActualizacion(int reporteId) {
