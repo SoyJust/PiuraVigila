@@ -1,0 +1,22 @@
+S15-E6 · PostgreSQL del despliegue (base piuravigila_prod, rol piuravigila_app)
+
+== /actuator/health/db
+{"status":"UP"}
+
+== Datos (consulta con el rol de la aplicación)
+﻿ codigo_seguimiento |    categoria     |   zona    |  estado  |                    foto_url                    |    registrado    
+--------------------+------------------+-----------+----------+------------------------------------------------+------------------
+ PR-2026-0063       | Luminaria dañada | Las Lomas | Recibido | fotos/67851383-2c25-45ec-853d-7baf1e07c795.jpg | 2026-11-17 11:52
+(1 fila)
+
+== Conteos y permisos
+ casos | vinculados | total 
+-------+------------+-------
+    63 |         13 |    76
+(1 fila)
+
+ puede_leer_escribir | puede_crear_tablas | puede_crear_esquemas 
+---------------------+--------------------+----------------------
+ t                   | f                  | f
+(1 fila)
+

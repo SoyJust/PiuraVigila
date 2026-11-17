@@ -1,0 +1,21 @@
+S15-E10 · Pruebas automáticas de la versión desplegada
+
+== Local (17/11/2026, rama feature/s15-despliegue, JDK 21, PostgreSQL 18, base piuravigila_test)
+mvn verify con RUN_DB_TESTS=true
+  Unitarias (Surefire):       Tests run: 121, Failures: 0, Errors: 0, Skipped: 0
+  Integración (Failsafe):     Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+  BUILD SUCCESS
+
+Pruebas nuevas de la Semana 15:
+  TC-SEC-15  HSTS en respuestas HTTPS y nunca en HTTP                        (SeguridadWebTest)
+  TC-SEC-16  Cookie de dispositivo con Secure por HTTPS                      (SeguridadWebTest)
+  TC-DEP-01  Solo health e info expuestos, health sin detalles               (DespliegueTest)
+  TC-DEP-02  Perfil prod: TLS, cookie de sesión Secure, secretos por variable (DespliegueTest)
+  TC-DEP-03  Restricción CONFIDENTIAL: HTTP redirige a HTTPS                 (DespliegueTest)
+
+== Build del despliegue (copia limpia del tag v1.3.0): 121 unitarias, 0 fallos (S15-E1)
+
+== GitHub Actions (workflow "Pruebas Java", PostgreSQL 16 de servicio)
+  PR #16 (0b1f989)           success  https://github.com/SoyJust/PiuraVigila/actions/runs/44129863838
+  main tras el merge (91384a2) success https://github.com/SoyJust/PiuraVigila/actions/runs/44130145355
+  tag v1.3.0 (91384a2)       success  https://github.com/SoyJust/PiuraVigila/actions/runs/44130170041

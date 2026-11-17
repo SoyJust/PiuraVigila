@@ -1,0 +1,18 @@
+S15-E3 · Arranque del JAR desplegado (C:\PiuraVigila-deploy\logs\piuravigila.log, último arranque)
+Comando: deploy\windows\iniciar.ps1  ->  java -jar app\piuravigila.jar --spring.profiles.active=prod
+
+2026-11-17T11:51:21.880-05:00  INFO 7436 --- [piuravigila] [main] p.e.u.p.app.PiuraVigilaApplication       : Starting PiuraVigilaApplication v1.3.0 using Java 21.0.13 with PID 7436 (C:\PiuraVigila-deploy\app\piuravigila.jar starte
+2026-11-17T11:51:21.921-05:00  INFO 7436 --- [piuravigila] [main] p.e.u.p.app.PiuraVigilaApplication       : The following 1 profile is active: "prod"
+2026-11-17T11:51:24.710-05:00  INFO 7436 --- [piuravigila] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 8443 (https), 8080 (http)
+2026-11-17T11:51:24.748-05:00  INFO 7436 --- [piuravigila] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-17T11:51:24.748-05:00  INFO 7436 --- [piuravigila] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.61]
+2026-11-17T11:51:26.410-05:00  INFO 7436 --- [piuravigila] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-11-17T11:51:26.823-05:00  INFO 7436 --- [piuravigila] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 8443 (https), 8080 (http) with context path '/'
+2026-11-17T11:51:26.845-05:00  INFO 7436 --- [piuravigila] [main] p.e.u.p.app.PiuraVigilaApplication       : Started PiuraVigilaApplication in 5.942 seconds (process running for 6.742)
+2026-11-17T11:51:27.018-05:00  INFO 7436 --- [piuravigila] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-17T11:51:27.190-05:00  INFO 7436 --- [piuravigila] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3e6acec2
+2026-11-17T11:51:27.190-05:00  INFO 7436 --- [piuravigila] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-17T11:56:04.220-05:00  WARN 7436 --- [piuravigila] [https-jsse-nio-8443-exec-3] p.e.utp.piuravigila.service.AuthService  : Inicio de sesión fallido usuario=ZAP
+
+Errores o excepciones en el log del despliegue: 0
+logs\consola-error.log: 0 bytes
