@@ -29,7 +29,7 @@ class MejorasSeguridadTest {
     }
     @Test void operador_puede_exportar_conteos() throws Exception {
         var servicio = mock(ExportacionService.class);
-        when(servicio.zonas(any(),any())).thenReturn(new byte[]{1,2});
+        when(servicio.libro(any(),any(),anyBoolean())).thenReturn(new byte[]{1,2});
         var s = new MockHttpSession(); s.setAttribute("usuario",new UsuarioMunicipal(1,"Operador","operador","hash",RolUsuario.OPERADOR));
         var mvc = MockMvcBuilders.standaloneSetup(new ExportacionController(servicio, Clock.systemUTC())).build();
         mvc.perform(get("/panel/exportar").session(s)).andExpect(status().isOk()).andExpect(header().string("Cache-Control","no-store"));

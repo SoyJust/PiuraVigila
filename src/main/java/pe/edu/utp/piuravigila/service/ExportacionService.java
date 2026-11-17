@@ -38,11 +38,6 @@ public class ExportacionService {
         this.dashboard = dashboard; this.reportes = reportes; this.reloj = reloj;
     }
 
-    /** Compatibilidad: solo la hoja de distritos. */
-    public ExportacionService(DashboardService dashboard) { this(dashboard, null, Clock.systemDefaultZone()); }
-
-    public byte[] zonas(LocalDate desde, LocalDate hasta) { return libro(desde, hasta, false); }
-
     public byte[] libro(LocalDate desde, LocalDate hasta, boolean incluirTiempos) {
         try (var libro = new XSSFWorkbook(); var salida = new ByteArrayOutputStream()) {
             Estilos e = new Estilos(libro);
