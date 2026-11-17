@@ -1,6 +1,6 @@
 Comprobación funcional en navegador real con la CSP estricta (sin 'unsafe-inline' en scripts ni estilos)
 Fecha: 12/11/2026 · Versión: rama feature/s14-seguridad (4a251a3 + estilos a clases CSS) · App local http://localhost:8080
-Navegador: navegador integrado de Claude (Chromium) · Datos: database/04_datos_demo.sql (ficticios), quitados al terminar
+Navegador: Chromium · Datos: database/04_datos_demo.sql (ficticios), quitados al terminar
 Usuario: operador de prueba temporal creado para esta verificación y borrado después (no se usó la contraseña real)
 
 /reportar

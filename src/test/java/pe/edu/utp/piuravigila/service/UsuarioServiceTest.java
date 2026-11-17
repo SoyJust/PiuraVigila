@@ -9,7 +9,7 @@ import pe.edu.utp.piuravigila.model.RolUsuario;
 import pe.edu.utp.piuravigila.model.UsuarioMunicipal;
 import pe.edu.utp.piuravigila.service.Fakes.FakeUsuarioDAO;
 
-/** v1.0 · gestión de usuarios (TC-U01 a TC-U10): reglas del UsuarioService con DAO y hash simulados. */
+/** Gestión de usuarios (TC-U01 a TC-U10): reglas del UsuarioService con DAO y hash simulados. */
 class UsuarioServiceTest {
     private static final HashContrasena HASH = new HashContrasena() {
         public String codificar(String c) { return "h:" + c; }

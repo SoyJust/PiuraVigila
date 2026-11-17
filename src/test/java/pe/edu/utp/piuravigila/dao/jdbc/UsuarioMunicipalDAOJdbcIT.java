@@ -14,7 +14,7 @@ import pe.edu.utp.piuravigila.model.RolUsuario;
 import pe.edu.utp.piuravigila.model.UsuarioMunicipal;
 
 /**
- * v1.0 · integración del DAO de usuarios y de la migración 05 contra PostgreSQL real (misma base {@code *_test} y
+ * Integración del DAO de usuarios y de la migración 05 contra PostgreSQL real (misma base {@code *_test} y
  * mismas variables de entorno que {@link ReporteDAOJdbcIT}; solo con {@code RUN_DB_TESTS=true}).
  */
 @EnabledIfEnvironmentVariable(named = "RUN_DB_TESTS", matches = "true")

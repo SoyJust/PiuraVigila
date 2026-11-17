@@ -22,7 +22,7 @@ public class ExportacionController {
         LocalDate fin = hasta == null ? LocalDate.now(reloj) : hasta;
         LocalDate inicio = desde == null ? fin.minusDays(30) : desde;
         if (inicio.isAfter(fin) || inicio.isBefore(fin.minusYears(5))) return ResponseEntity.badRequest().build();
-        // v1.1 · libro completo; la hoja R02 (tiempos de atención) solo va si lo descarga el administrador
+        // Libro completo; la hoja R02 (tiempos de atención) solo va si lo descarga el administrador
         byte[] contenido = exportacion.libro(inicio, fin, u.esAdministrador());
         org.slf4j.LoggerFactory.getLogger(ExportacionController.class).info("Exportación desde={} hasta={} usuarioId={}", inicio, fin, u.usuarioId());
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())

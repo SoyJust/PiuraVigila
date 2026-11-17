@@ -21,7 +21,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import pe.edu.utp.piuravigila.model.*;
 import pe.edu.utp.piuravigila.service.*;
 
-/** v1.1 · abuso por fuerza bruta y por IP, y acceso al detalle y a las fotos (TC-A01 a TC-A06). */
+/** Abuso por fuerza bruta y por IP, y acceso al detalle y a las fotos (TC-A01 a TC-A06). */
 class AbusoYCasoControllerTest {
     private static final UsuarioMunicipal OP = new UsuarioMunicipal(2, "Operador", "operador", "h", RolUsuario.OPERADOR);
     private AuthService auth;

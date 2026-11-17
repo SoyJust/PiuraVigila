@@ -48,7 +48,7 @@ public class ReporteService {
     public ResultadoRegistro registrarReporte(DatosReporte d) {
         ResultadoControl v = validador.validar(d);
         if (!v.permitido()) return ResultadoRegistro.rechazado(v.mensaje(), false);
-        // v1.1 · envíos simultáneos del mismo dispositivo: se atienden en fila (si no, todos pasaban el control de 60 s).
+        // Envíos simultáneos del mismo dispositivo: se atienden en fila (si no, todos pasaban el control de 60 s).
         reporteDAO.bloquear("dispositivo:" + d.dispositivoId());
 
         ResultadoControl c = antiSpam.validar(d.dispositivoId(), d.respuestaSuma(), d.sumaEsperada());
@@ -60,7 +60,7 @@ public class ReporteService {
                 || zonaDAO.buscarPorId(d.zonaId()).isEmpty()) {
             return ResultadoRegistro.rechazado(ValidadorReporte.MSG_FALTAN, false);
         }
-        // v1.1 · dos vecinos que reportan lo mismo a la vez: el segundo espera y ve el caso del primero (pantalla de duplicado).
+        // Dos vecinos que reportan lo mismo a la vez: el segundo espera y ve el caso del primero (pantalla de duplicado).
         reporteDAO.bloquear("caso:" + d.categoriaId() + ":" + d.zonaId());
         Optional<Reporte> caso = reporteDAO.buscarCasoAbierto(d.categoriaId(), d.zonaId());
         if (caso.isPresent()) return ResultadoRegistro.duplicado(caso.get()); // decide el ciudadano; no se comparan fotos
@@ -105,7 +105,7 @@ public class ReporteService {
     /** Los tres estados en orden. Solo se expone el estado y la fecha: el responsable del cambio no se muestra al ciudadano. */
     private static List<PasoEstado> pasos(Reporte caso, List<HistorialEstado> historial) {
         List<PasoEstado> pasos = new ArrayList<>();
-        // v1.2 · un caso descartado muestra Recibido → (En proceso, si llegó) → Descartado; los demás, los tres estados normales
+        // Un caso descartado muestra Recibido → (En proceso, si llegó) → Descartado; los demás, los tres estados normales
         List<EstadoReporte> ruta = caso.estado() != EstadoReporte.DESCARTADO
                 ? List.of(EstadoReporte.RECIBIDO, EstadoReporte.EN_PROCESO, EstadoReporte.ATENDIDO)
                 : historial.stream().anyMatch(h -> h.estadoNuevo() == EstadoReporte.EN_PROCESO)
@@ -122,7 +122,7 @@ public class ReporteService {
         return pasos;
     }
 
-    /** v1.1 · máximo del comentario que acompaña un cambio de estado (historial_estado.comentario VARCHAR(200)). */
+    /** Máximo del comentario que acompaña un cambio de estado (historial_estado.comentario VARCHAR(200)). */
     public static final int MAX_COMENTARIO = 200;
 
     /** P03 · RF-03. El estado solo avanza y queda registrado con fecha y responsable. */
@@ -131,7 +131,7 @@ public class ReporteService {
         cambiarEstado(reporteId, nuevo, usuario, null);
     }
 
-    /** v1.1 · igual, con un comentario opcional que el vecino verá en su consulta (texto plano, máx. 200). */
+    /** Igual, con un comentario opcional que el vecino verá en su consulta (texto plano, máx. 200). */
     @Transactional
     public void cambiarEstado(int reporteId, EstadoReporte nuevo, UsuarioMunicipal usuario, String comentario) {
         String nota = comentario == null ? null : comentario.strip().replaceAll("\\s+", " ");
@@ -139,7 +139,7 @@ public class ReporteService {
         if (nota != null && nota.length() > MAX_COMENTARIO)
             throw new IllegalArgumentException("El comentario no puede superar los " + MAX_COMENTARIO + " caracteres.");
         Objects.requireNonNull(usuario, "Sesión requerida");
-        reporteDAO.bloquear("reporte:" + reporteId); // v1.1 · dos operadores a la vez: el segundo ve el estado ya cambiado
+        reporteDAO.bloquear("reporte:" + reporteId); // Dos operadores a la vez: el segundo ve el estado ya cambiado
         Reporte r = reporteDAO.buscarPorId(reporteId).orElseThrow(() -> new IllegalArgumentException("Reporte inexistente."));
         if (!r.esCasoOriginal()) throw new IllegalStateException("Solo los casos cambian de estado; el vinculado usa el del caso.");
         if (!r.estado().puedePasarA(nuevo))
@@ -151,7 +151,7 @@ public class ReporteService {
         LOG.info("Estado actualizado reporte={} nuevo={} usuarioId={}", reporteId, nuevo.etiqueta(), usuario.usuarioId());
     }
 
-    /** v1.1 · P03b detalle del caso (solo personal): datos, historial con responsable y reportes vinculados. */
+    /** P03b detalle del caso (solo personal): datos, historial con responsable y reportes vinculados. */
     public DetalleCaso detalleCaso(String codigo) {
         String limpio = codigo == null ? "" : codigo.trim().toUpperCase(Locale.ROOT);
         if (!FORMATO_CODIGO.matcher(limpio).matches()) throw new IllegalArgumentException("Código no encontrado");
@@ -161,7 +161,7 @@ public class ReporteService {
         return new DetalleCaso(caso, categoria, zona, historialDAO.listarDetalle(caso.reporteId()), reporteDAO.listarVinculados(caso.reporteId()));
     }
 
-    /** v1.1 · foto de un reporte (caso o vinculado) para verla en el panel; vacío si no existe o ya se eliminó. */
+    /** Foto de un reporte (caso o vinculado) para verla en el panel; vacío si no existe o ya se eliminó. */
     public Optional<byte[]> foto(int reporteId) {
         return reporteDAO.buscarPorId(reporteId).map(Reporte::fotoUrl).flatMap(fotos::leer);
     }

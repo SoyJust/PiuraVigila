@@ -21,7 +21,7 @@ import pe.edu.utp.piuravigila.dto.*;
 import pe.edu.utp.piuravigila.model.EstadoReporte;
 
 /**
- * v1.1 · reporte de gestión en Excel con varias hojas: Resumen (R03), Casos (lista con filtros), Distritos (R01 con
+ * Reporte de gestión en Excel con varias hojas: Resumen (R03), Casos (lista con filtros), Distritos (R01 con
  * gráfico) y, solo para el administrador, Tiempos de atención (R02). Sin fotos, sin identificador de dispositivo y sin
  * nombres del personal. Todo texto se escribe como texto: una descripción que empiece con «=» no se vuelve fórmula.
  */
@@ -38,7 +38,7 @@ public class ExportacionService {
         this.dashboard = dashboard; this.reportes = reportes; this.reloj = reloj;
     }
 
-    /** Compatibilidad: solo la hoja de distritos (la usaba la v1.0). */
+    /** Compatibilidad: solo la hoja de distritos. */
     public ExportacionService(DashboardService dashboard) { this(dashboard, null, Clock.systemDefaultZone()); }
 
     public byte[] zonas(LocalDate desde, LocalDate hasta) { return libro(desde, hasta, false); }

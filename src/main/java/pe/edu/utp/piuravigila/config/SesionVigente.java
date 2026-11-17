@@ -12,7 +12,7 @@ import pe.edu.utp.piuravigila.dao.UsuarioMunicipalDAO;
 import pe.edu.utp.piuravigila.model.UsuarioMunicipal;
 
 /**
- * v1.0 · en cada petición al panel se vuelve a leer al usuario de la sesión: si el administrador lo desactivó, la sesión
+ * En cada petición al panel se vuelve a leer al usuario de la sesión: si el administrador lo desactivó, la sesión
  * se cierra de inmediato (no espera a que caduque); si cambió su nombre o rol, la sesión toma el dato vigente.
  */
 @Component

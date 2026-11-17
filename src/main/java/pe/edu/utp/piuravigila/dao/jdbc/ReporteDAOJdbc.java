@@ -114,7 +114,7 @@ public class ReporteDAOJdbc implements ReporteDAO {
 
     // ---- R01 · R03 ----
     @Override public List<ConteoZona> reportesPorZona(LocalDateTime desde, LocalDateTime hasta) {
-        // v1.2 · los reportes descartados (y los vinculados a un caso descartado) no cuentan como zona crítica
+        // Los reportes descartados (y los vinculados a un caso descartado) no cuentan como zona crítica
         return jdbc.query("SELECT z.nombre AS zona, COUNT(*) AS reportes FROM reporte r JOIN zona z ON z.zona_id = r.zona_id "
                 + "JOIN reporte o ON o.reporte_id = COALESCE(r.reporte_original_id, r.reporte_id) "
                 + "WHERE r.fecha_registro >= ? AND r.fecha_registro < ? AND o.estado <> 'Descartado' GROUP BY z.nombre ORDER BY reportes DESC",

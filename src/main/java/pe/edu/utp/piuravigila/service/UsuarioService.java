@@ -11,7 +11,7 @@ import pe.edu.utp.piuravigila.model.RolUsuario;
 import pe.edu.utp.piuravigila.model.UsuarioMunicipal;
 
 /**
- * Gestión del personal municipal (v1.0): el administrador crea cuentas y las activa o desactiva; cada usuario cambia
+ * Gestión del personal municipal: el administrador crea cuentas y las activa o desactiva; cada usuario cambia
  * su propia contraseña. Las reglas viven aquí, no en el Controller. Las contraseñas nunca se registran en logs.
  */
 @Service

@@ -35,7 +35,7 @@ CREATE TABLE usuario_municipal (
     usuario VARCHAR(40) NOT NULL UNIQUE,
     contrasena_hash VARCHAR(255) NOT NULL,
     rol VARCHAR(20) NOT NULL,
-    activo BOOLEAN NOT NULL DEFAULT TRUE, -- v1.0 (Semana 14, acabado): desactivar en lugar de borrar (el historial guarda quién cambió cada estado)
+    activo BOOLEAN NOT NULL DEFAULT TRUE, -- desactivar en lugar de borrar (el historial guarda quién cambió cada estado)
     CONSTRAINT ck_usuario_rol CHECK (rol IN ('administrador','operador'))
 );
 
@@ -69,7 +69,7 @@ CREATE TABLE reporte (
         REFERENCES zona(zona_id),
     CONSTRAINT fk_reporte_original FOREIGN KEY (reporte_original_id)
         REFERENCES reporte(reporte_id),
-    -- v1.2: 'Descartado' = reporte falso, de prueba o que no corresponde a la vía pública (estado final, con motivo)
+    -- 'Descartado' = reporte falso, de prueba o que no corresponde a la vía pública (estado final, con motivo)
     CONSTRAINT ck_reporte_estado CHECK (estado IN ('Recibido','En proceso','Atendido','Descartado')),
     -- Original: código con formato PR-AAAA-####. Vinculado: sin código propio.
     CONSTRAINT ck_reporte_codigo CHECK (
@@ -97,13 +97,13 @@ CREATE TABLE historial_estado (
     usuario_id INT,
     estado_nuevo VARCHAR(20) NOT NULL,
     fecha_cambio TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    comentario VARCHAR(200), -- v1.1: nota opcional del personal, visible para el vecino en la consulta (p. ej. «Cuadrilla programada para el lunes»)
+    comentario VARCHAR(200), -- Nota opcional del personal, visible para el vecino en la consulta (p. ej. «Cuadrilla programada para el lunes»)
     CONSTRAINT fk_historial_reporte FOREIGN KEY (reporte_id)
         REFERENCES reporte(reporte_id),
     CONSTRAINT fk_historial_usuario FOREIGN KEY (usuario_id)
         REFERENCES usuario_municipal(usuario_id),
     CONSTRAINT ck_historial_estado CHECK (estado_nuevo IN ('Recibido','En proceso','Atendido','Descartado')),
-    -- v1.2: descartar exige un motivo de al menos 10 caracteres (lo ve el vecino en la consulta)
+    -- Descartar exige un motivo de al menos 10 caracteres (lo ve el vecino en la consulta)
     CONSTRAINT ck_historial_motivo CHECK (estado_nuevo <> 'Descartado' OR length(btrim(coalesce(comentario, ''))) >= 10),
     -- S03: todo cambio hecho por personal debe traer responsable; el NULL solo se permite
     -- para el 'Recibido' automático que genera el sistema al crear el reporte.

@@ -9,10 +9,10 @@ SET client_encoding = 'UTF8';
 -- Gestión de usuarios: desactivar en lugar de borrar.
 ALTER TABLE usuario_municipal ADD COLUMN IF NOT EXISTS activo BOOLEAN NOT NULL DEFAULT TRUE;
 
--- v1.1 · comentario opcional al cambiar de estado (lo ve el vecino en la consulta).
+-- Comentario opcional al cambiar de estado (lo ve el vecino en la consulta).
 ALTER TABLE historial_estado ADD COLUMN IF NOT EXISTS comentario VARCHAR(200);
 
--- v1.2 · estado «Descartado» (con motivo obligatorio). DROP + ADD para que se pueda ejecutar varias veces.
+-- Estado «Descartado» (con motivo obligatorio). DROP + ADD para que se pueda ejecutar varias veces.
 ALTER TABLE reporte DROP CONSTRAINT IF EXISTS ck_reporte_estado;
 ALTER TABLE reporte ADD CONSTRAINT ck_reporte_estado CHECK (estado IN ('Recibido','En proceso','Atendido','Descartado'));
 ALTER TABLE historial_estado DROP CONSTRAINT IF EXISTS ck_historial_estado;

@@ -1,11 +1,11 @@
 /*
- * v1.1 · reduce la foto en el celular antes de enviarla: lado mayor de 1600 px, JPEG al 82 %.
+ * Reduce la foto en el celular antes de enviarla: lado mayor de 1600 px, JPEG al 82 %.
  * Ahorra datos móviles al vecino y espacio al servidor, y evita el error «Foto demasiado pesada» con fotos de 3 a 8 MB.
  * Al dibujarla en un canvas se descartan los metadatos (la ubicación GPS de la casa) y el navegador la endereza.
  * Si el navegador no lo permite, se envía la foto original y el servidor la valida y reduce igual.
  */
 (function () {
-  // v1.1 · doble clic o «Enter» repetido: el formulario se envía una sola vez (el servidor igual lo controla).
+  // Doble clic o «Enter» repetido: el formulario se envía una sola vez (el servidor igual lo controla).
   var formulario = document.querySelector('form[enctype="multipart/form-data"]');
   if (formulario) {
     formulario.addEventListener('submit', function (e) {

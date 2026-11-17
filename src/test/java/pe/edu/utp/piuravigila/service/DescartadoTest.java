@@ -9,7 +9,7 @@ import pe.edu.utp.piuravigila.dto.*;
 import pe.edu.utp.piuravigila.model.*;
 import pe.edu.utp.piuravigila.service.ReporteServiceTest.Fx;
 
-/** v1.2 · estado «Descartado» (TC-D01 a TC-D07). */
+/** Estado «Descartado» (TC-D01 a TC-D07). */
 class DescartadoTest {
     private static final UsuarioMunicipal ADM = new UsuarioMunicipal(1, "Administrador", "admin", "hash", RolUsuario.ADMINISTRADOR);
     private static final String MOTIVO = "La foto no muestra ningún problema en la vía pública";

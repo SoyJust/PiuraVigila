@@ -18,7 +18,7 @@ import pe.edu.utp.piuravigila.dto.FilaExportacion;
 import pe.edu.utp.piuravigila.dto.MovimientoCaso;
 import pe.edu.utp.piuravigila.model.*;
 
-/** v1.1 · bloqueo por clave en PostgreSQL y consultas nuevas (TC-I01 a TC-I05). Solo con RUN_DB_TESTS=true. */
+/** Bloqueo por clave en PostgreSQL y consultas nuevas (TC-I01 a TC-I05). Solo con RUN_DB_TESTS=true. */
 @EnabledIfEnvironmentVariable(named = "RUN_DB_TESTS", matches = "true")
 class ConcurrenciaYConsultasV11IT {
     private static final LocalDateTime T0 = LocalDateTime.of(2026, 11, 2, 9, 0);

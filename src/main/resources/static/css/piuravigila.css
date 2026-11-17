@@ -151,7 +151,7 @@ table:not(:has(thead)) th{width:13rem;color:var(--mut);font-weight:700}
 .ancho-total{width:100%}
 
 /* ==========================================================================
-   v1.0 · Acabado de la interfaz (12/11/2026): inicio, pie, tarjetas de cifras,
+   Acabado de la interfaz: inicio, pie, tarjetas de cifras,
    pestañas del panel, tabla que se vuelve tarjetas en el celular, usuarios.
    ========================================================================== */
 body{display:flex;flex-direction:column;min-height:100vh}
@@ -303,7 +303,7 @@ footer{background:var(--nav);color:#b9cddc;margin-top:2rem;font-size:.92rem}
 footer .contenedor{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem 1.5rem;padding:1.2rem 1rem}
 footer a{color:#e6eef4}
 
-/* v1.0 · ajustes tras revisar las capturas */
+/* Ajustes tras revisar las capturas */
 main.sin-margen{max-width:none;margin-top:0;padding:0}
 main.sin-margen .portada{margin-top:0}
 .tabla-casos td form{flex-wrap:nowrap}
@@ -315,7 +315,7 @@ main.sin-margen .portada{margin-top:0}
 }
 
 /* ==========================================================================
-   v1.1 · detalle del caso, fotos, comentario del personal y vista previa
+   Detalle del caso, fotos, comentario del personal y vista previa
    ========================================================================== */
 .migas{margin:-.4rem 0 .8rem}
 .detalle-caso{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:1.4rem;align-items:start}
@@ -343,7 +343,7 @@ a.codigo-caso:hover{color:var(--pri)!important}
 .vista-foto img{width:5.5rem;height:5.5rem;object-fit:cover;border-radius:8px;border:1px solid var(--bd)}
 .resultado-cabecera h1.codigo{margin:0}
 
-/* v1.2 · estado Descartado */
+/* Estado Descartado */
 .est-descartado{background:var(--campo);color:var(--mut);border:1px solid var(--bd)}
 .cifra.c-descartado{--c:#7a8794}
 .cifras.cinco{grid-template-columns:repeat(5,1fr)}

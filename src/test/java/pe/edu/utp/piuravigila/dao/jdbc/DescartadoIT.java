@@ -13,7 +13,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import pe.edu.utp.piuravigila.model.*;
 
-/** v1.2 · estado «Descartado» contra PostgreSQL real (TC-D08 a TC-D11). Solo con RUN_DB_TESTS=true. */
+/** Estado «Descartado» contra PostgreSQL real (TC-D08 a TC-D11). Solo con RUN_DB_TESTS=true. */
 @EnabledIfEnvironmentVariable(named = "RUN_DB_TESTS", matches = "true")
 class DescartadoIT {
     private static final LocalDateTime T0 = LocalDateTime.of(2026, 11, 2, 9, 0);
