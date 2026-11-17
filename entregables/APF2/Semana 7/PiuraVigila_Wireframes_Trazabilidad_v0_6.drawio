@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2026-11-09T00:00:00.000Z" agent="ChatGPT" version="24.0.0" type="device">
+<mxfile host="app.diagrams.net" modified="2026-11-09T00:00:00.000Z" agent="draw.io" version="24.0.0" type="device">
 <diagram id="wireframes" name="Wireframes_UXUI_v0.6"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>
 <mxCell id="title" value="Semana 7 · Wireframes PiuraVigila v0.6" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ffffff;fontColor=#111827;" vertex="1" parent="1"><mxGeometry x="40" y="25" width="900" height="40" as="geometry"/></mxCell>
 <mxCell id="p01" value="P01 · Registrar reporte de incidencia (RF-01)

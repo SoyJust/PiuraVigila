@@ -18,7 +18,7 @@ import pe.edu.utp.piuravigila.config.FotoStorageDisco;
 import pe.edu.utp.piuravigila.config.RetencionFotos;
 import pe.edu.utp.piuravigila.dao.ReporteDAO;
 
-/** v1.1 · fotos más livianas y sin metadatos (TC-F01 a TC-F06) y límites de intentos (TC-L01 a TC-L02). */
+/** Fotos más livianas y sin metadatos (TC-F01 a TC-F06) y límites de intentos (TC-L01 a TC-L02). */
 class FotosYLimitesTest {
 
     private static byte[] jpeg(int w, int h) throws Exception {

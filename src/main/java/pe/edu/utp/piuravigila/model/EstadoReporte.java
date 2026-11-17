@@ -2,7 +2,7 @@ package pe.edu.utp.piuravigila.model;
 
 /**
  * Estado de un caso. Avanza Recibido → En proceso → Atendido (P03).
- * v1.2 · un caso abierto (Recibido o En proceso) también puede pasar a Descartado cuando el reporte es falso, de prueba o
+ * Un caso abierto (Recibido o En proceso) también puede pasar a Descartado cuando el reporte es falso, de prueba o
  * no corresponde a la vía pública; exige un motivo que ve el vecino. Atendido y Descartado son estados finales.
  */
 public enum EstadoReporte {

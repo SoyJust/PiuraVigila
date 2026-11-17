@@ -73,7 +73,7 @@ BEGIN
     FROM reporte WHERE reporte_id = p_original;
 END $$;
 
--- v1.2 · Caso descartado: se registra como Recibido y luego un administrador lo descarta con un motivo (lo ve el vecino).
+-- Caso descartado: se registra como Recibido y luego un administrador lo descarta con un motivo (lo ve el vecino).
 CREATE FUNCTION pg_temp.demo_descartado(
     p_cat text, p_zona text, p_desc text, p_lat numeric, p_lng numeric,
     p_dias numeric, p_d_descarte numeric, p_motivo text, p_disp text, p_foto text) RETURNS int

@@ -156,9 +156,9 @@ Antes, con fotos de hasta 2 MB, eran hasta 6 o 7 veces más.
 
 ---
 
-## 7. Lo que sigue pendiente (dicho con honestidad)
+## 7. Pendientes
 
-1. ~~Estado «Descartado»~~ **Hecho en la v1.2** (ver `entregables/PROY/Acabado v1.2`). Como cambia el modelo de estados aprobado, conviene comentarlo con el docente en la próxima revisión.
+1. ~~Estado «Descartado»~~ **Hecho en la v1.2** (ver `entregables/PROY/Acabado v1.2`).
 2. **CAPTCHA real** en el despliegue (semana 15), en lugar de la suma.
 3. **Límites que se reinician si se reinicia la aplicación.** Los límites por IP y las huellas de fotos viven en memoria. Para un solo servidor es suficiente; con varios servidores habría que guardarlos en la base o en Redis.
 4. **Distrito frente al punto del mapa:** no se cruza con el contorno de cada distrito.

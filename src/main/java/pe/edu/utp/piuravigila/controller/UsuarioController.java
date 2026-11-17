@@ -9,7 +9,7 @@ import pe.edu.utp.piuravigila.model.RolUsuario;
 import pe.edu.utp.piuravigila.model.UsuarioMunicipal;
 import pe.edu.utp.piuravigila.service.UsuarioService;
 
-/** v1.0 · P05 gestión de usuarios (solo administrador) y P06 cambio de la propia contraseña (ambos roles). */
+/** P05 gestión de usuarios (solo administrador) y P06 cambio de la propia contraseña (ambos roles). */
 @Controller
 public class UsuarioController {
     private static final String SESION = "usuario";

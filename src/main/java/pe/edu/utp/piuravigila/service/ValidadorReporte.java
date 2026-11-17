@@ -12,7 +12,7 @@ public class ValidadorReporte {
     public static final String MSG_FOTO = "Foto demasiado pesada";
     public static final int MAX_DESCRIPCION = 300; // reporte.descripcion VARCHAR(300)
     public static final String MSG_FUERA = "La ubicación marcada está fuera de la provincia de Piura. Toca el mapa en el lugar del problema.";
-    /** v1.1 · rectángulo holgado que contiene los 10 distritos de la provincia de Piura (de Las Lomas a La Unión). */
+    /** Rectángulo holgado que contiene los 10 distritos de la provincia de Piura (de Las Lomas a La Unión). */
     static final double LAT_MIN = -5.70, LAT_MAX = -4.30, LNG_MIN = -81.00, LNG_MAX = -79.80;
 
     private final long maxFotoBytes;

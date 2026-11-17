@@ -22,7 +22,7 @@ public class PanelController {
     private final DashboardService dashboard;
     private final Clock reloj;
     private final LimitadorIntentos limitador;
-    /** v1.1 · fuerza bruta en el login: 5 fallos por usuario o 20 por IP en 15 minutos bloquean nuevos intentos. */
+    /** Fuerza bruta en el login: 5 fallos por usuario o 20 por IP en 15 minutos bloquean nuevos intentos. */
     static final int MAX_FALLOS_USUARIO = 5, MAX_FALLOS_IP = 20;
     static final Duration VENTANA_LOGIN = Duration.ofMinutes(15);
 
@@ -111,7 +111,7 @@ public class PanelController {
         m.addAttribute("avisoOtra", categorias.umbralOtraSuperado());
         m.addAttribute("pctOtra", categorias.porcentajeOtraMes());
         m.addAttribute("verResumen", resumen);
-        // v1.0 · tarjetas de cifras arriba del panel (todos los casos, sin filtros)
+        // Tarjetas de cifras arriba del panel (todos los casos, sin filtros)
         m.addAttribute("kRecibido", reportes.totalCasos(null, null, EstadoReporte.RECIBIDO));
         m.addAttribute("kProceso", reportes.totalCasos(null, null, EstadoReporte.EN_PROCESO));
         m.addAttribute("kAtendido", reportes.totalCasos(null, null, EstadoReporte.ATENDIDO));
@@ -166,7 +166,7 @@ public class PanelController {
                                 HttpSession s, RedirectAttributes ra) {
         UsuarioMunicipal u = (UsuarioMunicipal) s.getAttribute(SESION);
         if (u == null) return "redirect:/login?requerida";
-        // v1.1 · desde el detalle del caso se vuelve al detalle (solo códigos con formato válido: nada de redirecciones abiertas)
+        // Desde el detalle del caso se vuelve al detalle (solo códigos con formato válido: nada de redirecciones abiertas)
         String destino = volver != null && volver.matches("PR-\\d{4}-\\d{4,}") ? "redirect:/panel/caso?codigo=" + volver : "redirect:/panel";
         if (!Csrf.valido(s, csrf)) { ra.addFlashAttribute("error", "Solicitud no válida"); return destino; }
         try {

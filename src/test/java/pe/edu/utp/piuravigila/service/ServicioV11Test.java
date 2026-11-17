@@ -8,7 +8,7 @@ import pe.edu.utp.piuravigila.dto.*;
 import pe.edu.utp.piuravigila.model.*;
 import pe.edu.utp.piuravigila.service.ReporteServiceTest.Fx;
 
-/** v1.1 · bloqueos contra envíos simultáneos, comentario del personal y detalle del caso (TC-C01 a TC-C05). */
+/** Bloqueos contra envíos simultáneos, comentario del personal y detalle del caso (TC-C01 a TC-C05). */
 class ServicioV11Test {
     private static final UsuarioMunicipal OP = new UsuarioMunicipal(5, "Operador", "op1", "hash", RolUsuario.OPERADOR);
 

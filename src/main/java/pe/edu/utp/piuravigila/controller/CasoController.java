@@ -14,7 +14,7 @@ import pe.edu.utp.piuravigila.model.UsuarioMunicipal;
 import pe.edu.utp.piuravigila.service.ReporteService;
 
 /**
- * v1.1 · P03b detalle del caso y fotos. Solo para personal con sesión: la foto puede mostrar rostros o placas, por eso
+ * P03b detalle del caso y fotos. Solo para personal con sesión: la foto puede mostrar rostros o placas, por eso
  * nunca se publica en la consulta del vecino ni se sirve como archivo estático.
  */
 @Controller
