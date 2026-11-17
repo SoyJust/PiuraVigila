@@ -7,7 +7,9 @@ param(
     [string]$Base = "C:\PiuraVigila-deploy",
     [string]$Repo = "https://github.com/SoyJust/PiuraVigila.git"
 )
-$ErrorActionPreference = "Stop"
+# git y mvn escriben avisos por stderr; en PowerShell 5.1 eso no debe detener el script.
+# Los fallos se detectan por el código de salida.
+$ErrorActionPreference = "Continue"
 . (Join-Path $Base "config\env.ps1")
 
 $fuente = Join-Path $Base "build\$Version"
@@ -23,7 +25,8 @@ try {
 
 $jar = Get-ChildItem "$fuente\target\piuravigila-*.jar" | Select-Object -First 1
 New-Item -ItemType Directory -Force "$Base\app", "$Base\logs", "$Base\fotos" | Out-Null
-Copy-Item $jar.FullName "$Base\app\piuravigila.jar" -Force
+if (-not $jar) { throw "No se generó el JAR" }
+Copy-Item $jar.FullName "$Base\app\piuravigila.jar" -Force -ErrorAction Stop
 $hash = (Get-FileHash "$Base\app\piuravigila.jar" -Algorithm SHA256).Hash
 $linea = "{0}  {1}  {2}  {3} bytes  SHA-256 {4}" -f (Get-Date -Format s), $Version, $jar.Name, $jar.Length, $hash
 Add-Content "$Base\app\despliegues.log" $linea

@@ -1,6 +1,6 @@
 # PiuraVigila
 
-Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basura, etc.) y que el personal municipal las gestione. Proyecto Integrador · UTP · Curso Integrador I: Sistemas - Software (2026-2). Incluye los avances APF1 a APF3 y el proyecto final (pruebas de software, pruebas de seguridad y versiones v1.0 a v1.2).
+Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basura, etc.) y que el personal municipal las gestione. Proyecto Integrador · UTP · Curso Integrador I: Sistemas - Software (2026-2). Incluye los avances APF1 a APF3 y el proyecto final (pruebas de software, pruebas de seguridad, versiones v1.0 a v1.2 y despliegue de la v1.3.0).
 
 ## Tecnologías
 
@@ -15,7 +15,7 @@ Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basur
 | Mapas | Leaflet con mosaicos de OpenStreetMap |
 | Pruebas | JUnit 5, MockMvc, Mockito, Failsafe (integración con PostgreSQL), JaCoCo |
 | Integración continua | GitHub Actions (`.github/workflows/pruebas.yml`) |
-| Build | Maven |
+| Build y despliegue | Maven (JAR ejecutable), Spring Boot Actuator (health e info), scripts en `deploy/` |
 
 ## Arquitectura
 
@@ -42,7 +42,8 @@ Paquete base: `pe.edu.utp.piuravigila` (`model`, `dto`, `dao`, `service`, `contr
 │   ├── 05_migracion_v1_0.sql      # actualiza una base anterior (columnas activo y comentario, distritos, estado Descartado)
 │   └── generar_fotos_demo.py      # opcional: imágenes ilustrativas para los reportes de demostración
 ├── src/main/java/...              # código fuente por capas
-├── src/main/resources/            # plantillas, CSS, JS y application.properties
+├── src/main/resources/            # plantillas, CSS, JS, application.properties y application-prod.properties
+├── deploy/                        # scripts de despliegue local (BD, build desde tag, inicio, health check)
 ├── src/test/java/...              # pruebas unitarias, de controladores y de integración
 ├── entregables/                   # documentos por avance (APF1 a APF3 y PROY; ver «Entregables»)
 ├── .github/workflows/pruebas.yml  # CI: pruebas en cada push y pull request
@@ -130,10 +131,29 @@ mvn spring-boot:run
 
 Las contraseñas nunca se guardan en el código ni en el repositorio.
 
+## Despliegue
+
+La versión desplegada se construye siempre desde una etiqueta, en una carpeta limpia, y corre como JAR con el perfil `prod`: HTTPS en 8443, HTTP 8080 que solo redirige, HSTS y cookies `Secure`. Las variables se cargan desde `<carpeta de despliegue>\config\env.ps1` (plantilla en `deploy/env.ejemplo.ps1`; ese archivo no se versiona).
+
+```powershell
+$env:PGPASSWORD = "<clave de postgres>"; .\deploy\windows\preparar_bd.ps1 -ConDemo   # base piuravigila_prod y rol sin DDL
+.\deploy\windows\desplegar.ps1 -Version v1.3.0                                        # git clone del tag + mvn clean package
+.\deploy\windows\iniciar.ps1                                                           # java -jar --spring.profiles.active=prod
+.\deploy\windows\health_check.ps1                                                      # health, BD, versión, redirección, HSTS
+```
+
+| Comprobación | Ruta |
+|---|---|
+| Proceso | `/actuator/health` |
+| PostgreSQL | `/actuator/health/db` |
+| Versión, commit y fecha del build | `/actuator/info` |
+
+Registro del despliegue de la Semana 15 en `entregables/PROY/Semana 15`.
+
 ## Pruebas
 
 ```powershell
-mvn test                     # 116 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
+mvn test                     # 121 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
 ```
 
 Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios, incluida la línea de tiempo de la consulta de estado y la gestión de usuarios (`UsuarioServiceTest`, con DAOs simulados). Los controladores se prueban con MockMvc: el panel (sesión, token CSRF, rol de administrador y R02) en `PanelControllerTest`, y el formulario público y la consulta en `ReporteControllerTest`.
@@ -180,7 +200,8 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 - Contraseñas con BCrypt; roles operador y administrador; una cuenta desactivada pierde su sesión al instante.
 - Token CSRF en el login, el panel y los formularios públicos (sin token: HTTP 403). El login cambia el identificador de sesión y la sesión viaja solo por cookie.
 - Cabeceras en todas las respuestas (`CabecerasSeguridad`): CSP sin `unsafe-inline`, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy` y `Permissions-Policy`. Leaflet se carga con SRI.
-- Cookies de sesión y de dispositivo con `HttpOnly` y `SameSite=Lax`. `Secure` y HSTS se activan al desplegar con HTTPS.
+- Cookies de sesión y de dispositivo con `HttpOnly` y `SameSite=Lax`; en el despliegue (perfil `prod`, HTTPS) también `Secure`, con HSTS y redirección de HTTP a HTTPS.
+- Actuator expone solo `health` e `info`, sin detalles internos.
 - Fotos decodificadas antes de guardarse (contenido y extensión deben coincidir, solo JPG/PNG), con nombre aleatorio y huella SHA-256 en el log.
 - Consultas parametrizadas con `JdbcTemplate`; coordenadas NaN o infinitas rechazadas en el servidor.
 - `/panel/exportar` exige sesión, rechaza periodos inválidos y responde con `Cache-Control: no-store`.
@@ -201,6 +222,7 @@ Reporte, hallazgos y evidencias en `entregables/PROY/Semana 14`.
 | PROY · Acabado v1.0 | 14 | `entregables/PROY/Acabado v1.0` | Interfaz final, gestión de usuarios, 10 distritos, datos de demostración y capturas antes/después |
 | PROY · Acabado v1.1 | 14 | `entregables/PROY/Acabado v1.1` | Detalle del caso con fotos, Excel completo, concurrencia y anti-spam corregidos, respuestas a las preguntas del docente |
 | PROY · Acabado v1.2 | 14 | `entregables/PROY/Acabado v1.2` | Estado «Descartado» con motivo obligatorio |
+| PROY · Semana 15 | 15 | `entregables/PROY/Semana 15` | Despliegue (80 %): v1.3.0 como JAR con HTTPS, health checks, PostgreSQL, logs, ZAP pasivo, plantilla y plan de migración a Spring Boot 4 |
 
 Cada carpeta tiene su guía (`LEEME.txt` en APF1–APF3, `LEEME_*.md` en PROY) con el contenido y las correcciones.
 

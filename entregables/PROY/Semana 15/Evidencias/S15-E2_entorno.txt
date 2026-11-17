@@ -1,0 +1,38 @@
+S15-E2 · Entorno de despliegue (sin contraseñas)
+Fecha: 17/11/2026 11:57
+
+== Sistema
+Microsoft Windows 11 (versión 10.0.26300.9974)
+
+== JDK
+openjdk version "21.0.13" 2026-10-20 LTS
+OpenJDK Runtime Environment Temurin-21.0.13+9 (build 21.0.13+9-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.13+9 (build 21.0.13+9-LTS, mixed mode, sharing)
+
+== Maven
+Apache Maven 3.10.0 (c43a36b8d67be7e0805a411bc0898af1a51f5472)
+Maven home: C:\Users\Joss\Downloads\a\Curso integrador\apache-maven-3.10.0
+Java version: 21.0.13, vendor: Eclipse Adoptium, runtime: C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
+
+== PostgreSQL
+psql (PostgreSQL) 18.6
+localhost:5432 - aceptando conexiones
+
+== Servidor
+Tomcat embebido de Spring Boot 3.5.16 (ver S15-E3): HTTPS 8443 y HTTP 8080 (solo redirige).
+
+== Carpetas del despliegue (C:\PiuraVigila-deploy)
+  app     despliegues.log piuravigila.jar piuravigila.pid 
+  build   v1.3.0 
+  certs   piuravigila.crt piuravigila.p12 
+  config  env.ps1 
+  fotos   67851383-2c25-45ec-853d-7baf1e07c795.jpg demo-01.jpg demo-02.jpg demo-03.jpg 
+  logs    bd_e2e.txt build_v1.3.0.log consola-error.log consola.log 
+  (config\env.ps1 tiene los secretos; no se publica. Plantilla: deploy/env.ejemplo.ps1)
+
+== Certificado TLS (autofirmado, válido 365 días)
+Propietario: CN=localhost, OU=PiuraVigila, O=UTP Piura, C=PE
+	 SHA256: DB:93:77:2B:A0:4D:36:53:20:37:26:AF:A7:01:8A:51:6D:27:D8:91:60:02:AD:FE:9C:48:0B:E7:3A:1F:21:AF
+
+== Variables usadas por la aplicación (solo nombres)
+JAVA_HOME MAVEN_HOME Path PIURA_DB_URL PIURA_DB_USER PIURA_DB_PASSWORD PIURA_ADMIN_PASSWORD PIURA_OPERADOR_PASSWORD PIURA_KEYSTORE PIURA_KEYSTORE_PASSWORD PIURA_HTTPS_PUERTO PIURA_HTTP_PUERTO PIURA_FOTOS_DIR PIURA_LOG_DIR 

@@ -1,0 +1,14 @@
+S15-E7 · Flujo mínimo sobre la aplicación desplegada (HTTPS)
+Registrar un reporte (P01) con token CSRF, suma de verificación y foto JPEG; consultarlo (P02).
+
+csrf=<token> pregunta=5 + 7 suma=12 categoria=4 (Luminaria dañada) zona=9 (Las Lomas)
+POST /reportar -> HTTP 200  codigo=PR-2026-0063
+GET /consultar?codigo=PR-2026-0063 -> HTTP 200  estado=Recibido
+
+Página de confirmación (fragmento):
+ Código de seguimiento  PR-2026-0063
+Consulta (fragmento):
+PR-2026-0063
+Recibido
+
+En el panel (S15-E8_capturas/S15-C6) el caso aparece con su foto, el punto en el mapa y el historial.

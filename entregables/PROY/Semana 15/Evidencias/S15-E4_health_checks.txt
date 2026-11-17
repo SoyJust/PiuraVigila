@@ -1,0 +1,28 @@
+S15-E4 · Health checks contra el despliegue (certificado validado con --cacert, sin -k)
+
+== deploy\windows\health_check.ps1
+﻿
+Id    Comprobacion                               Estado Obtenido                                                       
+--    ------------                               ------ --------                                                       
+HC-01 Proceso web (/actuator/health)             PASS   {"status":"UP","groups":["db"]} HTTP 200                       
+HC-02 PostgreSQL (/actuator/health/db)           PASS   {"status":"UP"} HTTP 200                                       
+HC-03 Versión desplegada (/actuator/info)        PASS   {"git":{"branch":"91384a28b72d2a4edd788a4f105d9c5bd3b1e021","co
+                                                        mmit":{"id":"91384a2","time":"2026-11-17T16:49:29Z"}},"build":{
+                                                        "artifact":"piuravigila","name":"PiuraVigila","time":"2026-11-1
+                                                        7T16:50:47Z","version":"1.3.0"                                 
+HC-04 Página de inicio por HTTPS                 PASS   HTTP 200                                                       
+HC-05 HTTP redirige a HTTPS                      PASS   HTTP 302 -> https://localhost:8443/                            
+HC-06 Cabecera HSTS                              PASS   Strict-Transport-Security: max-age=31536000; includeSubDomains 
+HC-07 Endpoints internos ocultos (/actuator/env) PASS   HTTP 404                                                       
+
+7 de 7 comprobaciones en PASS
+
+== deploy/health_check.sh
+PASS  HC-01  Proceso web
+PASS  HC-02  PostgreSQL
+PASS  HC-03  Versión desplegada
+PASS  HC-04  Inicio por HTTPS
+PASS  HC-05  HTTP redirige a HTTPS
+PASS  HC-06  Cabecera HSTS
+PASS  HC-07  Actuator interno oculto
+Fallos: 0

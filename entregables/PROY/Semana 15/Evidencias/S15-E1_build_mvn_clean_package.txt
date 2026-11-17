@@ -1,0 +1,16 @@
+S15-E1 · Construcción con Maven desde una copia limpia del tag v1.3.0
+Comando: deploy\windows\desplegar.ps1 -Version v1.3.0  (git clone --depth 1 --branch v1.3.0 + mvn -B clean package)
+Versión: tag v1.3.0 = commit 91384a2 (merge del PR #16)
+Fecha: 17/11/2026 · Equipo de despliegue: PC del grupo (Windows 11, JDK 21)
+-------------------------------------------------------------------------------
+[INFO] Building PiuraVigila 1.3.0
+[INFO] Tests run: 121, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Building jar: C:\PiuraVigila-deploy\build\v1.3.0\target\piuravigila-1.3.0.jar
+[INFO] --- spring-boot:3.5.16:repackage (repackage) @ piuravigila ---
+[INFO] Replacing main artifact C:\PiuraVigila-deploy\build\v1.3.0\target\piuravigila-1.3.0.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] BUILD SUCCESS
+[INFO] Total time:  22.588 s
+[INFO] Finished at: 2026-11-17T11:51:09-05:00
+-------------------------------------------------------------------------------
+Registro de despliegues (C:\PiuraVigila-deploy\app\despliegues.log):
+2026-11-17T11:51:10  v1.3.0  piuravigila-1.3.0.jar  50276378 bytes  SHA-256 60C4C2DCB3668A81593EE3C5CFEF3A829FFD0562BBF5BE4B9E55CE86806B14A3

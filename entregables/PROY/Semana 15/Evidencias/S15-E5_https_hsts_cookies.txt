@@ -1,0 +1,24 @@
+S15-E5 · Reprueba de las observaciones de la Semana 14: HTTPS, HSTS, cookies Secure y redirección
+
+== curl -I http://localhost:8080/   (HTTP solo redirige)
+HTTP/1.1 302 
+Location: https://localhost:8443/
+
+== curl -D - https://localhost:8443/login   (cabeceras de seguridad y cookies)
+HTTP/1.1 200 
+Content-Security-Policy: default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: blob: https://tile.openstreetmap.org https://cdnjs.cloudflare.com; connect-src 'self'; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(self), camera=(), microphone=()
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Set-Cookie: JSESSIONID=<id>; Path=/; Secure; HttpOnly; SameSite=Lax
+
+== curl -D - https://localhost:8443/reportar   (cookie de dispositivo)
+Set-Cookie: JSESSIONID=<id>; Path=/; Secure; HttpOnly; SameSite=Lax
+Set-Cookie: pv_dispositivo=<uuid>; Path=/; Max-Age=31536000; Expires=Wed, 17 Nov 2027 16:57:23 GMT; Secure; HttpOnly; SameSite=Lax
+
+== TLS
+Con el certificado del despliegue (--cacert certs\piuravigila.crt): ssl_verify_result=0 HTTP 200
+Sin indicar el certificado (CA del sistema): código de salida 60 de curl (60 = certificado no confiable), HTTP 000
+El certificado es autofirmado: el navegador muestra una advertencia hasta que se instale como confiable.
