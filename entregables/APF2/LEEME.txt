@@ -26,4 +26,3 @@ Correcciones de la rev1 (09/11/2026):
      "Corregido", "Escrito", "Entero (FK)", "Confidencialidad"... que no estaban en las listas).
   7) Se agregan: R05 (autorrelacion del vinculo), S05 (CSRF), S06 (inyeccion SQL), R03 (resumen de gestion) y T06/T07.
 
-Pendiente: Checklist de BD, criterio "El grupo puede explicar una decision de seguridad y una relacion critica" (ensayo del equipo).
