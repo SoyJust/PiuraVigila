@@ -75,6 +75,6 @@ Resultado: 0 fallos (`Evidencias/AV11-01_mvn_verify.txt`).
 ## Pendiente
 
 Ver la sección 7 de `Preguntas_del_docente_abuso_y_errores.md`:
-- un estado «Descartado» para reportes falsos, que hay que consultar con el docente;
+- un estado «Descartado» para reportes falsos (resuelto en la v1.2);
 - un CAPTCHA real al desplegar;
 - límites compartidos si algún día hay varios servidores.
