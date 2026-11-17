@@ -72,3 +72,14 @@ Resultado: 68 pruebas unitarias + 7 de integración, 0 fallos. El reporte .docx 
 ## Pendiente para la Semana 15 (despliegue)
 
 HTTPS con HSTS y cookies `Secure`, Dependency-Check con la clave del NVD, y planificar la migración a Spring Boot 4 (riesgo R1).
+
+## Identificadores de commit
+
+El 17/11/2026 se limpiaron los mensajes de los commits de `main` y sus identificadores cambiaron. El código es el mismo. Equivalencias de los commits citados en esta carpeta (los archivos de evidencia conservan el identificador que tenían al generarse; los antiguos se siguen viendo en la página de cada PR en GitHub):
+
+| Antes | Ahora | Commit |
+|---|---|---|
+| `fef1156` | `91ed827` | merge del PR #8 (línea inicial de la Semana 14) |
+| `7785a7e` | `40a3c66` | test(s14): pruebas de seguridad iniciales en rojo |
+| `4a251a3` | `bbba55d` | fix(s14): cabeceras de seguridad, CSRF y SameSite |
+| `c8648c4` | `1dede57` | fix(s14): quitar estilos en línea para una CSP sin 'unsafe-inline' |

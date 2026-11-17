@@ -104,6 +104,22 @@ class SeguridadWebTest {
                 .andExpect(header().string("Set-Cookie", containsString("SameSite=Lax")));
     }
 
+    @Test @DisplayName("TC-SEC-15 · HSTS en respuestas HTTPS y nunca en HTTP")
+    void hsts_solo_por_https() throws Exception {
+        ciudadano.perform(get("/consultar").secure(true))
+                .andExpect(header().string("Strict-Transport-Security", "max-age=31536000; includeSubDomains"));
+        ciudadano.perform(get("/consultar"))
+                .andExpect(header().doesNotExist("Strict-Transport-Security"));
+    }
+
+    @Test @DisplayName("TC-SEC-16 · por HTTPS la cookie de dispositivo lleva Secure; por HTTP no")
+    void cookie_de_dispositivo_secure_por_https() throws Exception {
+        ciudadano.perform(get("/reportar").secure(true))
+                .andExpect(cookie().secure("pv_dispositivo", true));
+        ciudadano.perform(get("/reportar"))
+                .andExpect(cookie().secure("pv_dispositivo", false));
+    }
+
     @Test @DisplayName("TC-SEC-08 · las plantillas no tienen scripts en línea y Leaflet se carga con SRI")
     void plantillas_sin_scripts_en_linea_y_con_sri() throws Exception {
         Pattern scriptEnLinea = Pattern.compile("<script(?![^>]*\\bsrc=)[^>]*>");

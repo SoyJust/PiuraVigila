@@ -177,9 +177,9 @@ public class ReporteController {
             }
         }
         String id = UUID.randomUUID().toString();
-        // SEC-05: HttpOnly y SameSite=Lax (no viaja en peticiones iniciadas por otros sitios).
+        // SEC-05: HttpOnly y SameSite=Lax (no viaja en peticiones iniciadas por otros sitios); Secure cuando llega por HTTPS.
         rs.addHeader("Set-Cookie", org.springframework.http.ResponseCookie.from(COOKIE, id)
-                .httpOnly(true).path("/").maxAge(java.time.Duration.ofDays(365)).sameSite("Lax").build().toString());
+                .httpOnly(true).secure(rq.isSecure()).path("/").maxAge(java.time.Duration.ofDays(365)).sameSite("Lax").build().toString());
         return id;
     }
 }
