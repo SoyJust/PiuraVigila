@@ -55,4 +55,4 @@ Los nombres de `ReporteControllerTest` usan TC-P01-xx y TC-P02-01; en la plantil
 
 ## Lectura de la cobertura
 
-La cobertura se usó para encontrar huecos, no como meta. Resultado: se priorizó `ReporteController` por riesgo. Quedan sin prueba propia `AdminInicializador`, `BCryptHash` y los DAO JDBC de categoría, zona y usuario. Para la Semana 14 se recomienda probar el DAO de usuario (login) junto con las pruebas de seguridad.
+La cobertura se usó para encontrar huecos, no como meta. Resultado: se priorizó `ReporteController` por riesgo. Quedan sin prueba propia `AdminInicializador`, `BCryptHash` y los DAO JDBC de categoría, zona y usuario. El DAO de usuario (login) se cubrió después con `UsuarioMunicipalDAOJdbcIT`.

@@ -1,6 +1,6 @@
 # PiuraVigila
 
-Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basura, etc.) y que el personal municipal las gestione. Proyecto Integrador · UTP · Curso Integrador I: Sistemas - Software (2026-2). APF1 a APF3 entregados; Unidad 4 (pruebas, seguridad, despliegue, monitoreo y mantenimiento) en curso.
+Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basura, etc.) y que el personal municipal las gestione. Proyecto Integrador · UTP · Curso Integrador I: Sistemas - Software (2026-2). Incluye los avances APF1 a APF3 y el proyecto final (pruebas de software, pruebas de seguridad y versiones v1.0 a v1.2).
 
 ## Tecnologías
 
@@ -10,8 +10,11 @@ Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basur
 | Framework | Spring Boot 3.5 (Web, Thymeleaf, JDBC) |
 | Acceso a datos | `JdbcTemplate` (sin ORM) |
 | Base de datos | PostgreSQL 15+ |
-| Seguridad | BCrypt (`spring-security-crypto`), token CSRF en el panel y formularios de reportes |
-| Pruebas | JUnit 5 (`spring-boot-starter-test`) |
+| Seguridad | BCrypt (`spring-security-crypto`), token CSRF, cabeceras CSP |
+| Librerías | Apache POI (Excel), Guava (huella SHA-256 de fotos), Commons Lang 3, Logback |
+| Mapas | Leaflet con mosaicos de OpenStreetMap |
+| Pruebas | JUnit 5, MockMvc, Mockito, Failsafe (integración con PostgreSQL), JaCoCo |
+| Integración continua | GitHub Actions (`.github/workflows/pruebas.yml`) |
 | Build | Maven |
 
 ## Arquitectura
@@ -21,8 +24,8 @@ Arquitectura en capas: **Presentación → Controlador → Servicio → DAO → 
 | Capa | Ubicación | Contenido |
 |---|---|---|
 | Presentación | `src/main/resources/templates`, `static/css` | Vistas Thymeleaf y estilos |
-| Controlador | `controller/` | `ReporteController`, `PanelController`, `Csrf`, `ManejoErrores` |
-| Servicio | `service/` | `ReporteService`, `DashboardService`, `AuthService`, `CategoriaService`, `ValidadorReporte`, `ControlAntiSpam`, `FotoStorage` |
+| Controlador | `controller/` | `ReporteController`, `PanelController`, `CasoController`, `UsuarioController`, `ExportacionController`, `Csrf`, `ManejoErrores` |
+| Servicio | `service/` | `ReporteService`, `DashboardService`, `AuthService`, `UsuarioService`, `CategoriaService`, `ExportacionService`, `ValidadorReporte`, `ControlAntiSpam`, `LimitadorIntentos`, `FotoStorage` |
 | DAO | `dao/` (contratos), `dao/jdbc/` (implementación) | `ReporteDAO`, `ZonaDAO`, `CategoriaDAO`, `UsuarioMunicipalDAO`, `HistorialEstadoDAO` |
 | Persistencia | `database/` | Esquema, datos iniciales y consultas del dashboard |
 
@@ -35,14 +38,14 @@ Paquete base: `pe.edu.utp.piuravigila` (`model`, `dto`, `dao`, `service`, `contr
 │   ├── 01_schema.sql              # tablas, índices y secuencia del código de reporte
 │   ├── 02_seed.sql                # zonas (distritos), categorías y usuarios admin y operador
 │   ├── 03_consultas_dashboard.sql # consultas R01–R03 del panel
-│   ├── 04_datos_demo.sql          # datos ficticios opcionales: 59 casos en los 10 distritos
-│   ├── 05_migracion_v1_0.sql      # actualiza una base anterior (columnas activo y comentario, 4 distritos)
+│   ├── 04_datos_demo.sql          # datos ficticios opcionales: 62 casos en los 10 distritos
+│   ├── 05_migracion_v1_0.sql      # actualiza una base anterior (columnas activo y comentario, distritos, estado Descartado)
 │   └── generar_fotos_demo.py      # opcional: imágenes ilustrativas para los reportes de demostración
 ├── src/main/java/...              # código fuente por capas
-├── src/main/resources/            # plantillas, CSS y application.properties
-├── src/test/java/...              # pruebas del servicio y del panel
+├── src/main/resources/            # plantillas, CSS, JS y application.properties
+├── src/test/java/...              # pruebas unitarias, de controladores y de integración
 ├── entregables/                   # documentos por avance (APF1 a APF3 y PROY; ver «Entregables»)
-├── evidencias/                    # evidencias de pruebas
+├── .github/workflows/pruebas.yml  # CI: pruebas en cada push y pull request
 └── pom.xml
 ```
 
@@ -96,7 +99,7 @@ Si la base ya existía con una versión anterior a la v1.0, aplicar antes la mig
 psql -U postgres -d piuravigila -f database/05_migracion_v1_0.sql
 ```
 
-Opcional: cargar datos de demostración (ficticios) para ver el panel y el mapa con contenido: 59 casos y 13 reportes vinculados en los 10 distritos durante los últimos 5 meses. Se ejecuta una sola vez; al final del archivo están las instrucciones para quitarlos.
+Opcional: cargar datos de demostración (ficticios) para ver el panel y el mapa con contenido: 62 casos (3 descartados) y 13 reportes vinculados en los 10 distritos durante los últimos 5 meses. Se ejecuta una sola vez; al final del archivo están las instrucciones para quitarlos.
 
 ```powershell
 psql -U postgres -d piuravigila -f database/04_datos_demo.sql
@@ -173,6 +176,20 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 - El selector de ubicación y el mapa del panel cargan Leaflet y los mosaicos de OpenStreetMap por internet; sin conexión no se dibujan (el formulario sigue funcionando, la ubicación es opcional).
 - Los datos son simulados; no registrar datos personales reales. En `04_datos_demo.sql` las coordenadas son aproximadas.
 
+## Seguridad
+
+- Contraseñas con BCrypt; roles operador y administrador; una cuenta desactivada pierde su sesión al instante.
+- Token CSRF en el login, el panel y los formularios públicos (sin token: HTTP 403). El login cambia el identificador de sesión y la sesión viaja solo por cookie.
+- Cabeceras en todas las respuestas (`CabecerasSeguridad`): CSP sin `unsafe-inline`, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy` y `Permissions-Policy`. Leaflet se carga con SRI.
+- Cookies de sesión y de dispositivo con `HttpOnly` y `SameSite=Lax`. `Secure` y HSTS se activan al desplegar con HTTPS.
+- Fotos decodificadas antes de guardarse (contenido y extensión deben coincidir, solo JPG/PNG), con nombre aleatorio y huella SHA-256 en el log.
+- Consultas parametrizadas con `JdbcTemplate`; coordenadas NaN o infinitas rechazadas en el servidor.
+- `/panel/exportar` exige sesión, rechaza periodos inválidos y responde con `Cache-Control: no-store`.
+- El log (`logs/piuravigila.log`) no registra contraseñas ni el contenido de las fotos.
+- Dependencias con versiones parche fijadas en el `pom.xml`; `mvn -Psecurity-sca verify` ejecuta OWASP Dependency-Check (requiere `NVD_API_KEY`).
+
+Reporte, hallazgos y evidencias en `entregables/PROY/Semana 14`.
+
 ## Entregables
 
 | Avance | Semanas | Carpeta | Contenido |
@@ -186,35 +203,8 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 | PROY · Acabado v1.1 | 14 | `entregables/PROY/Acabado v1.1` | Detalle del caso con fotos, Excel completo, concurrencia y anti-spam corregidos, respuestas a las preguntas del docente |
 | PROY · Acabado v1.2 | 14 | `entregables/PROY/Acabado v1.2` | Estado «Descartado» con motivo obligatorio |
 
-Cada carpeta tiene su `LEEME.txt` con el contenido y las correcciones.
+Cada carpeta tiene su guía (`LEEME.txt` en APF1–APF3, `LEEME_*.md` en PROY) con el contenido y las correcciones.
 
 ## Autores
 
 Proyecto Integrador I · UTP Sede Piura. Equipo: Leonel Ivan Moscoso Vargas, Juspin Edu Otero Saldarriaga, Giacomo Gerardo Jesus Hurtado Camino y Kreismy Nicol Lopez Saldarriaga.
-
-## Seguridad (Semana 14)
-
-- Cabeceras en todas las respuestas (`CabecerasSeguridad`): CSP sin `unsafe-inline` (scripts solo del sitio y de cdnjs), `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy` y `Permissions-Policy`.
-- Leaflet se carga con SRI (`integrity` y `crossorigin`); los scripts de las páginas están en `static/js`.
-- Cookies de sesión y de dispositivo con `HttpOnly` y `SameSite=Lax`. `Secure` y HSTS se activan al desplegar con HTTPS.
-- El formulario de login también exige token CSRF, y el login cambia el identificador de sesión.
-- Dependencias con versiones parche fijadas en el `pom.xml` (Tomcat, Jackson, PostgreSQL JDBC, Log4j y Guava).
-- `mvn -Psecurity-sca verify` ejecuta OWASP Dependency-Check; requiere la variable `NVD_API_KEY` con una clave gratuita del NVD.
-- Reporte y evidencias en `entregables/PROY/Semana 14`.
-
-## Revisión 3: librerías, exportación y seguridad
-
-- Guava 33.4.8-jre: `FotoStorageDisco` calcula SHA-256 de cada foto guardada y lo registra junto al nombre aleatorio. Sirve para comparar integridad; no cifra ni anonimiza la foto.
-- Apache POI 5.4.1: `ExportacionService` genera XLSX de conteos por zona. El panel ofrece **Descargar zonas en Excel**. Usa el periodo del resumen cuando está seleccionado; por defecto, hoy menos 30 días hasta hoy. No aplica los filtros de zona/categoría de la tabla.
-- Apache Commons Lang 3.20.0: `ValidadorReporte` comprueba descripciones nulas, vacías o compuestas solo por espacios con `StringUtils.isBlank`.
-- Logback: dependencia explícita con versión administrada por Spring Boot; salida SLF4J a `logs/piuravigila.log`. Registra la huella de fotos y las exportaciones, sin contraseñas ni contenido de las fotos.
-- `/panel/exportar` exige sesión municipal, rechaza periodos invertidos o mayores de cinco años y devuelve `Cache-Control: no-store`. Exporta solo agregados, por lo que pueden usarlo operador y administrador.
-- Los POST de registro y confirmación de duplicado exigen el token CSRF de la sesión. Un rechazo devuelve HTTP 403.
-- Las fotos se decodifican antes de guardarse: contenido y extensión deben coincidir. Solo JPG/PNG. WEBP se retiró porque ImageIO estándar no lo decodifica.
-- Coordenadas NaN e infinitas son rechazadas en el servidor.
-
-### Validación y evidencias
-
-Consulta `evidencias/REV3_VALIDACION.md` y `docs/REV3_GUIA.md`. Las capturas anteriores corresponden a rev2, no prueban estos cambios. Ejecuta `mvn clean test` con JDK 21 en tu equipo y demuestra también la aplicación con PostgreSQL antes de entregar.
-
-El arnés antiguo es histórico: no compila las dependencias nuevas y no reemplaza Maven/JUnit. No se afirma un ciclo TDD retroactivo. La arquitectura se sustenta con MVC, DAO, responsabilidad única e inversión de dependencias.

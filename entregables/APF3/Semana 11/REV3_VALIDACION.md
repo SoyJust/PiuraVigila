@@ -14,7 +14,7 @@ Excel válido con números y cadenas sin interpretación como fórmula; acceso a
 ## Publicación
 Rama `feature/apf3-rev3`, commit `52468ca`, pull request #3 fusionado (merge `9d70079`) y etiqueta `apf3-rev3`. La automatización `.github/workflows/pruebas.yml` está en el repositorio; su resultado se consulta en la pestaña Actions de GitHub.
 
-## No ejecutado o pendiente
-Servidor completo con PostgreSQL en el navegador con capturas de cada flujo, pruebas de integración y rollback real, y revisión del PR #3 por otro integrante (lo revisó su propio autor). La prueba de controlador verifica respuestas con MockMvc, no el renderizado visual de Thymeleaf. Las capturas históricas de 41, 42 y 44 pruebas son de revisiones anteriores y se conservan como historia.
+## Pendiente en esta revisión
+Pruebas de integración y rollback real con PostgreSQL (hechas en la Semana 13) y revisión del PR #3 por otro integrante (lo revisó su propio autor). La prueba de controlador verifica respuestas con MockMvc, no el renderizado visual de Thymeleaf. Las capturas históricas de 41, 42 y 44 pruebas son de revisiones anteriores y se conservan como historia.
 
-Los 54 tests no acreditan una cobertura del 100 % ni TDD. Esta revisión se valida con `mvn clean test` y los pasos de demostración de REV3_GUIA.md.
+Esta revisión se valida con `mvn clean test` y la prueba manual de REV3_GUIA.md.
