@@ -56,3 +56,12 @@ Los nombres de `ReporteControllerTest` usan TC-P01-xx y TC-P02-01; en la plantil
 ## Lectura de la cobertura
 
 La cobertura se usó para encontrar huecos, no como meta. Resultado: se priorizó `ReporteController` por riesgo. Quedan sin prueba propia `AdminInicializador`, `BCryptHash` y los DAO JDBC de categoría, zona y usuario. El DAO de usuario (login) se cubrió después con `UsuarioMunicipalDAOJdbcIT`.
+
+## Identificadores de commit
+
+El 17/11/2026 se limpiaron los mensajes de los commits de `main` y sus identificadores cambiaron. El código es el mismo. Equivalencias de los commits citados en esta carpeta (los archivos de evidencia conservan el identificador que tenían al generarse; los antiguos se siguen viendo en la página de cada PR en GitHub):
+
+| Antes | Ahora | Commit |
+|---|---|---|
+| `bbba9a9` | `b3bf6ed` | etiqueta `v0.9-R1`, merge del PR #7 |
+| `c8acd86` | `8c48981` | test(s13): integración con PostgreSQL y JaCoCo |

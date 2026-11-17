@@ -23,6 +23,7 @@ public class CabecerasSeguridad extends OncePerRequestFilter {
             + "img-src 'self' data: blob: https://tile.openstreetmap.org https://cdnjs.cloudflare.com; "
             + "connect-src 'self'; font-src 'self' https://fonts.gstatic.com; object-src 'none'; "
             + "base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
+    static final String HSTS = "max-age=31536000; includeSubDomains";
 
     @Override
     protected void doFilterInternal(HttpServletRequest rq, HttpServletResponse rs, FilterChain cadena) throws ServletException, IOException {
@@ -31,6 +32,8 @@ public class CabecerasSeguridad extends OncePerRequestFilter {
         rs.setHeader("X-Content-Type-Options", "nosniff");
         rs.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
         rs.setHeader("Permissions-Policy", "geolocation=(self), camera=(), microphone=()");
+        // Semana 15: HSTS solo en respuestas HTTPS (en HTTP el navegador lo ignora y no debe anunciarse).
+        if (rq.isSecure()) rs.setHeader("Strict-Transport-Security", HSTS);
         cadena.doFilter(rq, rs);
     }
 }
