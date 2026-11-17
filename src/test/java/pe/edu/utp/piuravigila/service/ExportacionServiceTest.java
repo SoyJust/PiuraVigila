@@ -17,7 +17,7 @@ import pe.edu.utp.piuravigila.dao.ReporteDAO;
 import pe.edu.utp.piuravigila.dto.*;
 import pe.edu.utp.piuravigila.model.EstadoReporte;
 
-/** v1.1 · el Excel de gestión (TC-X01 a TC-X04). */
+/** El Excel de gestión (TC-X01 a TC-X04). */
 class ExportacionServiceTest {
     private static final LocalDate D = LocalDate.of(2026, 10, 1), H = D.plusDays(7);
     private DashboardService dashboard;

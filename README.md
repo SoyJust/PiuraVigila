@@ -166,8 +166,7 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 
 ## Limitaciones conocidas
 
-- El "dispositivo" se identifica con una cookie anónima; borrarla reinicia los límites anti-spam. Es una medida simple, no de seguridad.
-- La verificación anti-spam es una suma simple y la cookie se puede borrar; no constituye una protección robusta contra bots.
+- El "dispositivo" se identifica con una cookie anónima y la verificación es una suma simple: borrar la cookie reinicia los límites por dispositivo, y ninguna de las dos frena a un bot decidido.
 - El código `PR-AAAA-####` usa 4 dígitos; pasado el 9999 se truncaría.
 - La foto se guarda en disco antes de confirmar la transacción; si falla la base de datos puede quedar un archivo huérfano.
 - Los límites por IP y las huellas de fotos viven en memoria: se reinician si se reinicia la aplicación y no se comparten entre varios servidores.

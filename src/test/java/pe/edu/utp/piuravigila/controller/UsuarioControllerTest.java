@@ -22,7 +22,7 @@ import pe.edu.utp.piuravigila.model.RolUsuario;
 import pe.edu.utp.piuravigila.model.UsuarioMunicipal;
 import pe.edu.utp.piuravigila.service.UsuarioService;
 
-/** v1.0 · pantallas de usuarios y contraseña (TC-U11 a TC-U15) con MockMvc standalone. */
+/** Pantallas de usuarios y contraseña (TC-U11 a TC-U15) con MockMvc standalone. */
 class UsuarioControllerTest {
     private static final UsuarioMunicipal ADMIN = new UsuarioMunicipal(1, "Administrador", "admin", "h", RolUsuario.ADMINISTRADOR);
     private static final UsuarioMunicipal OPERADOR = new UsuarioMunicipal(2, "Operador", "operador", "h", RolUsuario.OPERADOR);

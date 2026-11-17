@@ -12,7 +12,7 @@ import pe.edu.utp.piuravigila.dao.ReporteDAO;
 import pe.edu.utp.piuravigila.service.FotoStorage;
 
 /**
- * v1.1 · política de retención: la foto es evidencia para atender el caso; cuando el caso lleva más de N días atendido,
+ * Política de retención: la foto es evidencia para atender el caso; cuando el caso lleva más de N días atendido,
  * su foto (y las de sus vinculados) se borra del disco. El registro del caso, su historial y la ruta quedan; el panel
  * muestra «Foto eliminada por antigüedad». Con {@code piuravigila.foto.retencion-dias=0} no se borra nada.
  */

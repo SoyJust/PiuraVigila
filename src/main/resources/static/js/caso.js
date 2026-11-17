@@ -1,4 +1,4 @@
-/* v1.1 · detalle del caso: fotos que ya no existen y mapa con el punto. Sin scripts en línea (CSP). */
+/* Detalle del caso: fotos que ya no existen y mapa con el punto. Sin scripts en línea (CSP). */
 (function () {
   function sinFoto(img) {
     var enlace = img.closest('a') || img;
@@ -11,7 +11,7 @@
     img.addEventListener('error', function () { sinFoto(img); });
   });
 
-  // v1.2 · al elegir «Descartado» el comentario pasa a ser obligatorio (motivo) y se muestra el aviso
+  // Al elegir «Descartado» el comentario pasa a ser obligatorio (motivo) y se muestra el aviso
   var nuevo = document.getElementById('nuevo'), comentario = document.getElementById('comentario');
   if (nuevo && comentario) {
     var aviso = document.getElementById('aviso-descarte'), opcional = document.getElementById('com-opcional');

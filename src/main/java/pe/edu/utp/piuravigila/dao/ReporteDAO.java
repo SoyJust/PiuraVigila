@@ -8,7 +8,7 @@ import pe.edu.utp.piuravigila.model.*;
 
 public interface ReporteDAO {
     /**
-     * v1.1 · bloqueo de la transacción actual sobre una clave (dispositivo o categoría+zona): dos peticiones simultáneas
+     * Bloqueo de la transacción actual sobre una clave (dispositivo o categoría+zona): dos peticiones simultáneas
      * con la misma clave se atienden una después de otra, así la segunda ve lo que guardó la primera.
      */
     default void bloquear(String clave) { }
@@ -34,10 +34,10 @@ public interface ReporteDAO {
     double porcentajeActualizados(LocalDateTime desde, LocalDateTime hasta);
     /** Reportes del periodo con ubicación marcada (incluye vinculados), para el mapa de P04. */
     default List<PuntoReporte> puntosPeriodo(LocalDateTime desde, LocalDateTime hasta) { return List.of(); }
-    /** v1.1 · reportes vinculados a un caso (detalle del caso). */
+    /** Reportes vinculados a un caso (detalle del caso). */
     default List<Reporte> listarVinculados(int casoId) { return List.of(); }
-    /** v1.1 · casos originales del periodo con nombres y fechas, para la hoja «Casos» del Excel. */
+    /** Casos originales del periodo con nombres y fechas, para la hoja «Casos» del Excel. */
     default List<FilaExportacion> casosParaExportar(LocalDateTime desde, LocalDateTime hasta) { return List.of(); }
-    /** v1.1 · fotos (caso y vinculados) de casos cerrados (atendidos o descartados, v1.2) antes de la fecha límite: retención. */
+    /** Fotos (caso y vinculados) de casos cerrados (atendidos o descartados) antes de la fecha límite: retención. */
     default List<String> fotosDeCasosAtendidosAntesDe(LocalDateTime limite) { return List.of(); }
 }

@@ -21,12 +21,12 @@ public class ReporteController {
     private static final String COOKIE = "pv_dispositivo";
     private static final Pattern FORMATO_DISPOSITIVO = Pattern.compile("^[A-Za-z0-9-]{8,64}$");
     /**
-     * v1.1 · como máximo 20 envíos cada 10 minutos desde una misma IP. Es holgado a propósito: muchas personas pueden
+     * Como máximo 20 envíos cada 10 minutos desde una misma IP. Es holgado a propósito: muchas personas pueden
      * compartir una IP (wifi de un colegio, datos móviles con CGNAT); el límite fino es el de 60 s y 3/día por dispositivo.
      */
     static final int MAX_ENVIOS_IP = 20;
     static final java.time.Duration VENTANA_IP = java.time.Duration.ofMinutes(10);
-    /** v1.1 · como máximo 60 consultas de código cada 10 minutos por IP: frena a quien prueba códigos uno por uno. */
+    /** Como máximo 60 consultas de código cada 10 minutos por IP: frena a quien prueba códigos uno por uno. */
     static final int MAX_CONSULTAS_IP = 60;
     private final ReporteService service;
     private final pe.edu.utp.piuravigila.service.LimitadorIntentos limitador;
@@ -40,7 +40,7 @@ public class ReporteController {
         this.service = service; this.limitador = limitador;
     }
 
-    /** v1.0 · página de inicio: qué es PiuraVigila, cómo funciona y cifras públicas agregadas (sin datos personales). */
+    /** Página de inicio: qué es PiuraVigila, cómo funciona y cifras públicas agregadas (sin datos personales). */
     @GetMapping("/")
     public String inicio(Model m) {
         int recibidos = service.totalCasos(null, null, EstadoReporte.RECIBIDO);
@@ -48,7 +48,7 @@ public class ReporteController {
         int atendidos = service.totalCasos(null, null, EstadoReporte.ATENDIDO);
         int descartados = service.totalCasos(null, null, EstadoReporte.DESCARTADO);
         int total = recibidos + enProceso + atendidos + descartados;
-        int validos = total - descartados; // v1.2 · el % resuelto no cuenta los reportes descartados
+        int validos = total - descartados; // El % resuelto no cuenta los reportes descartados
         m.addAttribute("total", total);
         m.addAttribute("atendidos", atendidos);
         m.addAttribute("enAtencion", recibidos + enProceso);

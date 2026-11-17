@@ -9,6 +9,6 @@ public interface HistorialEstadoDAO {
     List<HistorialEstado> listarPorReporte(int reporteId);
     Optional<LocalDateTime> ultimaActualizacion(int reporteId);
     List<TiempoCategoria> tiempoPromedio(LocalDateTime desde, LocalDateTime hasta);
-    /** v1.1 · historial con el nombre del responsable, para el detalle del caso (solo personal). */
+    /** Historial con el nombre del responsable, para el detalle del caso (solo personal). */
     default List<MovimientoCaso> listarDetalle(int reporteId) { return List.of(); }
 }

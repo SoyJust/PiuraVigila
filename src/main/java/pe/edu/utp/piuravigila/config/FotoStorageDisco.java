@@ -29,7 +29,7 @@ import pe.edu.utp.piuravigila.service.FotoStorage;
 /**
  * Guarda la foto en disco con nombre aleatorio (nunca el nombre enviado por el usuario).
  *
- * <p>v1.1 · para no gastar disco ni exponer datos personales, la foto <strong>no se guarda tal cual</strong>: se vuelve a
+ * <p>Para no gastar disco ni exponer datos personales, la foto <strong>no se guarda tal cual</strong>: se vuelve a
  * codificar como JPEG de 1600 px como máximo en su lado mayor (una foto de celular de 2 MB queda en unos 200 a 400 KB),
  * se endereza según la orientación EXIF y se descartan los metadatos (EXIF puede traer la ubicación GPS de la casa
  * del vecino y el modelo del teléfono). También rechaza el mismo archivo exacto enviado otra vez en las últimas 24 h.</p>

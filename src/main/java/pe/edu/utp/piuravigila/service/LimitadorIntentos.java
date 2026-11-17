@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 
 /**
- * v1.1 · límite de intentos en memoria por clave (por ejemplo «ip:203.0.113.5» o «login:admin») con ventana deslizante.
+ * Límite de intentos en memoria por clave (por ejemplo «ip:203.0.113.5» o «login:admin») con ventana deslizante.
  * Complementa al control por dispositivo: quien borra la cookie obtiene un «dispositivo» nuevo, pero no una IP nueva.
  * Limitaciones (documentadas): se reinicia si la aplicación se reinicia y no se comparte entre varios servidores; varias
  * personas detrás de la misma IP (datos móviles con CGNAT, una oficina) comparten el límite, por eso es holgado.

@@ -24,7 +24,7 @@ public class AuthService {
         if (usuario == null || usuario.isBlank() || clave == null || clave.isEmpty()) return Optional.empty();
         Optional<UsuarioMunicipal> u = usuarioDAO.buscarPorUsuario(usuario.trim())
                 .filter(x -> hash.coincide(clave, x.contrasenaHash()))
-                .filter(UsuarioMunicipal::activo); // v1.0: una cuenta desactivada no inicia sesión
+                .filter(UsuarioMunicipal::activo); // Una cuenta desactivada no inicia sesión
         if (u.isEmpty()) LOG.warn("Inicio de sesión fallido usuario={}", usuario.trim());
         else LOG.info("Inicio de sesión usuarioId={}", u.get().usuarioId());
         return u;
