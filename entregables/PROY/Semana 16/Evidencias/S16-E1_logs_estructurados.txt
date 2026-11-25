@@ -1,0 +1,24 @@
+S16-E1 · Logs estructurados con niveles (despliegue v1.4.0, C:\PiuraVigila-deploy\logs)
+
+== Archivos
+  379 bytes  errores.log
+  9933 bytes  piuravigila.json
+  8257 bytes  piuravigila.log
+
+== piuravigila.log · eventos de la aplicación (INFO y WARN)
+2026-11-24T19:22:16.981-05:00  INFO 17476 --- [piuravigila] [main] p.e.u.p.app.PiuraVigilaApplication       : Started PiuraVigilaApplication in 3.835 seconds (process running for 4.433)
+2026-11-24T19:26:26.772-05:00  INFO 5844 --- [piuravigila] [main] p.e.u.p.app.PiuraVigilaApplication       : Started PiuraVigilaApplication in 5.785 seconds (process running for 6.424)
+2026-11-24T19:27:03.429-05:00  WARN 5844 --- [piuravigila] [https-jsse-nio-8443-exec-2] p.e.utp.piuravigila.service.AuthService  : Inicio de sesión fallido usuario=prueba-monitoreo
+2026-11-24T19:27:03.828-05:00  WARN 5844 --- [piuravigila] [https-jsse-nio-8443-exec-6] p.e.u.p.service.ReporteService           : Reporte rechazado por anti-spam motivo=Verificación incorrecta
+2026-11-24T19:32:10.924-05:00  INFO 12452 --- [piuravigila] [main] p.e.u.p.app.PiuraVigilaApplication       : Started PiuraVigilaApplication in 7.261 seconds (process running for 8.145)
+
+== errores.log · solo WARN y ERROR
+2026-11-24T19:27:03.429-05:00  WARN 5844 --- [piuravigila] [https-jsse-nio-8443-exec-2] p.e.utp.piuravigila.service.AuthService  : Inicio de sesión fallido usuario=prueba-monitoreo
+2026-11-24T19:27:03.828-05:00  WARN 5844 --- [piuravigila] [https-jsse-nio-8443-exec-6] p.e.u.p.service.ReporteService           : Reporte rechazado por anti-spam motivo=Verificación incorrecta
+
+== piuravigila.json · el mismo evento en JSON (ECS)
+{"@timestamp":"2026-11-25T00:27:03.429098200Z","log":{"level":"WARN","logger":"pe.edu.utp.piuravigila.service.AuthService"},"process":{"pid":5844,"thread":{"name":"https-jsse-nio-8443-exec-2"}},"service":{"name":"piuravigila","version":"1.4.0","node":{}},"message":"Inicio de sesión fallido usuario=prueba-monitoreo","ecs":{"version":"8.11"}}
+
+== Conteo por nivel en piuravigila.json
+     26 "level":"INFO"
+      2 "level":"WARN"

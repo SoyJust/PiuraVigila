@@ -1,0 +1,25 @@
+﻿S17-E1 · Tareas programadas (Programador de tareas de Windows, equivalente a cron)
+Consulta: schtasks /query /tn "PiuraVigila\" /v
+
+Tarea:            PiuraVigila\Monitoreo
+Programa:         Solo una vez, Minuto 19:27:00 N/A 0 hora(s), 5 minuto(s)
+Acción:           powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File <scripts>\monitorear.ps1
+Estado:           Listo
+Última ejecución: 24/11/2026 19:37:01  (resultado 0; 0 = correcto)
+Próxima:          24/11/2026 19:42:00
+
+Tarea:            PiuraVigila\Backup diario
+Programa:         Diariamente 02:00:00 Cada 1 día(s) Deshabilitado
+Acción:           powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File <scripts>\respaldar.ps1
+Estado:           Listo
+Última ejecución: 24/11/2026 19:27:47  (resultado 0; 0 = correcto)
+Próxima:          25/11/2026 02:00:00
+
+Tarea:            PiuraVigila\Limpieza semanal
+Programa:         Semanal 03:00:00 SUN Deshabilitado
+Acción:           powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File <scripts>\limpiar.ps1
+Estado:           Listo
+Última ejecución: todavía no se ejecuta  (resultado 267011; 0 = correcto)
+Próxima:          29/11/2026 03:00:00
+
+Nota: 267011 significa que la tarea todavía no se ha ejecutado (la limpieza corre los domingos; se probó a mano, ver S17-E3).

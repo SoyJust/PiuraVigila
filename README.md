@@ -1,6 +1,6 @@
 # PiuraVigila
 
-Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basura, etc.) y que el personal municipal las gestione. Proyecto Integrador · UTP · Curso Integrador I: Sistemas - Software (2026-2). Incluye los avances APF1 a APF3 y el proyecto final (pruebas de software, pruebas de seguridad, versiones v1.0 a v1.2 y despliegue de la v1.3.0).
+Portal web para reportar incidencias urbanas en Piura (baches, luminarias, basura, etc.) y que el personal municipal las gestione. Proyecto Integrador · UTP · Curso Integrador I: Sistemas - Software (2026-2). Incluye los avances APF1 a APF3 y el proyecto final (pruebas de software, pruebas de seguridad, versiones v1.0 a v1.2, despliegue, monitoreo y mantenimiento de la v1.4.0).
 
 ## Tecnologías
 
@@ -150,10 +150,24 @@ $env:PGPASSWORD = "<clave de postgres>"; .\deploy\windows\preparar_bd.ps1 -ConDe
 
 Registro del despliegue de la Semana 15 en `entregables/PROY/Semana 15`.
 
+## Monitoreo y mantenimiento
+
+| Qué | Cómo |
+|---|---|
+| Logs con niveles | `logs/piuravigila.log` (texto), `logs/piuravigila.json` (JSON ECS) y `logs/errores.log` (solo WARN y ERROR); rotación diaria, 30 días (`logback-spring.xml`) |
+| Salud | `/actuator/health`, `/actuator/health/db`, `/actuator/info` |
+| Rendimiento | Métricas por JMX (memoria, CPU, hilos, `http.server.requests`, pool de BD) con JConsole o VisualVM; `jcmd`/`jstat` |
+| Monitoreo automático | `deploy/windows/monitorear.ps1` cada 5 min: fila en `logs/monitoreo.csv`, alertas en `logs/alertas.log` y reinicio si la aplicación cae |
+| Backups | `deploy/windows/respaldar.ps1` diario a las 02:00: `pg_dump` + fotos, conserva 7; `restaurar.ps1` para probar o recuperar |
+| Limpieza | `deploy/windows/limpiar.ps1` los domingos: logs viejos y builds anteriores |
+| Tareas programadas | `deploy/windows/programar_tareas.ps1` las registra en el Programador de tareas de Windows (equivalente a cron) |
+
+Plan de monitoreo en `entregables/PROY/Semana 16` y procedimientos de mantenimiento en `entregables/PROY/Semana 17`.
+
 ## Pruebas
 
 ```powershell
-mvn test                     # 121 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
+mvn test                     # 124 pruebas unitarias + cobertura JaCoCo en target/site/jacoco/index.html
 ```
 
 Las pruebas unitarias cubren validación de reportes, control anti-spam, almacenamiento de fotos y los servicios, incluida la línea de tiempo de la consulta de estado y la gestión de usuarios (`UsuarioServiceTest`, con DAOs simulados). Los controladores se prueban con MockMvc: el panel (sesión, token CSRF, rol de administrador y R02) en `PanelControllerTest`, y el formulario público y la consulta en `ReporteControllerTest`.
@@ -182,7 +196,7 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 - Gestión de usuarios (administrador): crear cuentas, activarlas o desactivarlas y restablecer contraseñas. Cada usuario cambia su propia contraseña. Una cuenta desactivada pierde de inmediato la sesión que tuviera abierta.
 - Dashboard: reportes por zona, tiempo de atención por categoría (R02, solo administrador) y resumen de gestión.
 - Mapa de zonas críticas (P04) para 7 días, mes, 3 meses y año: cuadrícula con el conteo por zona y mapa con cada reporte ubicado, coloreado por estado. Lo ven operador y administrador.
-- Registro de eventos en `logs/piuravigila.log`.
+- Registro de eventos con niveles en tres archivos (texto, JSON y solo advertencias y errores), monitoreo cada 5 minutos, backups diarios y limpieza semanal automáticos.
 
 ## Limitaciones conocidas
 
@@ -205,7 +219,7 @@ El CI de GitHub (`.github/workflows/pruebas.yml`) levanta un PostgreSQL desechab
 - Fotos decodificadas antes de guardarse (contenido y extensión deben coincidir, solo JPG/PNG), con nombre aleatorio y huella SHA-256 en el log.
 - Consultas parametrizadas con `JdbcTemplate`; coordenadas NaN o infinitas rechazadas en el servidor.
 - `/panel/exportar` exige sesión, rechaza periodos inválidos y responde con `Cache-Control: no-store`.
-- El log (`logs/piuravigila.log`) no registra contraseñas ni el contenido de las fotos.
+- Los logs no registran contraseñas, tokens ni el contenido de las fotos.
 - Dependencias con versiones parche fijadas en el `pom.xml`; `mvn -Psecurity-sca verify` ejecuta OWASP Dependency-Check (requiere `NVD_API_KEY`).
 
 Reporte, hallazgos y evidencias en `entregables/PROY/Semana 14`.
@@ -223,6 +237,8 @@ Reporte, hallazgos y evidencias en `entregables/PROY/Semana 14`.
 | PROY · Acabado v1.1 | 14 | `entregables/PROY/Acabado v1.1` | Detalle del caso con fotos, Excel completo, concurrencia y anti-spam corregidos, respuestas a las preguntas del docente |
 | PROY · Acabado v1.2 | 14 | `entregables/PROY/Acabado v1.2` | Estado «Descartado» con motivo obligatorio |
 | PROY · Semana 15 | 15 | `entregables/PROY/Semana 15` | Despliegue (80 %): v1.3.0 como JAR con HTTPS, health checks, PostgreSQL, logs, ZAP pasivo, plantilla y plan de migración a Spring Boot 4 |
+| PROY · Semana 16 | 16 | `entregables/PROY/Semana 16` | Monitoreo (90 %): logs estructurados con niveles, métricas JMX, monitoreo automático, plan de monitoreo y evidencias |
+| PROY · Semana 17 | 17 | `entregables/PROY/Semana 17` | Mantenimiento (100 %): tareas programadas, backups con restauración probada, limpieza, procedimientos y evidencias |
 
 Cada carpeta tiene su guía (`LEEME.txt` en APF1–APF3, `LEEME_*.md` en PROY) con el contenido y las correcciones.
 

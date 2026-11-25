@@ -1,0 +1,9 @@
+S17-E3 · Registro de mantenimiento (logs\mantenimiento.log): backups, restauración y limpieza
+
+﻿2026-11-24 19:22:44  INFO   backup  Backup 20261124_192242 creado: 55 objetos de BD, 76 fotos, 4.62 MB.
+2026-11-24 19:22:54  INFO   restaurar  Backup 20261124_192242 restaurado en piuravigila_restauracion (76 reportes, 2 usuarios, 147 movimientos).
+2026-11-24 19:22:55  INFO   restaurar  Fotos restauradas en C:\PiuraVigila-deploy\restauracion\fotos (76 archivos).
+2026-11-24 19:23:03  INFO   limpieza  Logs con más de 30 días eliminados: 0 (0 MB).
+2026-11-24 19:23:03  INFO   limpieza  Carpetas de build anteriores eliminadas: 0 (se conserva v1.3.0).
+2026-11-24 19:23:03  INFO   limpieza  Espacio libre en disco: 43 GB (18.2 %).
+2026-11-24 19:27:50  INFO   backup  Backup 20261124_192748 creado: 55 objetos de BD, 76 fotos, 4.62 MB.
