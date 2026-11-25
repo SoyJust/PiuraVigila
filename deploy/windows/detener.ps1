@@ -7,3 +7,5 @@ $proceso = Get-Process -Id $id -ErrorAction SilentlyContinue
 if ($proceso) { Stop-Process -Id $id; Write-Output "PiuraVigila detenido (PID $id)." }
 else { Write-Output "El proceso $id ya no estaba en ejecución." }
 Remove-Item $pidFile
+# El monitoreo no reinicia una aplicación detenida a propósito; iniciar.ps1 quita esta marca.
+Set-Content (Join-Path $Base "app\detenido.flag") (Get-Date -Format s)

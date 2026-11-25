@@ -8,6 +8,7 @@ if (Test-Path $pidFile) {
     $anterior = Get-Process -Id (Get-Content $pidFile) -ErrorAction SilentlyContinue
     if ($anterior) { Write-Output "PiuraVigila ya está en ejecución (PID $($anterior.Id))."; exit 0 }
 }
+Remove-Item (Join-Path $Base "app\detenido.flag") -ErrorAction SilentlyContinue
 $java = Join-Path $env:JAVA_HOME "bin\java.exe"
 $proceso = Start-Process -FilePath $java -WorkingDirectory $Base -WindowStyle Hidden -PassThru `
     -ArgumentList "-jar", "`"$Base\app\piuravigila.jar`"", "--spring.profiles.active=prod" `

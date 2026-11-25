@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Semana 16 · logs estructurados con niveles.
+  - piuravigila.log  : texto legible (fecha, nivel, hilo, clase, mensaje), todos los niveles desde INFO.
+  - piuravigila.json : el mismo evento en JSON (formato ECS), una línea por evento, para filtrar y contar.
+  - errores.log      : solo WARN y ERROR, para revisar incidentes sin ruido.
+  Rotación diaria o al llegar a 10 MB; se conservan 30 días (máximo 300 MB por archivo).
+-->
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+  <springProperty scope="context" name="DIR" source="piuravigila.log.directorio" defaultValue="logs"/>
+  <springProperty scope="context" name="APP" source="spring.application.name" defaultValue="piuravigila"/>
+
+  <appender name="TEXTO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${DIR}/piuravigila.log</file>
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${DIR}/archivo/piuravigila.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxFileSize>10MB</maxFileSize>
+      <maxHistory>30</maxHistory>
+      <totalSizeCap>300MB</totalSizeCap>
+    </rollingPolicy>
+  </appender>
+
+  <appender name="JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${DIR}/piuravigila.json</file>
+    <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">
+      <format>ecs</format>
+      <charset>UTF-8</charset>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${DIR}/archivo/piuravigila.%d{yyyy-MM-dd}.%i.json.gz</fileNamePattern>
+      <maxFileSize>10MB</maxFileSize>
+      <maxHistory>30</maxHistory>
+      <totalSizeCap>300MB</totalSizeCap>
+    </rollingPolicy>
+  </appender>
+
+  <appender name="ERRORES" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${DIR}/errores.log</file>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>WARN</level>
+    </filter>
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${DIR}/archivo/errores.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxFileSize>10MB</maxFileSize>
+      <maxHistory>90</maxHistory>
+      <totalSizeCap>100MB</totalSizeCap>
+    </rollingPolicy>
+  </appender>
+
+  <!-- Niveles: la aplicación registra sus eventos en INFO; WARN para rechazos y bloqueos; ERROR para fallos. -->
+  <logger name="pe.edu.utp.piuravigila" level="INFO"/>
+  <logger name="org.apache.catalina" level="WARN"/>
+  <logger name="com.zaxxer.hikari" level="INFO"/>
+
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="TEXTO"/>
+    <appender-ref ref="JSON"/>
+    <appender-ref ref="ERRORES"/>
+  </root>
+</configuration>
