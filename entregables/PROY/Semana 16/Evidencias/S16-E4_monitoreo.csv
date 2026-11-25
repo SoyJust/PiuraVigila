@@ -1,0 +1,6 @@
+﻿fecha,app,bd,http_inicio,respuesta_ms,cpu_pct,memoria_mb,memoria_pct,disco_libre_pct,errores_5min,accion
+2026-11-24 19:22:11,SIN_RESPUESTA,SIN_RESPUESTA,0,12,,,,18.2,0,reinicio automático
+2026-11-24 19:22:32,UP,UP,200,389,0,238,3,18.2,0,ninguna
+2026-11-24 19:27:48,UP,UP,200,40,0,245,3.1,18.1,0,ninguna
+2026-11-24 19:32:02,SIN_RESPUESTA,SIN_RESPUESTA,0,15,,,,18.1,0,reinicio automático
+2026-11-24 19:37:03,UP,UP,200,1226,0.4,164,2.1,18.1,0,ninguna

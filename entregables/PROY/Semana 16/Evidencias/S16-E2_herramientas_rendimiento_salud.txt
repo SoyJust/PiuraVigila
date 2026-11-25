@@ -1,0 +1,51 @@
+S16-E2 · Herramientas de rendimiento y salud
+
+== Actuator (HTTPS)
+  /actuator/health     {"status":"UP","groups":["db"]}
+  /actuator/health/db  {"status":"UP"}
+  /actuator/info       {"git":{"branch":"c99fa58d5aae02c1f21eb8a164c8ec7ca89aaa1d","commit":{"id":"c99fa58","time":"2026-11-25T00:25:36Z"}},"build":{"artifact":"piuravigila","name":"PiuraVigila","time":"2026-11-25T00:25:57Z","version":"1.4.0","group":"pe.edu.utp"}}
+
+== Proceso Java desplegado (jcmd del JDK)
+  java.vm.version=21.0.13+9-LTS
+  sun.java.command=C\:\\PiuraVigila-deploy\\app\\piuravigila.jar --spring.profiles.active\=prod
+  12452:
+  373.700 s
+
+== jcmd GC.heap_info (memoria del proceso Java)
+  12452:
+   garbage-first heap   total 66560K, used 40311K [0x0000000083200000, 0x0000000100000000)
+    region size 1024K, 14 young (14336K), 4 survivors (4096K)
+   Metaspace       used 56119K, committed 56960K, reserved 1114112K
+    class space    used 7158K, committed 7552K, reserved 1048576K
+
+== jstat -gcutil (5 muestras, 1 s)
+    S0     S1     E      O      M     CCS    YGC     YGCT     FGC    FGCT     CGC    CGCT       GCT   
+       -  98.74  29.03  86.39  98.52  95.09     18     0.235     0     0.000     4     0.007     0.242
+       -  98.74  29.03  86.39  98.52  95.09     18     0.235     0     0.000     4     0.007     0.242
+       -  98.74  29.03  86.39  98.52  95.09     18     0.235     0     0.000     4     0.007     0.242
+       -  98.74  29.03  86.39  98.52  95.09     18     0.235     0     0.000     4     0.007     0.242
+       -  98.74  29.03  86.39  98.52  95.09     18     0.235     0     0.000     4     0.007     0.242
+
+== Hilos activos
+  57 hilos
+
+== Métricas por JMX (lo mismo que muestra JConsole en MBeans > org.springframework.boot > Endpoint > Metrics)
+Comando: java --add-modules jdk.attach deploy\MetricasJmx.java 12452
+  MBeans de Actuator:
+    org.springframework.boot:type=Endpoint,name=Health
+    org.springframework.boot:type=Endpoint,name=Metrics
+    org.springframework.boot:type=Endpoint,name=Info
+  
+  Métricas disponibles: 60
+  
+  Métricas clave (valor actual):
+    jvm.memory.used [bytes]: [{statistic=VALUE, value=1.34208424E8}]
+    jvm.memory.max [bytes]: [{statistic=VALUE, value=3.420454909E9}]
+    process.cpu.usage [null]: [{statistic=VALUE, value=0.0011207942693084417}]
+    system.cpu.usage [null]: [{statistic=VALUE, value=0.0834358395048852}]
+    jvm.threads.live [threads]: [{statistic=VALUE, value=42.0}]
+    http.server.requests [seconds]: [{statistic=COUNT, value=8.0}, {statistic=TOTAL_TIME, value=1.5473461}, {statistic=MAX, value=1.1751928}]
+    hikaricp.connections.active [null]: [{statistic=VALUE, value=0.0}]
+    hikaricp.connections.max [null]: [{statistic=VALUE, value=10.0}]
+    process.uptime [seconds]: [{statistic=VALUE, value=428.957}]
+    disk.free [bytes]: [{statistic=VALUE, value=4.6049943552E10}]
