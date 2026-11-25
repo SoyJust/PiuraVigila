@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import pe.edu.utp.piuravigila.service.ReporteService;
 /** Pantallas del ciudadano: P01 (registrar) y P02 (consultar). El Controller coordina; las reglas viven en el Service. */
 @Controller
 public class ReporteController {
+    private static final Logger LOG = LoggerFactory.getLogger(ReporteController.class);
     private static final String COOKIE = "pv_dispositivo";
     private static final Pattern FORMATO_DISPOSITIVO = Pattern.compile("^[A-Za-z0-9-]{8,64}$");
     /**
@@ -75,6 +78,7 @@ public class ReporteController {
             return vistaFormulario(m, s, "Solicitud no válida. Vuelve a enviar el formulario.", categoriaId, zonaId, descripcion);
         }
         if (limitador.registrarYExcede("envio-ip:" + rq.getRemoteAddr(), MAX_ENVIOS_IP, VENTANA_IP)) {
+            LOG.warn("Límite de envíos por IP superado ip={} max={}", rq.getRemoteAddr(), MAX_ENVIOS_IP);
             rs.setStatus(429);
             return vistaFormulario(m, s, "Demasiados envíos desde esta conexión. Intenta de nuevo en unos minutos.", categoriaId, zonaId, descripcion);
         }
@@ -115,6 +119,7 @@ public class ReporteController {
         m.addAttribute("codigo", codigo == null ? "" : codigo);
         if (codigo != null && !codigo.isBlank()
                 && limitador.registrarYExcede("consulta-ip:" + rq.getRemoteAddr(), MAX_CONSULTAS_IP, VENTANA_IP)) {
+            LOG.warn("Límite de consultas por IP superado ip={} max={}", rq.getRemoteAddr(), MAX_CONSULTAS_IP);
             rs.setStatus(429);
             m.addAttribute("error", "Demasiadas consultas seguidas desde esta conexión. Espera unos minutos.");
             return "consultar";

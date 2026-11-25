@@ -3,6 +3,8 @@ package pe.edu.utp.piuravigila.controller;
 import jakarta.servlet.http.*;
 import java.time.*;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +17,7 @@ import pe.edu.utp.piuravigila.service.*;
 /** P03 · panel municipal (RF-03, RF-07, RNF-01), resumen R01 a R03 (sin fotos) y P04 · mapa de zonas críticas (RF-04). Sesión del servidor. */
 @Controller
 public class PanelController {
+    private static final Logger LOG = LoggerFactory.getLogger(PanelController.class);
     private static final String SESION = "usuario";
     private final AuthService auth;
     private final ReporteService reportes;
@@ -51,6 +54,7 @@ public class PanelController {
                           HttpServletRequest rq, HttpServletResponse rs, Model m) {
         HttpSession s = rq.getSession(); // crea la sesión si aún no existe: changeSessionId() la exige
         if (!Csrf.valido(s, csrf)) { // SEC-06: sin token válido no se intenta autenticar (login CSRF)
+            LOG.warn("Inicio de sesión rechazado: token CSRF inválido ip={}", rq.getRemoteAddr());
             rs.setStatus(HttpServletResponse.SC_FORBIDDEN);
             m.addAttribute("error", "Solicitud no válida. Vuelve a cargar la página de inicio de sesión.");
             m.addAttribute("csrf", Csrf.token(s));
@@ -60,6 +64,7 @@ public class PanelController {
         if (limitador.bloqueado(claveUsuario, MAX_FALLOS_USUARIO, VENTANA_LOGIN) || limitador.bloqueado(claveIp, MAX_FALLOS_IP, VENTANA_LOGIN)) {
             long seg = Math.max(limitador.segundosParaLiberar(claveUsuario, MAX_FALLOS_USUARIO, VENTANA_LOGIN),
                     limitador.segundosParaLiberar(claveIp, MAX_FALLOS_IP, VENTANA_LOGIN));
+            LOG.warn("Inicio de sesión bloqueado por intentos fallidos usuario={} ip={} segundos={}", usuario.trim(), rq.getRemoteAddr(), seg);
             rs.setStatus(429);
             m.addAttribute("error", "Demasiados intentos fallidos. Espera " + Math.max(1, (seg + 59) / 60) + " min antes de volver a intentarlo.");
             m.addAttribute("csrf", Csrf.token(s));
@@ -80,7 +85,10 @@ public class PanelController {
 
     @PostMapping("/logout")
     public String salir(@RequestParam(name = "_csrf", required = false) String csrf, HttpSession s) {
-        if (Csrf.valido(s, csrf)) s.invalidate();
+        if (Csrf.valido(s, csrf)) {
+            if (s.getAttribute(SESION) instanceof UsuarioMunicipal u) LOG.info("Cierre de sesión usuarioId={}", u.usuarioId());
+            s.invalidate();
+        }
         return "redirect:/login";
     }
 

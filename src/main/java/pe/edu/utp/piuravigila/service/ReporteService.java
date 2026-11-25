@@ -47,13 +47,17 @@ public class ReporteService {
     @Transactional
     public ResultadoRegistro registrarReporte(DatosReporte d) {
         ResultadoControl v = validador.validar(d);
-        if (!v.permitido()) return ResultadoRegistro.rechazado(v.mensaje(), false);
+        if (!v.permitido()) {
+            LOG.info("Reporte rechazado por validación motivo={}", v.mensaje());
+            return ResultadoRegistro.rechazado(v.mensaje(), false);
+        }
         // Envíos simultáneos del mismo dispositivo: se atienden en fila (si no, todos pasaban el control de 60 s).
         reporteDAO.bloquear("dispositivo:" + d.dispositivoId());
 
         ResultadoControl c = antiSpam.validar(d.dispositivoId(), d.respuestaSuma(), d.sumaEsperada());
         if (!c.permitido()) {
             String msg = c.segundosFaltan() > 0 ? c.mensaje() + ": faltan " + c.segundosFaltan() + " s" : c.mensaje();
+            LOG.warn("Reporte rechazado por anti-spam motivo={}", c.mensaje());
             return ResultadoRegistro.rechazado(msg, c.regenerarSuma());
         }
         if (categoriaDAO.buscarPorId(d.categoriaId()).filter(Categoria::estaActiva).isEmpty()
