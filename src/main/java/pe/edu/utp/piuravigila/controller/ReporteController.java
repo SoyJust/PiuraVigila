@@ -94,8 +94,15 @@ public class ReporteController {
             s.setAttribute("pendiente", d);
             s.setAttribute("casoId", r.casoExistente().reporteId());
             m.addAttribute("csrf", Csrf.token(s));
-            m.addAttribute("caso", r.casoExistente());
+            Reporte caso = r.casoExistente();
+            m.addAttribute("caso", caso);
             m.addAttribute("categorias", nombresCategoria());
+            // Para decidir sin ver la foto de otro vecino (privacidad): ubicación, fecha y cuántos lo reportaron.
+            m.addAttribute("vecinos", service.vecinosEnCaso(caso.reporteId()));
+            m.addAttribute("zonaNombre", service.zonas().stream().filter(z -> z.zonaId() == caso.zonaId())
+                    .map(Zona::nombre).findFirst().orElse(""));
+            m.addAttribute("miLat", lat);
+            m.addAttribute("miLng", lng);
             return "duplicado";
         }
         return resultado(r, m, s, categoriaId, zonaId, descripcion);

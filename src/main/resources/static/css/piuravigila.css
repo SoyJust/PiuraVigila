@@ -325,6 +325,8 @@ main.sin-margen .portada{margin-top:0}
 .foto-caso figcaption{font-size:.88rem;margin-top:.4rem}
 .sin-foto{display:grid;place-items:center;min-height:12rem;background:var(--campo);border:1px dashed var(--bd);border-radius:var(--r);color:var(--mut);text-align:center;padding:1rem;margin:0}
 .sin-foto[hidden]{display:none}
+.ubicacion-duplicado{margin:1.2rem 0}.ubicacion-duplicado h2{font-size:1.1rem;margin:0 0 .6rem}
+.p-caso{background:#b3261e}.p-tuyo{background:#2f5d8a}
 .mapa-caso{height:220px;border:1px solid var(--bd);border-radius:var(--r);z-index:0}
 .detalle-rejilla{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:start}
 @media (max-width:820px){.detalle-rejilla{grid-template-columns:1fr}}

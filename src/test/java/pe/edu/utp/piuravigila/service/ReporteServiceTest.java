@@ -86,6 +86,14 @@ class ReporteServiceTest {
         assertEquals(1, f.reportes.contarVinculados(caso.reporteId()));
     }
 
+    @Test void vecinos_en_caso_cuenta_al_autor_y_a_los_vinculados() {
+        Fx f = new Fx();
+        Reporte caso = f.reportes.caso(1, 1, EstadoReporte.RECIBIDO);
+        assertEquals(1, f.service.vecinosEnCaso(caso.reporteId()));
+        f.service.responderDuplicado(valido(1, 1), true, caso.reporteId());
+        assertEquals(2, f.service.vecinosEnCaso(caso.reporteId()));
+    }
+
     @Test void responder_no_crea_un_caso_nuevo() {
         Fx f = new Fx();
         Reporte caso = f.reportes.caso(1, 1, EstadoReporte.RECIBIDO);

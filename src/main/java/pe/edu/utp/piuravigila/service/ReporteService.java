@@ -188,6 +188,9 @@ public class ReporteService {
         return reporteDAO.contarCasos(zonaId, categoriaId, estado);
     }
 
+    /** Pantalla de duplicado: quien abrió el caso más los reportes ya vinculados. */
+    public int vecinosEnCaso(int casoId) { return 1 + reporteDAO.contarVinculados(casoId); }
+
     public List<Categoria> categoriasActivas() { return categoriaDAO.listarActivas(); }
     public List<Zona> zonas() { return zonaDAO.listar(); }
 
