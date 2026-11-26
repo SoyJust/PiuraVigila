@@ -73,9 +73,11 @@ class ReporteControllerTest {
     @Test @DisplayName("TC-P01-02 · caso abierto: pregunta al ciudadano y guarda el reporte pendiente en la sesión")
     void caso_abierto_pide_confirmacion() throws Exception {
         when(servicio.registrarReporte(any())).thenReturn(ResultadoRegistro.duplicado(casoAbierto));
+        when(servicio.vecinosEnCaso(7)).thenReturn(3);
 
         enviar().andExpect(view().name("duplicado")).andExpect(model().attribute("caso", casoAbierto))
-                .andExpect(model().attributeExists("csrf"));
+                .andExpect(model().attributeExists("csrf"))
+                .andExpect(model().attribute("vecinos", 3)).andExpect(model().attribute("zonaNombre", "Piura"));
         assertNotNull(sesion.getAttribute("pendiente"));
         assertEquals(7, sesion.getAttribute("casoId"));
     }
